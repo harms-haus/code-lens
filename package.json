@@ -1,6 +1,6 @@
 {
   "name": "@harms-haus/code-lens",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "LSP-powered CLI tool for code intelligence — diagnostics, references, definitions, and more",
   "type": "module",
   "bin": {
@@ -20,8 +20,12 @@
       "types": "./dist/lib-lsp.d.ts"
     }
   },
-  "files": ["dist/"],
-  "engines": { "node": ">=20.0.0" },
+  "files": [
+    "dist/"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "build": "tsup",
     "lint": "eslint src/",
@@ -34,7 +38,12 @@
     "format:check": "prettier --check 'src/**/*.ts'",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["lsp", "language-server", "cli", "code-intelligence"],
+  "keywords": [
+    "lsp",
+    "language-server",
+    "cli",
+    "code-intelligence"
+  ],
   "license": "MIT",
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
