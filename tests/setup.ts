@@ -7,3 +7,20 @@ vi.mock("node:child_process", () => ({
   execSync: vi.fn(),
   execFileSync: vi.fn(),
 }));
+
+vi.mock("node:net", () => ({
+  createServer: vi.fn(),
+  createConnection: vi.fn(() => ({
+    on: vi.fn(),
+    once: vi.fn(),
+    write: vi.fn(),
+    end: vi.fn(),
+    destroy: vi.fn(),
+    setEncoding: vi.fn(),
+    removeAllListeners: vi.fn(),
+  })),
+}));
+
+vi.mock("node:readline", () => ({
+  createInterface: vi.fn(),
+}));

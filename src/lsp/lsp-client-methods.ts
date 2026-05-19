@@ -21,13 +21,10 @@ import type {
   TextDocumentItem,
   TextDocumentPositionParams,
   DidChangeTextDocumentParams,
-  ReferenceParams,
   RenameParams,
   WorkspaceSymbolParams,
-  PrepareCallHierarchyParams,
   CallHierarchyIncomingCallsParams,
   CallHierarchyOutgoingCallsParams,
-  PrepareTypeHierarchyParams,
   TypeHierarchyItem,
   TypeHierarchySupertypesParams,
   TypeHierarchySubtypesParams,
@@ -51,6 +48,22 @@ export type LspClientMethods = InstanceType<typeof LspClient>;
 // ── Extended Client ───────────────────────────────────────────────────────
 
 export class LspClient extends BaseLspClient {
+  /** Generic helper for LSP methods that take textDocument + position params */
+  private positionRequest<T>(
+    method: string,
+    uri: string,
+    line: number,
+    col: number,
+    extraParams: Record<string, unknown> = {},
+  ): Promise<T> {
+    const params = {
+      textDocument: { uri },
+      position: { line, character: col },
+      ...extraParams,
+    };
+    return this.request<T>(method, params, 30_000);
+  }
+
   /** Initialize the LSP connection */
   async initialize(config: LspServerConfig, rootUri: string | null): Promise<void> {
     const params: InitializeParams = {
@@ -109,34 +122,32 @@ export class LspClient extends BaseLspClient {
   }
 
   /** Go to definition */
-  async gotoDefinition(
+  gotoDefinition(
     uri: string,
     line: number,
     col: number,
   ): Promise<Location | Location[] | null> {
-    const params: TextDocumentPositionParams = {
-      textDocument: { uri },
-      position: { line, character: col },
-    };
-    return this.request<Location | Location[] | null>(
+    return this.positionRequest<Location | Location[] | null>(
       "textDocument/definition",
-      params,
-      30_000,
+      uri,
+      line,
+      col,
     );
   }
 
   /** Find references */
-  async findReferences(
+  findReferences(
     uri: string,
     line: number,
     col: number,
   ): Promise<Location[] | null> {
-    const params: ReferenceParams = {
-      textDocument: { uri },
-      position: { line, character: col },
-      context: { includeDeclaration: true },
-    };
-    return this.request<Location[] | null>("textDocument/references", params, 30_000);
+    return this.positionRequest<Location[] | null>(
+      "textDocument/references",
+      uri,
+      line,
+      col,
+      { context: { includeDeclaration: true } },
+    );
   }
 
   /** Prepare rename (returns valid rename range and placeholder) */
@@ -184,19 +195,16 @@ export class LspClient extends BaseLspClient {
   }
 
   /** Prepare call hierarchy */
-  async prepareCallHierarchy(
+  prepareCallHierarchy(
     uri: string,
     line: number,
     col: number,
   ): Promise<CallHierarchyItem[] | null> {
-    const params: PrepareCallHierarchyParams = {
-      textDocument: { uri },
-      position: { line, character: col },
-    };
-    return this.request<CallHierarchyItem[] | null>(
+    return this.positionRequest<CallHierarchyItem[] | null>(
       "textDocument/prepareCallHierarchy",
-      params,
-      30_000,
+      uri,
+      line,
+      col,
     );
   }
 
@@ -252,62 +260,49 @@ export class LspClient extends BaseLspClient {
   }
 
   /** Hover */
-  async hover(uri: string, line: number, col: number): Promise<Hover | null> {
-    const params: TextDocumentPositionParams = {
-      textDocument: { uri },
-      position: { line, character: col },
-    };
-    return this.request<Hover | null>("textDocument/hover", params, 30_000);
+  hover(uri: string, line: number, col: number): Promise<Hover | null> {
+    return this.positionRequest<Hover | null>("textDocument/hover", uri, line, col);
   }
 
   /** Find implementations */
-  async findImplementations(
+  findImplementations(
     uri: string,
     line: number,
     col: number,
   ): Promise<Location | Location[] | null> {
-    const params: TextDocumentPositionParams = {
-      textDocument: { uri },
-      position: { line, character: col },
-    };
-    return this.request<Location | Location[] | null>(
+    return this.positionRequest<Location | Location[] | null>(
       "textDocument/implementation",
-      params,
-      30_000,
+      uri,
+      line,
+      col,
     );
   }
 
   /** Find type definition */
-  async findTypeDefinition(
+  findTypeDefinition(
     uri: string,
     line: number,
     col: number,
   ): Promise<Location | Location[] | null> {
-    const params: TextDocumentPositionParams = {
-      textDocument: { uri },
-      position: { line, character: col },
-    };
-    return this.request<Location | Location[] | null>(
+    return this.positionRequest<Location | Location[] | null>(
       "textDocument/typeDefinition",
-      params,
-      30_000,
+      uri,
+      line,
+      col,
     );
   }
 
   /** Prepare type hierarchy */
-  async prepareTypeHierarchy(
+  prepareTypeHierarchy(
     uri: string,
     line: number,
     col: number,
   ): Promise<TypeHierarchyItem[] | null> {
-    const params: PrepareTypeHierarchyParams = {
-      textDocument: { uri },
-      position: { line, character: col },
-    };
-    return this.request<TypeHierarchyItem[] | null>(
+    return this.positionRequest<TypeHierarchyItem[] | null>(
       "textDocument/prepareTypeHierarchy",
-      params,
-      30_000,
+      uri,
+      line,
+      col,
     );
   }
 

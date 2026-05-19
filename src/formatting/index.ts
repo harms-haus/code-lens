@@ -10,5 +10,16 @@ export {
   formatSymbolInformationList,
   MAX_SYMBOL_RESULTS,
 } from "./symbols.js";
-export { applyEdits, buildDiff } from "./diff.js";
+export {
+  applyEdits,
+  buildDiff,
+  buildChangeOps,
+  groupOpsIntoHunks,
+  formatHunk,
+  sortEdits,
+  extractTextFromRange,
+  extractWordAtPosition,
+  applyEditsAndDiff,
+  type ChangeOp,
+} from "./diff.js";
 export { ok, err, sanitizeError, type CommandResult } from "./output.js";

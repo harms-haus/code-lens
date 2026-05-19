@@ -5,6 +5,7 @@
 import { registerCommand } from "../daemon/server.js";
 import { executePreamble } from "./preamble.js";
 import { ok, err, sanitizeError } from "../formatting/output.js";
+import { extractPositionParams } from "./params.js";
 import type { Hover } from "vscode-languageserver-types";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -45,9 +46,9 @@ function extractRange(result: Hover): HoverRange | null {
 // ── Handler ────────────────────────────────────────────────────────────────
 
 registerCommand("hover", async (params, manager, cwd) => {
-  const file = params.file as string;
-  const line = params.line as number;
-  const col = params.col as number;
+  const extracted = extractPositionParams(params);
+  if (!extracted.ok) return extracted.error;
+  const { file, line, col } = extracted.params;
 
   const preamble = await executePreamble(file, manager, cwd);
   if ("error" in preamble) return preamble.error;

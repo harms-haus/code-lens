@@ -34,6 +34,7 @@ export const DEFAULT_IDLE_TIMEOUT_MS = 5 * 60 * 1000;
 export class LspManager {
   private state: LspManagerState;
   private clientMap = new Map<string, LspClient>();
+  private startingPromises = new Map<string, Promise<void>>();
 
   constructor(cwd: string, idleTimeoutMs = DEFAULT_IDLE_TIMEOUT_MS) {
     this.state = {
@@ -70,7 +71,17 @@ export class LspManager {
     }
 
     if (!server || server.status === "stopped" || server.status === "error") {
-      await this.startServer(config);
+      // Deduplicate concurrent startup attempts
+      const existing = this.startingPromises.get(config.language);
+      if (existing) {
+        await existing;
+      } else {
+        const promise = this.startServer(config).finally(() => {
+          this.startingPromises.delete(config.language);
+        });
+        this.startingPromises.set(config.language, promise);
+        await promise;
+      }
       server = this.state.servers.get(config.language);
     }
 

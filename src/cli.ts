@@ -45,6 +45,32 @@ program
   .exitOverride()
   .showHelpAfterError();
 
+// ── Position command helper ──────────────────────────────────────────────
+
+function registerPositionCommand(
+  parent: Command,
+  name: string,
+  description: string,
+  extraOptions: (cmd: Command) => Command = (cmd) => cmd,
+  extraParams: (opts: Record<string, unknown>) => Record<string, unknown> = () => ({}),
+): void {
+  extraOptions(
+    parent
+      .command(name)
+      .description(description)
+      .requiredOption("--file <path>", "File path")
+      .requiredOption("--line <n>", "Line number (1-indexed)", parseInt)
+      .requiredOption("--col <n>", "Column number (1-indexed)", parseInt),
+  ).action(async (opts: Record<string, unknown>) => {
+    await dispatch(name, {
+      file: opts.file,
+      line: opts.line,
+      col: opts.col,
+      ...extraParams(opts),
+    });
+  });
+}
+
 // 1. diagnostics
 program
   .command("diagnostics")
@@ -63,64 +89,16 @@ program
   });
 
 // 2. find-references
-program
-  .command("find-references")
-  .description("Find all references to a symbol")
-  .requiredOption("--file <path>", "File path")
-  .requiredOption("--line <n>", "Line number (1-indexed)", parseInt)
-  .requiredOption("--col <n>", "Column number (1-indexed)", parseInt)
-  .action(async (opts) => {
-    await dispatch("find-references", {
-      file: opts.file,
-      line: opts.line,
-      col: opts.col,
-    });
-  });
+registerPositionCommand(program, "find-references", "Find all references to a symbol");
 
 // 3. find-definition
-program
-  .command("find-definition")
-  .description("Find the definition of a symbol")
-  .requiredOption("--file <path>", "File path")
-  .requiredOption("--line <n>", "Line number (1-indexed)", parseInt)
-  .requiredOption("--col <n>", "Column number (1-indexed)", parseInt)
-  .action(async (opts) => {
-    await dispatch("find-definition", {
-      file: opts.file,
-      line: opts.line,
-      col: opts.col,
-    });
-  });
+registerPositionCommand(program, "find-definition", "Find the definition of a symbol");
 
 // 4. find-implementations
-program
-  .command("find-implementations")
-  .description("Find implementations of a symbol")
-  .requiredOption("--file <path>", "File path")
-  .requiredOption("--line <n>", "Line number (1-indexed)", parseInt)
-  .requiredOption("--col <n>", "Column number (1-indexed)", parseInt)
-  .action(async (opts) => {
-    await dispatch("find-implementations", {
-      file: opts.file,
-      line: opts.line,
-      col: opts.col,
-    });
-  });
+registerPositionCommand(program, "find-implementations", "Find implementations of a symbol");
 
 // 5. find-type-definition
-program
-  .command("find-type-definition")
-  .description("Find the type definition of a symbol")
-  .requiredOption("--file <path>", "File path")
-  .requiredOption("--line <n>", "Line number (1-indexed)", parseInt)
-  .requiredOption("--col <n>", "Column number (1-indexed)", parseInt)
-  .action(async (opts) => {
-    await dispatch("find-type-definition", {
-      file: opts.file,
-      line: opts.line,
-      col: opts.col,
-    });
-  });
+registerPositionCommand(program, "find-type-definition", "Find the type definition of a symbol");
 
 // 6. find-type-hierarchy
 program
@@ -166,51 +144,19 @@ program
   });
 
 // 9. find-calls
-program
-  .command("find-calls")
-  .description("List callers and callees for a function")
-  .requiredOption("--file <path>", "File path")
-  .requiredOption("--line <n>", "Line number (1-indexed)", parseInt)
-  .requiredOption("--col <n>", "Column number (1-indexed)", parseInt)
-  .action(async (opts) => {
-    await dispatch("find-calls", {
-      file: opts.file,
-      line: opts.line,
-      col: opts.col,
-    });
-  });
+registerPositionCommand(program, "find-calls", "List callers and callees for a function");
 
 // 10. hover
-program
-  .command("hover")
-  .description("Get type info and docs for a symbol")
-  .requiredOption("--file <path>", "File path")
-  .requiredOption("--line <n>", "Line number (1-indexed)", parseInt)
-  .requiredOption("--col <n>", "Column number (1-indexed)", parseInt)
-  .action(async (opts) => {
-    await dispatch("hover", {
-      file: opts.file,
-      line: opts.line,
-      col: opts.col,
-    });
-  });
+registerPositionCommand(program, "hover", "Get type info and docs for a symbol");
 
 // 11. rename-symbol
-program
-  .command("rename-symbol")
-  .description("Rename a symbol")
-  .requiredOption("--file <path>", "File path")
-  .requiredOption("--line <n>", "Line number (1-indexed)", parseInt)
-  .requiredOption("--col <n>", "Column number (1-indexed)", parseInt)
-  .requiredOption("--new-name <string>", "New name for the symbol")
-  .action(async (opts) => {
-    await dispatch("rename-symbol", {
-      file: opts.file,
-      line: opts.line,
-      col: opts.col,
-      newName: opts.newName,
-    });
-  });
+registerPositionCommand(
+  program,
+  "rename-symbol",
+  "Rename a symbol",
+  (cmd) => cmd.requiredOption("--new-name <string>", "New name for the symbol"),
+  (opts) => ({ newName: opts.newName }),
+);
 
 // 12. status
 program

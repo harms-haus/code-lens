@@ -4,13 +4,13 @@
  * Returns a unified diff patch — does NOT apply changes.
  */
 
-import * as fs from "node:fs";
 import { registerCommand } from "../daemon/server.js";
 import { executePreamble } from "./preamble.js";
 import type { PreambleResult } from "./preamble.js";
 import { uriToFilePath, isWithinWorkspace } from "../utils/paths.js";
-import { applyEdits, buildDiff } from "../formatting/diff.js";
+import { applyEditsAndDiff, sortEdits, extractTextFromRange, extractWordAtPosition } from "../formatting/diff.js";
 import { ok, err, sanitizeError } from "../formatting/output.js";
+import { extractRenameParams } from "./params.js";
 import type { TextEdit, Range, WorkspaceEdit } from "vscode-languageserver-types";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -52,58 +52,7 @@ async function getOldName(
   return oldName;
 }
 
-/** Extract text from a file at the given range */
-function extractTextFromRange(filePath: string, range: Range): string {
-  try {
-    const content = fs.readFileSync(filePath, "utf-8");
-    const lines = content.split("\n");
-    const startLine = lines[range.start.line] ?? "";
-    if (range.start.line === range.end.line) {
-      return startLine.slice(range.start.character, range.end.character);
-    }
-    const endLine = lines[range.end.line] ?? "";
-    return (
-      startLine.slice(range.start.character) +
-      "\n" +
-      endLine.slice(0, range.end.character)
-    );
-  } catch {
-    return "(unknown)";
-  }
-}
 
-/** Extract word at cursor position as fallback */
-function extractWordAtPosition(filePath: string, line: number, col: number): string {
-  try {
-    const content = fs.readFileSync(filePath, "utf-8");
-    const lines = content.split("\n");
-    const lineContent = lines[line] ?? "";
-    const before = lineContent.slice(0, col).match(/[\w$]+$/)?.[0] ?? "";
-    const after = lineContent.slice(col).match(/^[\w$]+/)?.[0] ?? "";
-    return before + after || "(unknown)";
-  } catch {
-    return "(unknown)";
-  }
-}
-
-/** Process edits for a single file, producing a diff */
-function processEditChange(changePath: string, sorted: TextEdit[]): string {
-  try {
-    const original = fs.readFileSync(changePath, "utf-8");
-    const modified = applyEdits(original, sorted);
-    return buildDiff(changePath, original, modified);
-  } catch {
-    const newText = sorted.map((e) => e.newText).join("");
-    const lineCount = newText ? newText.split("\n").length : 0;
-    return (
-      `--- /dev/null\n+++ ${changePath}\n@@ -0,0 +1,${lineCount} @@\n` +
-      newText
-        .split("\n")
-        .map((l) => "+" + l)
-        .join("\n")
-    );
-  }
-}
 
 /** Build patch from documentChanges (LSP 3.17+) */
 function buildDocChangesPatch(
@@ -128,13 +77,9 @@ function buildDocChangesPatch(
       continue;
     }
 
-    const sorted = [...textDoc.edits].sort(
-      (a, b) =>
-        b.range.start.line - a.range.start.line ||
-        b.range.start.character - a.range.start.character,
-    );
+    const sorted = sortEdits(textDoc.edits);
     fileCount++;
-    patchParts.push(processEditChange(changePath, sorted));
+    patchParts.push(applyEditsAndDiff(changePath, sorted));
   }
 
   return { patchParts, fileCount, processedUris };
@@ -158,13 +103,9 @@ function buildChangesPatch(
       continue;
     }
 
-    const sorted = [...edits].sort(
-      (a, b) =>
-        b.range.start.line - a.range.start.line ||
-        b.range.start.character - a.range.start.character,
-    );
+    const sorted = sortEdits(edits);
     fileCount++;
-    patchParts.push(processEditChange(changePath, sorted));
+    patchParts.push(applyEditsAndDiff(changePath, sorted));
   }
 
   return { patchParts, fileCount };
@@ -209,10 +150,9 @@ function buildPatchFromEdit(
 // ── Handler ────────────────────────────────────────────────────────────────
 
 registerCommand("rename-symbol", async (params, manager, cwd) => {
-  const file = params.file as string;
-  const line = params.line as number;
-  const col = params.col as number;
-  const newName = params.newName as string;
+  const extracted = extractRenameParams(params);
+  if (!extracted.ok) return extracted.error;
+  const { file, line, col, newName } = extracted.params;
 
   const preamble = await executePreamble(file, manager, cwd);
   if ("error" in preamble) return preamble.error;

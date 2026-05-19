@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import { languageFromPath, isServerInstalled } from "../../src/lsp/language-config.js";
+import {
+  languageFromPath,
+  isServerInstalled,
+  LANGUAGE_SERVERS,
+} from "../../src/lsp/language-config.js";
+import { getConfigForExtension } from "../../src/lsp/language-registry.js";
 import type { LspServerConfig } from "../../src/lsp/types.js";
 import { execFile } from "node:child_process";
 
@@ -72,6 +77,79 @@ describe("language-config", () => {
     it("returns undefined for a path with no extension and no matching basename", () => {
       const config = languageFromPath("Makefile");
       expect(config).toBeUndefined();
+    });
+
+    it("handles multiple dots in filename: file.test.ts → typescript", () => {
+      const config = languageFromPath("file.test.ts");
+      expect(config).toBeDefined();
+      expect(config!.language).toBe("typescript");
+    });
+
+    it("handles directory with dots: src/v2.0/module.rs → rust", () => {
+      const config = languageFromPath("src/v2.0/module.rs");
+      expect(config).toBeDefined();
+      expect(config!.language).toBe("rust");
+    });
+
+    it("returns undefined for empty string", () => {
+      const config = languageFromPath("");
+      expect(config).toBeUndefined();
+    });
+  });
+
+  describe("LANGUAGE_SERVERS registry", () => {
+    it("has at least 25 entries", () => {
+      expect(LANGUAGE_SERVERS.length).toBeGreaterThanOrEqual(25);
+    });
+
+    it("every entry has required fields: language, command, args, extensions, detectCommand", () => {
+      for (const entry of LANGUAGE_SERVERS) {
+        expect(entry.language).toBeTruthy();
+        expect(typeof entry.language).toBe("string");
+
+        expect(entry.command).toBeTruthy();
+        expect(typeof entry.command).toBe("string");
+
+        expect(Array.isArray(entry.args)).toBe(true);
+
+        expect(Array.isArray(entry.extensions)).toBe(true);
+        expect(entry.extensions.length).toBeGreaterThan(0);
+
+        expect(entry.detectCommand).toBeTruthy();
+        expect(typeof entry.detectCommand).toBe("string");
+      }
+    });
+
+    it("every entry has at least one extension starting with '.'", () => {
+      for (const entry of LANGUAGE_SERVERS) {
+        const dotExtensions = entry.extensions.filter((ext) => ext.startsWith("."));
+        expect(dotExtensions.length).toBeGreaterThan(0);
+      }
+    });
+  });
+
+  describe("getConfigForExtension", () => {
+    it("returns typescript config for '.ts'", () => {
+      const config = getConfigForExtension(".ts");
+      expect(config).toBeDefined();
+      expect(config!.language).toBe("typescript");
+    });
+
+    it("returns python config for '.py'", () => {
+      const config = getConfigForExtension(".py");
+      expect(config).toBeDefined();
+      expect(config!.language).toBe("python");
+    });
+
+    it("returns undefined for unknown extension", () => {
+      const config = getConfigForExtension(".zzzzz");
+      expect(config).toBeUndefined();
+    });
+
+    it("returns dockerfile config for 'Dockerfile'", () => {
+      const config = getConfigForExtension("Dockerfile");
+      expect(config).toBeDefined();
+      expect(config!.language).toBe("dockerfile");
     });
   });
 

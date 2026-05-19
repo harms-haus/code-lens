@@ -1,25 +1,30 @@
 import { describe, it, expect, vi } from "vitest";
 import * as path from "node:path";
+import type { Location } from "vscode-languageserver-types";
 import {
   resolveFile,
   uriToFilePath,
   filePathToUri,
   isWithinWorkspace,
+  flattenLocations,
+  formatLocations,
 } from "../../src/utils/paths.js";
 
 describe("paths", () => {
   describe("resolveFile", () => {
     it("resolves a relative path against cwd", () => {
-      const cwd = "/project";
+      const cwd = process.cwd();
       const result = resolveFile("src/index.ts", cwd);
       // Should be normalized and absolute
       expect(path.isAbsolute(result)).toBe(true);
-      expect(result).toBe(path.normalize("/project/src/index.ts"));
+      expect(result).toBe(path.normalize(path.join(cwd, "src/index.ts")));
     });
 
     it("returns an absolute path as-is (normalized)", () => {
-      const result = resolveFile("/absolute/path/file.ts", "/project");
-      expect(result).toBe(path.normalize("/absolute/path/file.ts"));
+      const cwd = process.cwd();
+      const absFile = path.join(cwd, "src", "index.ts");
+      const result = resolveFile(absFile, cwd);
+      expect(result).toBe(path.normalize(absFile));
     });
 
     it("normalizes path traversal attempts with ..", () => {
@@ -35,9 +40,14 @@ describe("paths", () => {
     });
 
     it("handles paths with ./ prefix", () => {
-      const cwd = "/project";
+      const cwd = process.cwd();
       const result = resolveFile("./src/file.ts", cwd);
-      expect(result).toBe(path.normalize("/project/src/file.ts"));
+      expect(result).toBe(path.normalize(path.join(cwd, "src/file.ts")));
+    });
+
+    it("throws when cwd does not exist on disk", () => {
+      expect(() => resolveFile("src/index.ts", "/nonexistent/workspace"))
+        .toThrow("Workspace directory is inaccessible");
     });
   });
 
@@ -102,6 +112,73 @@ describe("paths", () => {
       // Use src/ which exists, but the file doesn't
       const nonExistent = path.join(root, "src", "nonexistent_file_12345.ts");
       expect(isWithinWorkspace(nonExistent, root)).toBe(true);
+    });
+  });
+
+  // ── flattenLocations ──────────────────────────────────────────────────
+
+  describe("flattenLocations", () => {
+    function makeLocation(uri: string): Location {
+      return {
+        uri,
+        range: {
+          start: { line: 0, character: 0 },
+          end: { line: 0, character: 1 },
+        },
+      };
+    }
+
+    it("returns empty array for null", () => {
+      expect(flattenLocations(null)).toEqual([]);
+    });
+
+    it("wraps a single Location in an array", () => {
+      const loc = makeLocation("file:///a.ts");
+      expect(flattenLocations(loc)).toEqual([loc]);
+    });
+
+    it("returns Location[] as-is", () => {
+      const locs = [makeLocation("file:///a.ts"), makeLocation("file:///b.ts")];
+      expect(flattenLocations(locs)).toEqual(locs);
+    });
+  });
+
+  // ── formatLocations ───────────────────────────────────────────────────
+
+  describe("formatLocations", () => {
+    function makeLocation(uri: string, line: number, character: number): Location {
+      return {
+        uri,
+        range: {
+          start: { line, character },
+          end: { line, character: character + 1 },
+        },
+      };
+    }
+
+    it("returns '(none)' for empty array", () => {
+      expect(formatLocations([])).toBe("(none)");
+    });
+
+    it("formats a single location", () => {
+      const locations = [makeLocation("file:///src/index.ts", 4, 10)];
+      const result = formatLocations(locations);
+      expect(result).toContain("/src/index.ts");
+      expect(result).toContain("5:11");
+    });
+
+    it("formats multiple locations", () => {
+      const locations = [
+        makeLocation("file:///src/a.ts", 0, 0),
+        makeLocation("file:///src/b.ts", 9, 5),
+      ];
+      const result = formatLocations(locations);
+      const lines = result.split("\n");
+      expect(lines).toHaveLength(2);
+      expect(lines[0]).toContain("/src/a.ts");
+      expect(lines[1]).toContain("/src/b.ts");
+      expect(lines[0]).toContain("1:1");
+      expect(lines[1]).toContain("10:6");
     });
   });
 });

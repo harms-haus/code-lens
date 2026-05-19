@@ -91,15 +91,16 @@ export function sendRequest(socketPath: string, request: DaemonRequest): Promise
  */
 export function probeSocket(socketPath: string): Promise<boolean> {
   return new Promise<boolean>((resolve) => {
-    const socket = net.createConnection(socketPath, () => {
-      socket.destroy();
-      resolve(true);
-    });
-
     const timer = setTimeout(() => {
       socket.destroy();
       resolve(false);
     }, PROBE_TIMEOUT_MS);
+
+    const socket = net.createConnection(socketPath, () => {
+      clearTimeout(timer);
+      socket.destroy();
+      resolve(true);
+    });
 
     socket.on("error", () => {
       clearTimeout(timer);

@@ -7,6 +7,7 @@ import { executePreamble } from "./preamble.js";
 import { uriToFilePath } from "../utils/paths.js";
 import { SYMBOL_KIND_NAMES } from "../formatting/symbols.js";
 import { ok } from "../formatting/output.js";
+import { extractPositionParams } from "./params.js";
 import type { TypeHierarchyItem } from "../lsp/lsp-protocol.js";
 import type { LspClientMethods } from "../lsp/lsp-client-methods.js";
 
@@ -50,9 +51,9 @@ async function fetchHierarchyItems(
 // ── Handler ────────────────────────────────────────────────────────────────
 
 registerCommand("find-type-hierarchy", async (params, manager, cwd) => {
-  const file = params.file as string;
-  const line = params.line as number;
-  const col = params.col as number;
+  const extracted = extractPositionParams(params);
+  if (!extracted.ok) return extracted.error;
+  const { file, line, col } = extracted.params;
 
   const rawDirection = (params.direction as string) || "both";
   const validDirections = new Set(["supertypes", "subtypes", "both"]);

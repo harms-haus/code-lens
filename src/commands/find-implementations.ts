@@ -6,13 +6,14 @@ import { registerCommand } from "../daemon/server.js";
 import { executePreamble } from "./preamble.js";
 import { flattenLocations, formatLocations } from "../utils/paths.js";
 import { ok, err, sanitizeError } from "../formatting/output.js";
+import { extractPositionParams } from "./params.js";
 
 // ── Handler ────────────────────────────────────────────────────────────────
 
 registerCommand("find-implementations", async (params, manager, cwd) => {
-  const file = params.file as string;
-  const line = params.line as number;
-  const col = params.col as number;
+  const extracted = extractPositionParams(params);
+  if (!extracted.ok) return extracted.error;
+  const { file, line, col } = extracted.params;
 
   const preamble = await executePreamble(file, manager, cwd);
   if ("error" in preamble) return preamble.error;
@@ -30,7 +31,7 @@ registerCommand("find-implementations", async (params, manager, cwd) => {
     }));
 
     return ok(
-      `Implementations found: ${mapped.length}\n\n${formatted}`,
+      `Implementations found: ${mapped.length} location${mapped.length === 1 ? "" : "s"}\n\n${formatted}`,
       { file, line, col, implementations: mapped, count: mapped.length },
     );
   } catch (e) {

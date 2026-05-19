@@ -36,7 +36,7 @@ export function resolveFile(file: string, cwd: string): string {
     }
   } catch (err) {
     if (err instanceof Error && err.message.startsWith("Path traversal:")) throw err;
-    // If realpath fails (cwd doesn't exist), just use normalized path
+    throw new Error(`Workspace directory is inaccessible: "${cwd}"`, { cause: err });
   }
   return normalized;
 }
@@ -56,7 +56,6 @@ export function filePathToUri(filePath: string): string {
 /** Check whether a file path is within the given workspace root */
 export function isWithinWorkspace(filePath: string, workspaceRoot: string): boolean {
   const normalizedFile = path.normalize(filePath);
-  const normalizedRoot = path.normalize(workspaceRoot);
   try {
     const realRoot = fs.realpathSync(workspaceRoot);
     let realFile: string;
@@ -74,7 +73,7 @@ export function isWithinWorkspace(filePath: string, workspaceRoot: string): bool
     }
     return realFile.startsWith(realRoot + path.sep) || realFile === realRoot;
   } catch {
-    return normalizedFile.startsWith(normalizedRoot + path.sep);
+    return false; // Don't trust unresolved paths
   }
 }
 
