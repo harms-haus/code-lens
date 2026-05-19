@@ -38,6 +38,10 @@
     "format:check": "prettier --check 'src/**/*.ts'",
     "prepublishOnly": "npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harms-haus/code-lens.git"
+  },
   "keywords": [
     "lsp",
     "language-server",
