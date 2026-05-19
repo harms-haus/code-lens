@@ -154,6 +154,14 @@ export class DaemonServer {
 
       const rl = readline.createInterface({ input: socket, crlfDelay: Infinity });
 
+      const cleanupConnection = (): void => {
+        if (connectionCounted) {
+          this.activeConnections--;
+          connectionCounted = false;
+        }
+        rl.close();
+      };
+
       rl.on("line", (line: string) => {
         this.resetIdleTimer();
 
@@ -198,13 +206,7 @@ export class DaemonServer {
         }
       });
 
-      const cleanupConnection = (): void => {
-        if (connectionCounted) {
-          this.activeConnections--;
-          connectionCounted = false;
-        }
-        rl.close();
-      };
+      rl.on("error", cleanupConnection);
 
       socket.on("close", cleanupConnection);
       socket.on("error", cleanupConnection);

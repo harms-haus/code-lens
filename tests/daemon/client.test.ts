@@ -152,6 +152,30 @@ describe("sendRequest", () => {
     await expect(promise).rejects.toThrow("Failed to connect to daemon: Connection refused");
   });
 
+  it("rejects when readline emits an error", async () => {
+    const request = makeRequest();
+    const mockSocket = makeMockSocket();
+    const rlListeners: Record<string, Function[]> = {};
+    const mockReadline = {
+      on: vi.fn((event: string, cb: Function) => {
+        (rlListeners[event] ??= []).push(cb);
+      }),
+      close: vi.fn(),
+    };
+
+    mockCreateConnection.mockReturnValue(mockSocket);
+    mockCreateInterface.mockReturnValue(mockReadline);
+
+    const promise = sendRequest("/tmp/test.sock", request);
+
+    // Simulate readline emitting an error (this happens when socket connect fails)
+    const errorCb = rlListeners["error"]![0] as (err: Error) => void;
+    errorCb(new Error("connect ENOENT /tmp/nonexistent.sock"));
+
+    await expect(promise).rejects.toThrow("Failed to connect to daemon: connect ENOENT /tmp/nonexistent.sock");
+    expect(mockSocket.destroy).toHaveBeenCalled();
+  });
+
   it("rejects when the socket closes before a response", async () => {
     const request = makeRequest();
     const mockSocket = makeMockSocket();

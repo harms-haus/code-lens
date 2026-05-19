@@ -66,6 +66,15 @@ export function sendRequest(socketPath: string, request: DaemonRequest): Promise
       }
     });
 
+    rl.on('error', (rlErr: Error) => {
+      if (settled) return;
+      settled = true;
+      if (timeout) clearTimeout(timeout);
+      rl.close();
+      socket.destroy();
+      reject(new Error(`Failed to connect to daemon: ${rlErr.message}`));
+    });
+
     socket.on("error", (socketErr) => {
       if (settled) return;
       settled = true;
