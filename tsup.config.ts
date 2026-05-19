@@ -27,4 +27,21 @@ export default defineConfig([
     },
     external: ["commander", "@commander-js/extra-typings", "vscode-languageserver-types"],
   },
+  {
+    // Library entry — NEW
+    entry: {
+      "lib": "src/lib.ts",
+      "lib-client": "src/lib-client.ts",
+      "lib-lsp": "src/lib-lsp.ts",
+    },
+    outDir: "dist",
+    format: ["esm"],
+    target: "es2022",
+    splitting: false,
+    sourcemap: true,
+    platform: "node",
+    clean: false,
+    dts: true,
+    external: ["vscode-languageserver-types"],
+  },
 ]);

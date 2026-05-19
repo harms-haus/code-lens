@@ -1,10 +1,24 @@
 {
   "name": "@harms-haus/code-lens",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "LSP-powered CLI tool for code intelligence — diagnostics, references, definitions, and more",
   "type": "module",
   "bin": {
     "code-lens": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/lib.js",
+      "types": "./dist/lib.d.ts"
+    },
+    "./client": {
+      "import": "./dist/lib-client.js",
+      "types": "./dist/lib-client.d.ts"
+    },
+    "./lsp": {
+      "import": "./dist/lib-lsp.js",
+      "types": "./dist/lib-lsp.d.ts"
+    }
   },
   "files": ["dist/"],
   "engines": { "node": ">=20.0.0" },

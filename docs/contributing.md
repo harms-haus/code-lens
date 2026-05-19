@@ -181,11 +181,44 @@ code-lens-cli/
 ├── src/
 │   ├── cli.ts              # CLI entry point (commander program)
 │   ├── server.ts           # Daemon entry point
+│   ├── lib.ts              # Library barrel export
+│   ├── lib-client.ts       # Client-facing library barrel export
+│   ├── lib-lsp.ts          # LSP library barrel export
 │   ├── commands/           # Command handlers (one file per command)
+│   │   ├── diagnostics.ts
+│   │   ├── file-changed.ts
+│   │   ├── find-calls.ts
+│   │   ├── find-definition.ts
+│   │   ├── find-document-symbols.ts
+│   │   ├── find-implementations.ts
+│   │   ├── find-references.ts
+│   │   ├── find-symbols.ts
+│   │   ├── find-type-definition.ts
+│   │   ├── find-type-hierarchy.ts
+│   │   ├── fullCheck.ts
+│   │   ├── hover.ts
+│   │   ├── lint.ts
+│   │   ├── params.ts
+│   │   ├── preamble.ts
+│   │   ├── prettier.ts
+│   │   ├── rename-symbol.ts
+│   │   ├── status.ts
+│   │   └── tsc.ts
 │   ├── daemon/             # Daemon server, client, lifecycle, protocol
+│   ├── linting/            # Linting infrastructure (9 files)
+│   │   ├── types.ts            # Shared linting types
+│   │   ├── parsers.ts          # Linter output parsers
+│   │   ├── definitions.ts      # Linter definitions and configs
+│   │   ├── linter-registry.ts  # Linter registration registry
+│   │   ├── linter-runner.ts    # Generic linter runner
+│   │   ├── prettier-runner.ts  # Prettier runner
+│   │   ├── tsc-runner.ts       # TypeScript compiler runner
+│   │   ├── bash-file-detector.ts # Shell script detection
+│   │   └── output-formatter.ts  # Lint result formatting
 │   ├── lsp/                # LSP client wrapper, manager, language configs
 │   ├── formatting/         # Output formatting utilities
 │   └── utils/              # Path, socket, env utilities
+│       └── spawn.ts        # Child process spawning helpers
 ├── tests/
 │   ├── setup.ts            # Global test setup (mocks node: built-ins)
 │   ├── commands/           # Command handler tests

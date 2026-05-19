@@ -11,6 +11,11 @@ import "./commands/find-calls.js";
 import "./commands/hover.js";
 import "./commands/rename-symbol.js";
 import "./commands/status.js";
+import "./commands/file-changed.js";
+import "./commands/lint.js";
+import "./commands/prettier.js";
+import "./commands/tsc.js";
+import "./commands/fullCheck.js";
 
 import { startServer } from "./daemon/server.js";
 

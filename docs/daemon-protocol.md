@@ -133,7 +133,26 @@ Note: Internally, positions are converted to **0-based** before sending to LSP s
 | Method | Required params | Optional params | Description |
 |--------|----------------|-----------------|-------------|
 | `find-document-symbols` | `file` | — | Get an outline of all symbols in a file |
-| `diagnostics` | — | `file`, `files`, `workspace`, `refresh` | Run LSP diagnostics (see below) |
+| `fileChanged` | `file` | — | Notify the daemon that a file was modified |
+| `diagnostics` | — | `file`, `files`, `workspace`, `refresh`, `raw` | Run LSP diagnostics (see below) |
+| `lint` | `files` | `maxConcurrency`, `timeoutMs` | Run detected linters on files |
+| `prettier` | `files` | `timeoutMs` | Run `prettier --check` on files |
+| `tsc` | `files` | `timeoutMs` | Run TypeScript type checking on files |
+
+#### fileChanged params
+
+Notifies the daemon that a file has changed on disk. The daemon forwards the notification to the relevant LSP server so it can update its internal state.
+
+```typescript
+{
+  file: string;   // File path (required)
+}
+```
+
+**Success responses** — returns `ok` with one of:
+
+- `{ skipped: true }` — file extension has no configured LSP language support
+- `{ language: string }` — the LSP language ID for the file that was updated
 
 #### diagnostics params
 
@@ -149,6 +168,114 @@ The `diagnostics` method supports three modes:
   files?: string;       // Comma-separated file paths
   workspace?: boolean;  // If true, report diagnostics for all open files
   refresh?: boolean;    // If true, request fresh diagnostics from the LSP server
+  raw?: boolean;        // If true, include structured Diagnostic[] in response details
+}
+```
+
+When `raw` is `true` and a single file is requested, the response `details` object includes a `diagnostics` array with structured objects:
+
+```typescript
+{
+  file: string;
+  language: string;
+  errorCount: number;
+  warningCount: number;
+  infoCount: number;
+  total: number;
+  diagnostics: Array<{
+    range: { start: Position; end: Position };
+    severity: number;
+    code?: number | string;
+    source?: string;
+    message: string;
+  }>;
+}
+```
+
+#### lint params
+
+Runs all detected linters (e.g., ESLint, stylelint) against the specified files. Linter detection is cached for the daemon lifetime.
+
+```typescript
+{
+  files: string[];          // File paths to lint (required, must be non-empty)
+  maxConcurrency?: number;  // Max parallel linter processes (default: unlimited)
+  timeoutMs?: number;       // Per-linter timeout in milliseconds
+}
+```
+
+The response includes structured data:
+
+- `{ issues: [], linterCount: 0 }` — no linters detected
+- `{ issues: LintIssue[], linterNames: string[], linterCount: number }` — linter results with any issues found
+
+#### prettier params
+
+Runs `prettier --check` on the specified files. Prettier availability is cached for the daemon lifetime.
+
+```typescript
+{
+  files: string[];     // File paths to check (required, must be non-empty)
+  timeoutMs?: number;  // Timeout in milliseconds
+}
+```
+
+The response includes structured data:
+
+- `{ available: false, results: [] }` — prettier not installed
+- `{ available: true, results: PrettierResult[], needsFormatting: number }` — check results
+
+#### tsc params
+
+Runs `tsc --noEmit` and filters results to the specified files. Only TypeScript/JavaScript files (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`) are checked. TSC availability is cached for the daemon lifetime.
+
+```typescript
+{
+  files: string[];     // File paths to check (required, must be non-empty)
+  timeoutMs?: number;  // Timeout in milliseconds
+}
+```
+
+The response includes structured data:
+
+- `{ available: false, issues: [] }` — tsc not installed
+- `{ available: true, issues: TscIssue[], durationMs: number }` — type check results
+
+### Check commands
+
+| Method | Required params | Optional params | Description |
+|--------|----------------|-----------------|-------------|
+| `fullCheck` | `files`, `config` | — | Run all checks (prettier, linters, LSP diagnostics, tsc) concurrently |
+
+#### fullCheck params
+
+Runs prettier, linters, LSP diagnostics, and tsc type checking concurrently on the given files. Each check is gated by its corresponding config flag and tool availability. This is the primary command used by `pi-lens`.
+
+```typescript
+{
+  files: string[];    // File paths to check (required, must be non-empty)
+  config: {
+    prettier?: boolean;         // Enable prettier check (default: false)
+    linters?: boolean;          // Enable linter check (default: false)
+    lsp?: boolean;              // Enable LSP diagnostics check (default: false)
+    tsc?: boolean;              // Enable tsc type check (default: false)
+    lspDelayMs?: number;        // Delay before collecting LSP diagnostics (default: 500)
+    maxConcurrency?: number;    // Max parallel linter processes
+    prettierTimeoutMs?: number; // Prettier timeout in milliseconds
+    linterTimeoutMs?: number;   // Per-linter timeout in milliseconds
+    tscTimeoutMs?: number;      // tsc timeout in milliseconds
+  };
+}
+```
+
+The response `details` object includes:
+
+```typescript
+{
+  statuses: Record<string, CheckStatus>;  // Per-check status: "clean" | "issues" | "error" | "skipped"
+  hasIssues: boolean;                      // true if any check reported issues
+  fileCount: number;                       // Number of files checked
+  durationMs: number;                      // Total wall-clock time in ms
 }
 ```
 
@@ -260,7 +387,7 @@ Where `hash` is the same SHA-256 hash (first 16 hex chars) derived from `cwd`.
 interface DaemonMetadata {
   pid: number;        // OS process ID of the daemon
   socketPath: string; // Full path to the Unix socket or named pipe
-  version: string;    // Protocol version (e.g. "0.1.0")
+  version: string;    // Protocol version (e.g. "0.2.0")
   cwd: string;        // Working directory this daemon serves
 }
 ```
@@ -271,7 +398,7 @@ interface DaemonMetadata {
 {
   "pid": 48291,
   "socketPath": "/tmp/code-lens-a1b2c3d4e5f6g7h8.sock",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "cwd": "/home/user/projects/my-app"
 }
 ```
@@ -285,7 +412,7 @@ interface DaemonMetadata {
 The daemon protocol version is defined in `src/daemon/lifecycle.ts`:
 
 ```typescript
-export const DAEMON_VERSION = "0.1.0";
+export const DAEMON_VERSION = "0.2.0";
 ```
 
 ### Version mismatch handling

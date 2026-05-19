@@ -65,6 +65,7 @@ function handleWorkspaceDiagnostics(manager: LspManager) {
 async function handleSingleFileDiagnostics(
   file: string,
   refresh: boolean,
+  raw: boolean,
   manager: LspManager,
   cwd: string,
 ) {
@@ -75,6 +76,28 @@ async function handleSingleFileDiagnostics(
   const diagnostics = await manager.getDiagnostics(filePath, refresh);
   const { errors: errorCount, warnings: warningCount, info: infoCount } =
     countSeverities(diagnostics);
+
+  // When raw=true, include structured Diagnostic[] in details
+  if (raw) {
+    return ok(
+      `${diagnostics.length} diagnostic(s) for ${file} (${config.language})`,
+      {
+        file,
+        language: config.language,
+        errorCount,
+        warningCount,
+        infoCount,
+        total: diagnostics.length,
+        diagnostics: diagnostics.map(d => ({
+          range: d.range,
+          severity: d.severity,
+          code: d.code,
+          source: d.source,
+          message: d.message,
+        })),
+      },
+    );
+  }
 
   const lines = diagnostics.map(formatDiagnosticLine);
 
@@ -147,6 +170,7 @@ async function handleMultiFileDiagnostics(
 registerCommand("diagnostics", async (params, manager, cwd) => {
   const workspace = params.workspace === true;
   const refresh = params.refresh === true;
+  const raw = params.raw === true;
   const files = typeof params.files === "string" ? params.files : undefined;
 
   if (workspace) {
@@ -167,7 +191,7 @@ registerCommand("diagnostics", async (params, manager, cwd) => {
 
   if (typeof params.file === "string") {
     try {
-      return await handleSingleFileDiagnostics(params.file, refresh, manager, cwd);
+      return await handleSingleFileDiagnostics(params.file, refresh, raw, manager, cwd);
     } catch (e) {
       return err(sanitizeError(e, "Failed to get diagnostics"), { file: params.file });
     }

@@ -462,3 +462,399 @@ code-lens stop
 ```
 Daemon stopped.
 ```
+
+---
+
+# Daemon Protocol Commands
+
+The following methods are available **only** over the daemon's JSON-RPC 2.0 protocol (Unix socket / Windows named pipe). They are not exposed as CLI subcommands. Each request is a single JSON object terminated by a newline (NDJSON); the daemon responds with a corresponding JSON-RPC response.
+
+> **Protocol details:** All requests/responses follow the [JSON-RPC 2.0](https://www.jsonrpc.org/specification) spec. The daemon listens on a socket path identified by the `CODE_LENS_SOCKET_PATH` environment variable.
+
+---
+
+## `fileChanged`
+
+Notify the daemon that a file has changed. The daemon will forward the notification to the relevant LSP server so it can update its internal state (e.g., re-index diagnostics).
+
+If the file's extension is not associated with any configured LSP language, the notification is silently skipped.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `file` | `string` | Yes | Relative or absolute path of the changed file |
+
+**Example request:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "fileChanged",
+  "params": { "file": "src/index.ts" },
+  "id": 1
+}
+```
+
+**Example response (file handled):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{ "type": "text", "text": "file updated" }],
+    "details": { "language": "typescript" },
+    "isError": false
+  },
+  "id": 1
+}
+```
+
+**Example response (file skipped — no LSP support):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{ "type": "text", "text": "skipped" }],
+    "details": { "skipped": true },
+    "isError": false
+  },
+  "id": 1
+}
+```
+
+---
+
+## `lint`
+
+Run detected linters on the specified files. Linter detection is cached for the lifetime of the daemon process (re-detected if the working directory changes).
+
+Only linters whose file patterns match the provided files are invoked. If no linters are detected or none match, a clean result is returned.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `files` | `string[]` | Yes | Array of file paths to lint |
+| `maxConcurrency` | `number` | No | Maximum number of linters to run in parallel |
+| `timeoutMs` | `number` | No | Per-linter timeout in milliseconds |
+
+**Example request:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "lint",
+  "params": {
+    "files": ["src/index.ts", "src/utils.ts"],
+    "maxConcurrency": 4,
+    "timeoutMs": 30000
+  },
+  "id": 2
+}
+```
+
+**Example response (issues found):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{
+      "type": "text",
+      "text": "Lint: 2 errors, 1 warning\n  ✗ src/index.ts:23:5: Unexpected any (no-explicit-any)\n  ⚠ src/utils.ts:10:3: Unused variable 'x' (no-unused-vars)"
+    }],
+    "details": {
+      "issues": ["..."],
+      "linterNames": ["eslint"],
+      "linterCount": 1
+    },
+    "isError": false
+  },
+  "id": 2
+}
+```
+
+**Example response (no issues):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{ "type": "text", "text": "Lint: 0 issues (eslint)" }],
+    "details": {
+      "issues": [],
+      "linterNames": ["eslint"],
+      "linterCount": 1
+    },
+    "isError": false
+  },
+  "id": 2
+}
+```
+
+---
+
+## `prettier`
+
+Run `prettier --check` on the specified files. Prettier availability is cached for the daemon lifetime.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `files` | `string[]` | Yes | Array of file paths to check |
+| `timeoutMs` | `number` | No | Timeout in milliseconds |
+
+**Example request:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "prettier",
+  "params": {
+    "files": ["src/index.ts", "src/utils.ts"],
+    "timeoutMs": 15000
+  },
+  "id": 3
+}
+```
+
+**Example response (files need formatting):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{
+      "type": "text",
+      "text": "prettier: 2 file(s) need formatting\n  src/index.ts\n  src/utils.ts"
+    }],
+    "details": {
+      "results": ["..."],
+      "available": true,
+      "needsFormatting": 2
+    },
+    "isError": false
+  },
+  "id": 3
+}
+```
+
+**Example response (all formatted correctly):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{ "type": "text", "text": "prettier: 2 file(s) formatted correctly" }],
+    "details": {
+      "results": ["..."],
+      "available": true,
+      "needsFormatting": 0
+    },
+    "isError": false
+  },
+  "id": 3
+}
+```
+
+**Example response (prettier not available):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{ "type": "text", "text": "prettier: not available" }],
+    "details": { "available": false, "results": [] },
+    "isError": false
+  },
+  "id": 3
+}
+```
+
+---
+
+## `tsc`
+
+Run `tsc --noEmit` and filter results to the specified files. Only TypeScript/JavaScript files (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`) are checked. TSC availability is cached for the daemon lifetime.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `files` | `string[]` | Yes | Array of file paths to type-check |
+| `timeoutMs` | `number` | No | Timeout in milliseconds |
+
+**Example request:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tsc",
+  "params": {
+    "files": ["src/index.ts", "src/utils.ts"],
+    "timeoutMs": 30000
+  },
+  "id": 4
+}
+```
+
+**Example response (errors found):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{
+      "type": "text",
+      "text": "tsc: 1 error(s), 0 warning(s) (342ms)\n  ✗ src/index.ts:23:5: Type 'string' is not assignable to type 'number'. (TS2322)"
+    }],
+    "details": {
+      "available": true,
+      "issues": ["..."],
+      "durationMs": 342
+    },
+    "isError": false
+  },
+  "id": 4
+}
+```
+
+**Example response (no errors):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{ "type": "text", "text": "tsc: 0 errors (215ms)" }],
+    "details": {
+      "available": true,
+      "issues": [],
+      "durationMs": 215
+    },
+    "isError": false
+  },
+  "id": 4
+}
+```
+
+**Example response (tsc not available):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{ "type": "text", "text": "tsc: not available" }],
+    "details": { "available": false, "issues": [] },
+    "isError": false
+  },
+  "id": 4
+}
+```
+
+---
+
+## `fullCheck`
+
+Run all enabled checks concurrently on the specified files. This is the primary method called by external integrations (e.g., pi-lens). Each check category is individually gated by its config flag and tool availability.
+
+The four check categories are:
+
+| Check | Flag | What it does |
+|-------|------|--------------|
+| **Prettier** | `config.prettier` | Runs `prettier --check` on files |
+| **Linters** | `config.linters` | Runs detected linters matching the files |
+| **LSP** | `config.lsp` | Notifies LSP servers of changes, waits for diagnostics to settle, then collects them |
+| **TSC** | `config.tsc` | Runs `tsc --noEmit` on TypeScript/JavaScript files |
+
+All checks run in parallel via `Promise.all`. Each returns a status: `"clean"`, `"issues"`, `"error"`, or `"skipped"`.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `files` | `string[]` | Yes | Array of file paths to check |
+| `config` | `object` | No | Feature flags and timeout settings (see below) |
+| `config.prettier` | `boolean` | No | Enable prettier check (default: disabled) |
+| `config.linters` | `boolean` | No | Enable linter check (default: disabled) |
+| `config.lsp` | `boolean` | No | Enable LSP diagnostics check (default: disabled) |
+| `config.tsc` | `boolean` | No | Enable TSC type check (default: disabled) |
+| `config.lspDelayMs` | `number` | No | Milliseconds to wait for LSP diagnostics to settle (default: `500`) |
+| `config.maxConcurrency` | `number` | No | Max parallel linters |
+| `config.prettierTimeoutMs` | `number` | No | Prettier timeout in milliseconds |
+| `config.linterTimeoutMs` | `number` | No | Per-linter timeout in milliseconds |
+| `config.tscTimeoutMs` | `number` | No | TSC timeout in milliseconds |
+
+**Example request:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "fullCheck",
+  "params": {
+    "files": ["src/index.ts", "src/utils.ts"],
+    "config": {
+      "prettier": true,
+      "linters": true,
+      "lsp": true,
+      "tsc": true,
+      "lspDelayMs": 500,
+      "tscTimeoutMs": 30000
+    }
+  },
+  "id": 5
+}
+```
+
+**Example response (issues found):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{
+      "type": "text",
+      "text": "  ✅ prettier: 2 file(s) formatted correctly\n  ⚠ 2 errors, 1 warning\n    ✗ src/index.ts:23:5: Unexpected any (no-explicit-any)\n  ⚠ lsp: 3 diagnostic(s) (1 error(s), 2 warning(s))\n    ✗ src/index.ts:23:5: Type 'string' is not assignable to type 'number'.\n  ⚠ tsc: 1 error(s), 0 warning(s)\n    ✗ src/index.ts:23:5: Type 'string' is not assignable to type 'number'. (TS2322)"
+    }],
+    "details": {
+      "statuses": {
+        "prettier": "clean",
+        "linters": "issues",
+        "lsp": "issues",
+        "tsc": "issues"
+      },
+      "hasIssues": true,
+      "fileCount": 2,
+      "durationMs": 487
+    },
+    "isError": false
+  },
+  "id": 5
+}
+```
+
+**Example response (all checks clean):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [{ "type": "text", "text": "All checks passed (no issues found)." }],
+    "details": {
+      "statuses": {
+        "prettier": "clean",
+        "linters": "clean",
+        "lsp": "clean",
+        "tsc": "clean"
+      },
+      "hasIssues": false,
+      "fileCount": 2,
+      "durationMs": 312
+    },
+    "isError": false
+  },
+  "id": 5
+}
+```
