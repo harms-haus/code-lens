@@ -28,9 +28,9 @@ let cachedPrettierAvailable: boolean | null = null;
 let cachedTscAvailable: boolean | null = null;
 let cachedCwd: string | null = null;
 
-async function ensureCache(cwd: string): Promise<void> {
+async function ensureCache(cwd: string): Promise<{ linters: DetectedLinter[]; prettierAvailable: boolean; tscAvailable: boolean }> {
   if (cachedCwd === cwd && cachedLinters !== null && cachedPrettierAvailable !== null && cachedTscAvailable !== null) {
-    return;
+    return { linters: cachedLinters, prettierAvailable: cachedPrettierAvailable, tscAvailable: cachedTscAvailable };
   }
 
   // Only re-detect what hasn't been cached yet or if cwd changed
@@ -51,6 +51,8 @@ async function ensureCache(cwd: string): Promise<void> {
   cachedLinters = linters;
   cachedPrettierAvailable = prettier;
   cachedTscAvailable = tsc;
+
+  return { linters, prettierAvailable: prettier, tscAvailable: tsc };
 }
 
 /**
@@ -97,60 +99,31 @@ registerCommand("fullCheck", async (params, manager, cwd) => {
     return err("Missing or empty 'files' parameter.", { files });
   }
 
-  // Validate all file paths are within the workspace
-  const safeFiles: string[] = [];
-  for (const f of files) {
-    try {
-      safeFiles.push(resolveFile(f, cwd));
-    } catch {
-      return err(`Path traversal rejected: "${f}"`, { files });
-    }
-  }
+  const safeFilesResult = validateAndResolveFiles(files, cwd);
+  if (!Array.isArray(safeFilesResult)) return safeFilesResult;
+  const safeFiles = safeFilesResult;
 
   try {
-    // Ensure detection caches are populated
-    await ensureCache(cwd);
+    const { linters, prettierAvailable, tscAvailable } = await ensureCache(cwd);
 
-    // Run all checks concurrently
     const [prettierResult, linterResult, lspResult, tscResult] = await Promise.all([
-      runPrettierCheck(safeFiles, cwd, config, cachedPrettierAvailable!),
-      runLinterCheck(safeFiles, cwd, config, cachedLinters!),
+      runPrettierCheck(safeFiles, cwd, config, prettierAvailable),
+      runLinterCheck(safeFiles, cwd, config, linters),
       runLspCheck(safeFiles, cwd, config, manager),
-      runTscCheck(safeFiles, cwd, config, cachedTscAvailable!),
+      runTscCheck(safeFiles, cwd, config, tscAvailable),
     ]);
 
-    // Collect results
-    const sections: string[] = [];
-    const statuses: Record<string, CheckStatus> = {};
-    let hasIssues = false;
-
-    statuses.prettier = prettierResult.status;
-    if (prettierResult.section) sections.push(prettierResult.section);
-    if (prettierResult.hasIssues) hasIssues = true;
-
-    statuses.linters = linterResult.status;
-    if (linterResult.section) sections.push(linterResult.section);
-    if (linterResult.hasIssues) hasIssues = true;
-
-    statuses.lsp = lspResult.status;
-    if (lspResult.section) sections.push(lspResult.section);
-    if (lspResult.hasIssues) hasIssues = true;
-
-    statuses.tsc = tscResult.status;
-    if (tscResult.section) sections.push(tscResult.section);
-    if (tscResult.hasIssues) hasIssues = true;
+    const { sections, statuses, hasIssues } = collectResults(
+      prettierResult, linterResult, lspResult, tscResult,
+    );
 
     const durationMs = Date.now() - startTime;
-
-    // Build response details with structured results
     const details: Record<string, unknown> = {
       statuses,
       hasIssues,
       fileCount: safeFiles.length,
       durationMs,
     };
-
-
 
     const text = sections.length > 0
       ? sections.join("\n")
@@ -292,7 +265,7 @@ async function runLspCheck(
     const allDiags: { file: string; diagnostics: Diagnostic[] }[] = [];
     for (const file of filesWithLanguage) {
       const diagnostics = await manager.getDiagnostics(file, true);
-      if (diagnostics && diagnostics.length > 0) {
+      if (diagnostics.length > 0) {
         allDiags.push({ file, diagnostics });
       }
     }
@@ -358,6 +331,46 @@ async function runTscCheck(
 }
 
 // ── Internal Helpers ───────────────────────────────────────────────────────
+
+/** Validate and resolve file paths, returning safe absolute paths or an error result. */
+function validateAndResolveFiles(files: string[], cwd: string): string[] | ReturnType<typeof err> {
+  const safeFiles: string[] = [];
+  for (const f of files) {
+    try {
+      safeFiles.push(resolveFile(f, cwd));
+    } catch {
+      return err(`Path traversal rejected: "${f}"`, { files });
+    }
+  }
+  return safeFiles;
+}
+
+/** Aggregate check results into sections, statuses, and an hasIssues flag. */
+function collectResults(
+  prettierResult: CheckResult,
+  linterResult: CheckResult,
+  lspResult: CheckResult,
+  tscResult: CheckResult,
+): { sections: string[]; statuses: Record<string, CheckStatus>; hasIssues: boolean } {
+  const sections: string[] = [];
+  const statuses: Record<string, CheckStatus> = {};
+  let hasIssues = false;
+
+  const allResults: [string, CheckResult][] = [
+    ["prettier", prettierResult],
+    ["linters", linterResult],
+    ["lsp", lspResult],
+    ["tsc", tscResult],
+  ];
+
+  for (const [key, result] of allResults) {
+    statuses[key] = result.status;
+    if (result.section) sections.push(result.section);
+    if (result.hasIssues) hasIssues = true;
+  }
+
+  return { sections, statuses, hasIssues };
+}
 
 /** Get all linters relevant for at least one of the given files */
 function getRelevantLinters(files: string[], detected: DetectedLinter[]): DetectedLinter[] {
