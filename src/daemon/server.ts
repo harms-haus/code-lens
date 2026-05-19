@@ -296,20 +296,7 @@ export function startServer(): void {
   defaultServer.start();
 }
 
-// ── Auto-start when run directly ──────────────────────────────────────────
-
-// If this module is the entry point (i.e., spawned by lifecycle.ts), start
-const isMain = (() => {
-  try {
-    return (
-      process.argv[1] &&
-      import.meta.url.endsWith(new URL(process.argv[1]).pathname.replace(/\.ts$/, ".js"))
-    );
-  } catch {
-    return false;
-  }
-})();
-
-if (isMain) {
-  startServer();
-}
+// ── Auto-start is handled by server.ts (the entry point) ─────────────────
+// server.ts imports all command modules (which register via side effects)
+// then calls startServer() explicitly. Do NOT auto-start here to avoid
+// double-startServer() calls when tsup bundles everything into one file.
