@@ -1,6 +1,6 @@
 # Daemon Protocol
 
-This document describes the IPC protocol used between the code-lens CLI and its background daemon process.
+This document describes the IPC protocol used between the @harms-haus/code-lens CLI and its background daemon process.
 
 ---
 

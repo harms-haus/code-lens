@@ -1,12 +1,12 @@
 # Adding a New Language
 
-This guide explains how to add support for a new programming language to code-lens-cli by registering an LSP (Language Server Protocol) server.
+This guide explains how to add support for a new programming language to @harms-haus/code-lens by registering an LSP (Language Server Protocol) server.
 
 ---
 
 ## How LSP Integration Works
 
-code-lens-cli uses the Language Server Protocol to provide code intelligence features (go-to-definition, hover, references, etc.) for any language that has an LSP-compliant server. The architecture works like this:
+@harms-haus/code-lens uses the Language Server Protocol to provide code intelligence features (go-to-definition, hover, references, etc.) for any language that has an LSP-compliant server. The architecture works like this:
 
 1. **Language registry** (`src/lsp/language-registry.ts`) — defines a `LANGUAGE_SERVERS` array containing one `LspServerConfig` entry per supported language.
 2. **Language detection** (`src/lsp/language-config.ts`) — maps file extensions to the correct `LspServerConfig` via `languageFromPath()`.
@@ -87,7 +87,7 @@ An array of command-line arguments passed to the server command. Common patterns
 | Servers that default to stdio | `[]` |
 | Runtime-based servers | Runtime-specific flags + main entry point |
 
-**Important**: code-lens-cli communicates with servers over **stdio**. Your server must support stdio mode. If the server defaults to stdio, use an empty array `[]`.
+**Important**: @harms-haus/code-lens communicates with servers over **stdio**. Your server must support stdio mode. If the server defaults to stdio, use an empty array `[]`.
 
 ### `extensions` (required)
 

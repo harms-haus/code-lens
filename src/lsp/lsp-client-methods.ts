@@ -68,7 +68,7 @@ export class LspClient extends BaseLspClient {
   async initialize(config: LspServerConfig, rootUri: string | null): Promise<void> {
     const params: InitializeParams = {
       processId: globalThis.process.pid,
-      clientInfo: { name: "code-lens-cli", version: "1.0.0" },
+      clientInfo: { name: "@harms-haus/code-lens", version: "1.0.0" },
       rootUri,
       initializationOptions: config.initializationOptions,
       capabilities: {

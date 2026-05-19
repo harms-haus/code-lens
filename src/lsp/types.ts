@@ -1,5 +1,5 @@
 /**
- * LSP types for the code-lens-cli tool
+ * LSP types for the @harms-haus/code-lens tool
  */
 
 import type { Diagnostic } from "vscode-languageserver-types";

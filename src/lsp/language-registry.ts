@@ -189,7 +189,7 @@ export const LANGUAGE_SERVERS: LspServerConfig[] = [
   {
     language: "dart",
     command: "dart",
-    args: ["language-server", "--client-id=code-lens-cli"],
+    args: ["language-server", "--client-id=@harms-haus/code-lens"],
     extensions: [".dart"],
     detectCommand: "dart --version",
     installCommand: "Install Dart SDK from https://dart.dev/get-dart",

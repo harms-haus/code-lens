@@ -1,6 +1,6 @@
 # Commands Reference
 
-All commands are invoked via the `code-lens` CLI. Most commands require a running daemon — the CLI starts one automatically if needed.
+All commands are invoked via the `code-lens` CLI (installed as `@harms-haus/code-lens`). Most commands require a running daemon — the CLI starts one automatically if needed.
 
 ```
 code-lens <command> [options]

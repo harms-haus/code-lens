@@ -2,7 +2,7 @@
 
 ## Overview
 
-code-lens-cli uses a **client-daemon architecture** to provide LSP-powered code intelligence from the command line. The CLI spawns a long-lived daemon process **per workspace**, and the two communicate over a **Unix domain socket** (or Windows named pipe) using **NDJSON** (newline-delimited JSON) framed with **JSON-RPC 2.0** messages.
+@harms-haus/code-lens uses a **client-daemon architecture** to provide LSP-powered code intelligence from the command line. The CLI spawns a long-lived daemon process **per workspace**, and the two communicate over a **Unix domain socket** (or Windows named pipe) using **NDJSON** (newline-delimited JSON) framed with **JSON-RPC 2.0** messages.
 
 The daemon keeps LSP server processes alive between invocations, so repeated commands (e.g. in a REPL or scripting loop) don't pay the startup cost of initializing language servers every time.
 

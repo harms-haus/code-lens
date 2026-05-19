@@ -1,4 +1,4 @@
-# Contributing to code-lens-cli
+# Contributing to @harms-haus/code-lens
 
 Thanks for your interest in contributing! This guide covers everything you need to get started.
 

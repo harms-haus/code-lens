@@ -1,5 +1,5 @@
 {
-  "name": "code-lens-cli",
+  "name": "@harms-haus/code-lens",
   "version": "0.1.0",
   "description": "LSP-powered CLI tool for code intelligence — diagnostics, references, definitions, and more",
   "type": "module",

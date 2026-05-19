@@ -1,4 +1,4 @@
-# code-lens-cli
+# @harms-haus/code-lens
 
 LSP-powered code intelligence CLI.
 
@@ -7,7 +7,7 @@ Manage LSP servers from the command line. Get diagnostics, find references, navi
 ## Installation
 
 ```bash
-npm install -g code-lens-cli
+npm install -g @harms-haus/code-lens
 ```
 
 ## Quick Start
