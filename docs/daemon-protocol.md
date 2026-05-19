@@ -345,7 +345,7 @@ When the CLI needs to communicate with the daemon and no daemon is running, it *
 
 The daemon shuts itself down after **5 minutes** of inactivity:
 
-- The idle timer resets on every incoming request and every new connection.
+- The idle timer resets on every incoming request (except `status`) and every new connection. The `status` method is excluded so that health-check polling does not keep the daemon alive.
 - When the timer fires, if there are **zero active connections**, the daemon performs a graceful shutdown.
 - If connections are still active when the timer fires, the timer simply resets.
 

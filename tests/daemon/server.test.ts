@@ -134,4 +134,28 @@ describe("daemon/server", () => {
       expect(server).toBeInstanceOf(DaemonServer);
     });
   });
+
+  // ── Idle Timer Reset Guard ────────────────────────────────────────────
+
+  describe("shouldResetIdleTimer", () => {
+    it("returns false for 'status' method", () => {
+      const server = createServer();
+      expect(server.shouldResetIdleTimer("status")).toBe(false);
+    });
+
+    it("returns true for 'diagnostics' method", () => {
+      const server = createServer();
+      expect(server.shouldResetIdleTimer("diagnostics")).toBe(true);
+    });
+
+    it("returns true for 'hover' method", () => {
+      const server = createServer();
+      expect(server.shouldResetIdleTimer("hover")).toBe(true);
+    });
+
+    it("returns true for unknown methods", () => {
+      const server = createServer();
+      expect(server.shouldResetIdleTimer("unknown-method")).toBe(true);
+    });
+  });
 });

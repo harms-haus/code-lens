@@ -52,10 +52,7 @@ export class DaemonServer {
   // ── Request Routing ───────────────────────────────────────────────────
 
   /** Route a single request to the appropriate handler */
-  async handleRequest(
-    request: DaemonRequest,
-    cwd: string,
-  ): Promise<DaemonResponse> {
+  async handleRequest(request: DaemonRequest, cwd: string): Promise<DaemonResponse> {
     const handler = this.commandHandlers.get(request.method);
 
     if (!handler) {
@@ -83,6 +80,11 @@ export class DaemonServer {
   }
 
   // ── Idle Timer ────────────────────────────────────────────────────────
+
+  /** Whether a request with the given method should reset the idle timer */
+  shouldResetIdleTimer(method: string): boolean {
+    return !IDLE_EXCLUDED_METHODS.has(method);
+  }
 
   /** Reset (or start) the idle shutdown timer */
   resetIdleTimer(): void {
@@ -163,12 +165,11 @@ export class DaemonServer {
       };
 
       rl.on("line", (line: string) => {
-        this.resetIdleTimer();
-
         let request: DaemonRequest;
         try {
           request = JSON.parse(line) as DaemonRequest;
         } catch {
+          // Invalid JSON does not reset idle timer — daemon shouldn't stay alive on garbage data
           const response: DaemonResponse = {
             jsonrpc: "2.0",
             error: {
@@ -179,6 +180,11 @@ export class DaemonServer {
           };
           socket.write(JSON.stringify(response) + "\n");
           return;
+        }
+
+        // Only reset idle timer for non-excluded methods
+        if (this.shouldResetIdleTimer(request.method)) {
+          this.resetIdleTimer();
         }
 
         if (this.lspManager) {
@@ -239,6 +245,9 @@ export class DaemonServer {
 
 /** Idle timeout: shut down after 5 minutes with no requests and no active connections */
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
+
+/** Methods that should NOT reset the idle shutdown timer */
+const IDLE_EXCLUDED_METHODS = new Set(["status"]);
 
 // ── Module-level backward-compatible API ───────────────────────────────────
 

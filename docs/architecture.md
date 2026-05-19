@@ -59,7 +59,7 @@ The `DaemonServer` class encapsulates all daemon-side state:
 
 - **Command registry** — a `Map<string, CommandHandler>` mapping method names to handler functions. Command modules call `registerCommand()` at import time.
 - **Request routing** — `handleRequest()` looks up the handler by method name, calls it with `(params, lspManager, cwd)`, and returns a JSON-RPC response.
-- **Idle timer** — resets on each request. After 5 minutes of inactivity with zero active connections, triggers `gracefulShutdown()`.
+- **Idle timer** — resets on each request (except `status`). After 5 minutes of inactivity with zero active connections, triggers `gracefulShutdown()`. The `status` method is excluded so that health-check polling does not keep the daemon alive.
 - **Connection tracking** — increments/decrements `activeConnections` as sockets connect/disconnect.
 - **Shutdown** — stops all LSP servers, closes the server socket, and exits.
 
@@ -285,7 +285,7 @@ A typical request lifecycle (e.g. `find-references`):
    │   │   └── Return ok(formatted, { references })
    │   └── Wrap in DaemonResponse { jsonrpc: "2.0", result, id }
    ├── Write JSON + newline back to socket
-   └── Reset idle timer
+   └── Reset idle timer (unless method is excluded, e.g. `status`)
 ```
 
 ---
@@ -381,7 +381,7 @@ Each unique working directory gets its own daemon process. This isolates workspa
 
 ### Idle timeout
 
-Both the daemon (5 min) and individual LSP servers (5 min) have idle timeouts. This ensures resources are released when the user stops working, while still providing fast responses during active use. The daemon timer resets on every incoming request; LSP server timers reset on any request or notification.
+Both the daemon (5 min) and individual LSP servers (5 min) have idle timeouts. This ensures resources are released when the user stops working, while still providing fast responses during active use. The daemon timer resets on every incoming request except `status` (excluded so that health-check polling does not keep the daemon alive); LSP server timers reset on any request or notification.
 
 ### Versioned metadata
 
