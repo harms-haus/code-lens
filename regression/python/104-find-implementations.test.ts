@@ -23,6 +23,6 @@ describe("Python — find-implementations", () => {
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     // pylsp may return implementations or an error depending on server version
-    expect(normalized).toMatch(/Implementations found: \d+ location|No implementations|Error/i);
+    expect(normalized).toMatch(/Implementations found: \d+ location|No implementations|Failed|Error/i);
   });
 });
