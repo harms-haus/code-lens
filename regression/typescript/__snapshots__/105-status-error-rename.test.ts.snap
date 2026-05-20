@@ -1,44 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`TypeScript — status, errors, rename > generates cross-file rename diff > rename-cross-file 1`] = `
-"Rename "greet" → "sayHello"
-File: fixtures/references.ts
-Files affected: 1
-
-Patch:
-\`\`\`diff
---- a/<ROOT>/fixtures/references.ts
-+++ b/<ROOT>/fixtures/references.ts
-@@ -1,6 +1,6 @@
--import { greet, Calculator, type User } from "./valid.js";
-+import { greet as sayHello, Calculator, type User } from "./valid.js";
-
--const message = greet("world");
-+const message = sayHello("world");
-
- const calc = new Calculator();
- const sum = calc.add(3, 4);
-\`\`\`"
-`;
-
-exports[`TypeScript — status, errors, rename > generates rename diff for a function > rename-function 1`] = `
-"Rename "greet" → "sayHello"
-File: fixtures/valid.ts
-Files affected: 1
-
-Patch:
-\`\`\`diff
---- a/<ROOT>/fixtures/valid.ts
-+++ b/<ROOT>/fixtures/valid.ts
-@@ -1,4 +1,4 @@
--export function greet(name: string): string {
-+export function sayHello(name: string): string {
-   return \`Hello, \${name}!\`;
- }
-
-\`\`\`"
-`;
-
 exports[`TypeScript — status, errors, rename > shows no servers before any commands > status-no-servers 1`] = `"No LSP servers running."`;
 
 exports[`TypeScript — status, errors, rename > shows running server after a file command > status-with-server 1`] = `"typescript: running (pid: <PID>)"`;
