@@ -1,0 +1,19 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TypeScript — find-type-definition > finds type definition at definition site returns same location > type-definition-local 1`] = `
+"Type definition found: 1 location
+
+  <ROOT>/fixtures/valid.ts:23:18"
+`;
+
+exports[`TypeScript — find-type-definition > finds type definition of class instance > type-definition-of-calc 1`] = `
+"Type definition found: 1 location
+
+  <ROOT>/fixtures/valid.ts:9:14"
+`;
+
+exports[`TypeScript — find-type-definition > finds type definition of typed variable > type-definition-of-user 1`] = `
+"Type definition found: 1 location
+
+  <ROOT>/fixtures/valid.ts:23:18"
+`;

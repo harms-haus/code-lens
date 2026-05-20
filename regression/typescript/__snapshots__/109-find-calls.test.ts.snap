@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TypeScript — find-calls > shows call hierarchy for Calculator.add method > calls-calculator-add 1`] = `
+"Call hierarchy for "add" in fixtures/valid.ts:12:3
+
+─── Incoming Calls (1) ───
+  references.ts — <ROOT>/fixtures/references.ts:1
+    at line 6"
+`;
+
+exports[`TypeScript — find-calls > shows call hierarchy for greet function > calls-greet 1`] = `
+"Call hierarchy for "greet" in fixtures/valid.ts:1:17
+
+─── Incoming Calls (1) ───
+  references.ts — <ROOT>/fixtures/references.ts:1
+    at line 3"
+`;

@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Rust — find-type-definition > finds type definition of struct instance > type-definition-calc 1`] = `
+"Type definition found: 1 location
+
+  <ROOT>/src/main.rs:9:8"
+`;
+
+exports[`Rust — find-type-definition > finds type definition of variable > type-definition-message 1`] = `
+"Type definition found: 0 locations
+
+(none)"
+`;

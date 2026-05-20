@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TypeScript — find-symbols > finds symbols matching 'Calculator' > symbols-calculator 1`] = `
+"Symbols matching "Calculator": 1
+
+  Calculator (Class) — <ROOT>/fixtures/valid.ts:9"
+`;
+
+exports[`TypeScript — find-symbols > finds symbols matching 'greet' > symbols-greet 1`] = `
+"Symbols matching "greet": 1
+
+  greet (Function) — <ROOT>/fixtures/valid.ts:1"
+`;
+
+exports[`TypeScript — find-symbols > returns empty results for non-matching query > symbols-no-match 1`] = `"No symbols found matching "xyznonexistent123"."`;

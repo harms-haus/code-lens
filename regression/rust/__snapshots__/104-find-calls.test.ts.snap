@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Rust — find-calls > shows call hierarchy for Calculator::add method > calls-calculator-add 1`] = `
+"Call hierarchy for "add" in src/main.rs:18:8
+
+─── Incoming Calls (1) ───
+  main — <ROOT>/src/main.rs:24
+    at line 29"
+`;

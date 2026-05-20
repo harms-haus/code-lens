@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TypeScript — find-implementations > finds implementations of Animal base class > implementations-of-animal 1`] = `
+"Implementations found: 2 locations
+
+  <ROOT>/fixtures/classes.ts:1:14
+  <ROOT>/fixtures/classes.ts:9:14"
+`;
+
+exports[`TypeScript — find-implementations > finds implementations of Printable interface > implementations-of-printable 1`] = `
+"Implementations found: 1 location
+
+  <ROOT>/fixtures/classes.ts:26:14"
+`;

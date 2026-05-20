@@ -158,7 +158,92 @@ registerPositionCommand(
   (opts) => ({ newName: opts.newName }),
 );
 
-// 12. status
+// 12. lint
+program
+  .command("lint")
+  .description("Run detected linters on files")
+  .requiredOption("--files <paths>", "Comma-separated file paths")
+  .option("--max-concurrency <n>", "Maximum concurrent linters", parseInt)
+  .option("--timeout <ms>", "Timeout in milliseconds", parseInt)
+  .action(async (opts) => {
+    const files = (opts.files as string).split(",").map((f: string) => f.trim());
+    await dispatch("lint", {
+      files,
+      maxConcurrency: opts.maxConcurrency ?? undefined,
+      timeoutMs: opts.timeout ?? undefined,
+    });
+  });
+
+// 13. prettier
+program
+  .command("prettier")
+  .description("Check if files are formatted with prettier")
+  .requiredOption("--files <paths>", "Comma-separated file paths")
+  .option("--timeout <ms>", "Timeout in milliseconds", parseInt)
+  .action(async (opts) => {
+    const files = (opts.files as string).split(",").map((f: string) => f.trim());
+    await dispatch("prettier", {
+      files,
+      timeoutMs: opts.timeout ?? undefined,
+    });
+  });
+
+// 14. tsc
+program
+  .command("tsc")
+  .description("Run TypeScript type checking")
+  .requiredOption("--files <paths>", "Comma-separated file paths")
+  .option("--timeout <ms>", "Timeout in milliseconds", parseInt)
+  .action(async (opts) => {
+    const files = (opts.files as string).split(",").map((f: string) => f.trim());
+    await dispatch("tsc", {
+      files,
+      timeoutMs: opts.timeout ?? undefined,
+    });
+  });
+
+// 15. full-check
+program
+  .command("full-check")
+  .description("Run all checks (linters, prettier, tsc, LSP diagnostics)")
+  .requiredOption("--files <paths>", "Comma-separated file paths")
+  .option("--no-prettier", "Skip prettier check")
+  .option("--no-linters", "Skip linter checks")
+  .option("--no-lsp", "Skip LSP diagnostics")
+  .option("--no-tsc", "Skip tsc check")
+  .option("--max-concurrency <n>", "Maximum concurrent checks", parseInt)
+  .option("--lsp-delay <ms>", "Delay for LSP diagnostics to settle", parseInt, 500)
+  .option("--timeout <ms>", "Timeout per check in milliseconds", parseInt)
+  .action(async (opts) => {
+    const files = (opts.files as string).split(",").map((f: string) => f.trim());
+    await dispatch("fullCheck", {
+      files,
+      config: {
+        prettier: opts.prettier !== false,
+        linters: opts.linters !== false,
+        lsp: opts.lsp !== false,
+        tsc: opts.tsc !== false,
+        maxConcurrency: opts.maxConcurrency ?? undefined,
+        lspDelayMs: opts.lspDelay ?? 500,
+        prettierTimeoutMs: opts.timeout ?? undefined,
+        linterTimeoutMs: opts.timeout ?? undefined,
+        tscTimeoutMs: opts.timeout ?? undefined,
+      },
+    });
+  });
+
+// 16. file-changed
+program
+  .command("file-changed")
+  .description("Notify the LSP server that a file has changed")
+  .requiredOption("--file <path>", "File path")
+  .action(async (opts) => {
+    await dispatch("fileChanged", {
+      file: opts.file,
+    });
+  });
+
+// 17. status
 program
   .command("status")
   .description("Show daemon and LSP server status")
@@ -166,7 +251,7 @@ program
     await dispatch("status", {});
   });
 
-// 13. stop (special: does not dispatch, stops daemon directly)
+// 18. stop (special: does not dispatch, stops daemon directly)
 program
   .command("stop")
   .description("Stop the daemon")

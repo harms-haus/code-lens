@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`C/C++ — find-references > finds references to Point typedef > references-to-point 1`] = `
+"References found: 4 locations
+
+  <ROOT>/fixtures/main.c:14:3
+  <ROOT>/fixtures/main.c:16:1
+  <ROOT>/fixtures/main.c:17:5
+  <ROOT>/fixtures/main.c:27:5"
+`;
+
+exports[`C/C++ — find-references > finds references to add function > references-to-add 1`] = `
+"References found: 2 locations
+
+  <ROOT>/fixtures/main.c:3:5
+  <ROOT>/fixtures/main.c:24:15"
+`;

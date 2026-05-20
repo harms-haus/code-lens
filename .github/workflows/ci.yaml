@@ -65,6 +65,9 @@ jobs:
       - name: Install TypeScript language server
         run: npm install -g typescript-language-server typescript
 
+      - name: Install prettier
+        run: npm install -g prettier
+
       - name: Install Bash language server
         run: npm install -g bash-language-server
 

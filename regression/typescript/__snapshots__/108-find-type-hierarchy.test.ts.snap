@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TypeScript — find-type-hierarchy > shows both directions for Document class > type-hierarchy-document-both 1`] = `"Type hierarchy is not supported by this language server, or no type at this position."`;
+
+exports[`TypeScript — find-type-hierarchy > shows subtypes of Animal class > type-hierarchy-animal-subtypes 1`] = `"Type hierarchy is not supported by this language server, or no type at this position."`;
+
+exports[`TypeScript — find-type-hierarchy > shows supertypes of Dog class > type-hierarchy-dog-supertypes 1`] = `"Type hierarchy is not supported by this language server, or no type at this position."`;

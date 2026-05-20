@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Rust — find-implementations > finds implementations of Calculator struct > implementations-calculator 1`] = `
+"Implementations found: 1 location
+
+  <ROOT>/src/main.rs:13:6"
+`;

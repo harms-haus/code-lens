@@ -16,7 +16,6 @@ Build end-to-end regression tests for the `code-lens` CLI tool that exercise the
 - CI integration via GitHub Actions
 
 ### Out of Scope
-- Daemon-only methods: `fileChanged`, `lint`, `tsc`, `prettier`, `fullCheck`
 - Changes to any source files under `src/`
 - Changes to existing unit tests under `tests/`
 - Library API tests (`lib.ts`, `lib-client.ts`, `lib-lsp.ts`)
