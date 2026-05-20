@@ -1,0 +1,25 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TypeScript — find-definition > finds definition of an imported class > definition-of-calculator 1`] = `
+"Definition found: 1 location
+
+  <ROOT>/fixtures/valid.ts:9:14"
+`;
+
+exports[`TypeScript — find-definition > finds definition of an imported function > definition-of-greet 1`] = `
+"Definition found: 1 location
+
+  <ROOT>/fixtures/valid.ts:1:17"
+`;
+
+exports[`TypeScript — find-definition > finds definition of an imported type > definition-of-user-type 1`] = `
+"Definition found: 1 location
+
+  <ROOT>/fixtures/valid.ts:23:18"
+`;
+
+exports[`TypeScript — find-definition > returns same location for locally defined symbol > definition-local-symbol 1`] = `
+"Definition found: 1 location
+
+  <ROOT>/fixtures/valid.ts:1:17"
+`;

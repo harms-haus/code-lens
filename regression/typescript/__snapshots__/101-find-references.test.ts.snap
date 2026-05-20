@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TypeScript — find-references > finds cross-file references to greet from references.ts > cross-file-references 1`] = `
+"References found: 3 locations
+
+  <ROOT>/fixtures/references.ts:1:10
+  <ROOT>/fixtures/references.ts:3:17
+  <ROOT>/fixtures/valid.ts:1:17"
+`;
+
+exports[`TypeScript — find-references > finds references to Calculator.add method > references-to-add 1`] = `
+"References found: 2 locations
+
+  <ROOT>/fixtures/valid.ts:12:3
+  <ROOT>/fixtures/references.ts:6:18"
+`;
+
+exports[`TypeScript — find-references > finds references to an exported function > references-to-greet 1`] = `
+"References found: 3 locations
+
+  <ROOT>/fixtures/valid.ts:1:17
+  <ROOT>/fixtures/references.ts:1:10
+  <ROOT>/fixtures/references.ts:3:17"
+`;

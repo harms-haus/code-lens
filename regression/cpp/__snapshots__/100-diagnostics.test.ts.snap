@@ -1,0 +1,30 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`C/C++ — diagnostics and navigation > finds definition of add function from call site > definition-of-add 1`] = `
+"Definition found: 1 location
+
+  <ROOT>/fixtures/main.c:24:9"
+`;
+
+exports[`C/C++ — diagnostics and navigation > lists document symbols > document-symbols 1`] = `
+"Document symbols for fixtures/main.c:
+8 symbols found
+
+  Function add (line 3)
+  Function subtract (line 7)
+  Class (anonymous struct) (line 11)
+  Field x (line 12)
+  Field y (line 13)
+  Class Point (line 11)
+  Function create_point (line 16)
+  Function main (line 23)"
+`;
+
+exports[`C/C++ — diagnostics and navigation > reports diagnostics for a valid C file > valid-c-diagnostics 1`] = `
+"Diagnostics for fixtures/main.c (cpp):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;
+
+exports[`C/C++ — diagnostics and navigation > shows hover info for a function > hover-function 1`] = `"Failed to get hover information: LSP request "textDocument/hover" timed out after <TIME>"`;

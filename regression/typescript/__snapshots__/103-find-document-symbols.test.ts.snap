@@ -1,0 +1,45 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TypeScript — find-document-symbols > lists all symbols in valid.ts > document-symbols-valid 1`] = `
+"Document symbols for fixtures/valid.ts:
+16 symbols found
+
+  Class Calculator (line 9)
+  Method add (line 12)
+  Property result (line 10)
+  Method subtract (line 17)
+  Enum Direction (line 31)
+  Constant Down (line 33)
+  Constant Left (line 34)
+  Constant Right (line 35)
+  Constant Up (line 32)
+  Function farewell (line 5)
+  Function greet (line 1)
+  Interface User (line 23)
+  Property age (line 25)
+  Property email (line 26)
+  Property name (line 24)
+  Variable UserId (line 29)"
+`;
+
+exports[`TypeScript — find-document-symbols > lists symbols in classes.ts including class members > document-symbols-classes 1`] = `
+"Document symbols for fixtures/classes.ts:
+14 symbols found
+
+  Class Animal (line 1)
+  Constructor constructor (line 2)
+  Property name (line 2)
+  Method speak (line 4)
+  Class Document (line 26)
+  Constructor constructor (line 27)
+  Method print (line 29)
+  Property title (line 27)
+  Class Dog (line 9)
+  Constructor constructor (line 12)
+  Property breed (line 10)
+  Method speak (line 17)
+  Interface Printable (line 22)
+  Method print (line 23)"
+`;
+
+exports[`TypeScript — find-document-symbols > returns no symbols for empty file > document-symbols-empty 1`] = `"No symbols found in fixtures/empty.ts."`;

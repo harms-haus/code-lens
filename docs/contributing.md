@@ -28,6 +28,8 @@ npm ci
 | `npm run format` | Format `src/**/*.ts` with Prettier |
 | `npm run format:check` | Check formatting without writing |
 | `npm run typecheck` | Run `tsc --noEmit` for type errors |
+| `npm run test:regression` | Run regression tests against real LSP servers |
+| `npm run test:regression:update` | Run regression tests and update snapshots |
 
 ## Running Locally
 
@@ -145,6 +147,47 @@ const result = await callHandler({
 expect(result).toContain("Hover info at");
 ```
 
+### Regression Tests
+
+Regression tests are end-to-end tests that exercise the full CLI → daemon → LSP server pipeline. They spawn real language servers, run actual CLI commands, and assert against snapshot output — unlike unit tests which mock everything.
+
+They live in the `regression/` directory, organized by language:
+
+```
+regression/
+  _shared/           → shared utilities (test context, CLI runner, output normalization)
+  typescript/        → TypeScript regression tests and fixtures
+  python/            → Python regression tests and fixtures
+  go/                → Go regression tests and fixtures
+  ...                → one subdirectory per supported language
+```
+
+#### Running Regression Tests
+
+```bash
+# Run all regression tests (up to 5 languages in parallel, 1 test at a time per language)
+npm run test:regression
+
+# Run and update snapshots (e.g. after intentional output changes)
+npm run test:regression:update
+```
+
+#### Key Details
+
+- **Separate Vitest config** — uses `vitest.config.regression.ts` with **no global mocks** (unlike `tests/setup.ts`), extended timeouts (2 min per test), and the `forks` pool for process isolation.
+- **Workspace-based concurrency** — `vitest.workspace.ts` defines one Vitest project per language, each with `maxForks: 1`. Vitest runs up to 5 projects concurrently. This prevents daemon port collisions and ensures predictable LSP server behavior.
+- **Graceful skip** — each test context auto-detects whether the language server is installed. Tests skip automatically when the server isn't available, so you only need the servers for languages you're actively testing.
+- **Unique temp directories** — each test run copies fixtures into a fresh temp directory (`RegressionTestContext`), ensuring full isolation between runs.
+- **Snapshot assertions** — most regression tests normalize output (strip absolute paths, timing info) and compare against Vitest snapshots. Use `--update` to refresh them.
+
+#### Writing a New Regression Test
+
+1. Add fixture files to `regression/<language>/fixtures/`.
+2. Create a test file in `regression/<language>/` (e.g., `100-diagnostics.test.ts`).
+3. Use `RegressionTestContext` from `_shared/test-context.ts` for setup/teardown.
+4. Use `runCLI` / `runCLISlow` helpers and `normalizeOutput` to produce deterministic, snapshot-friendly output.
+5. Assert with `expect(normalized).toMatchSnapshot("name")`.
+
 ## Code Style
 
 - **Linter**: ESLint with `typescript-eslint` and `eslint-config-prettier`
@@ -172,7 +215,7 @@ npm run format:check
    - `npm run test:coverage` — meets coverage thresholds (statements ≥ 65%, branches ≥ 55%, functions ≥ 65%, lines ≥ 65%)
 4. **Open a pull request** with a description of the changes, the motivation, and any relevant context
 
-CI runs all of the above on every PR — all checks must be green before merging.
+CI runs all of the above on every PR — all checks must be green before merging. Regression tests (`npm run test:regression`) also run in CI and should pass for all languages that have servers installed in the CI environment.
 
 ## Project Structure
 
@@ -226,9 +269,17 @@ code-lens-cli/
 │   ├── lsp/                # LSP client/manager tests
 │   ├── formatting/         # Formatting tests
 │   └── utils/              # Utility tests
+├── regression/               # End-to-end regression tests
+│   ├── _shared/                  # Shared test context, CLI runner, output normalization
+│   ├── typescript/               # TypeScript regression tests + fixtures
+│   ├── python/                   # Python regression tests + fixtures
+│   ├── go/                       # Go regression tests + fixtures
+│   └── ...                       # One subdirectory per supported language
 ├── docs/                   # Documentation
 ├── package.json
 ├── tsconfig.json
 ├── vitest.config.ts
+├── vitest.config.regression.ts   # Regression test config (no mocks, extended timeouts)
+├── vitest.workspace.ts           # Per-language workspace projects for regression tests
 └── README.md
 ```

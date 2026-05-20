@@ -1,0 +1,22 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`YAML — diagnostics and symbols > lists document symbols with key names and validates structure > document-symbols 1`] = `
+"Document symbols for fixtures/valid.yaml:
+8 symbols found
+
+  String name (line 1)
+  String version (line 2)
+  Module dependencies (line 3)
+  Module scripts (line 6)
+  String lodash (line 4)
+  String express (line 5)
+  String build (line 7)
+  String test (line 8)"
+`;
+
+exports[`YAML — diagnostics and symbols > reports diagnostics for valid YAML > valid-yaml-diagnostics 1`] = `
+"Diagnostics for fixtures/valid.yaml (yaml):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;

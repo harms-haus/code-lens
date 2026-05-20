@@ -1,0 +1,35 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TypeScript — diagnostics > errors on unsupported file extension > unsupported-extension 1`] = `
+"No LSP server configured for "fixtures/test.xyz".
+
+Supported languages: typescript, python, rust, go, java, cpp, csharp, php, ruby, lua, html, css, json, yaml, markdown, dart, kotlin, swift, zig, haskell, ocaml, elixir, scala, terraform, dockerfile, sql, vue, svelte, toml, nix, latex, r, bash"
+`;
+
+exports[`TypeScript — diagnostics > reports diagnostics for multiple files > multi-file-diagnostics 1`] = `
+"Diagnostics for fixtures/valid.ts (typescript):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found.
+
+---
+
+Diagnostics for fixtures/broken.ts (typescript):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;
+
+exports[`TypeScript — diagnostics > reports errors for a broken file > broken-file-diagnostics 1`] = `
+"Diagnostics for fixtures/broken.ts (typescript):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;
+
+exports[`TypeScript — diagnostics > reports no diagnostics for a valid file > valid-file-diagnostics 1`] = `
+"Diagnostics for fixtures/valid.ts (typescript):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;

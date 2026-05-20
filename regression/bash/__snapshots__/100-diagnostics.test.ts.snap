@@ -1,0 +1,27 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Bash — diagnostics and symbols > finds references to a function > references-to-greet 1`] = `
+"References found: 3 locations
+
+  <ROOT>/fixtures/valid.sh:3:1
+  <ROOT>/fixtures/valid.sh:14:5
+  <ROOT>/fixtures/references.sh:4:10"
+`;
+
+exports[`Bash — diagnostics and symbols > lists document symbols with function names and line numbers > document-symbols 1`] = `
+"Document symbols for fixtures/valid.sh:
+5 symbols found
+
+  Function greet (line 3)
+  Variable name (line 4)
+  Function farewell (line 8)
+  Variable name (line 9)
+  Function main (line 13)"
+`;
+
+exports[`Bash — diagnostics and symbols > reports diagnostics for a valid file > valid-file-diagnostics 1`] = `
+"Diagnostics for fixtures/valid.sh (bash):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;

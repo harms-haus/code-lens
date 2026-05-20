@@ -1,0 +1,45 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Rust — full suite > finds definition of greet from call site > definition-of-greet 1`] = `
+"Definition found: 1 location
+
+  <ROOT>/src/main.rs:1:4"
+`;
+
+exports[`Rust — full suite > finds references to greet function > references-to-greet 1`] = `
+"References found: 2 locations
+
+  <ROOT>/src/main.rs:25:19
+  <ROOT>/src/main.rs:1:4"
+`;
+
+exports[`Rust — full suite > lists document symbols > document-symbols 1`] = `
+"Document symbols for src/main.rs:
+8 symbols found
+
+  Function greet (line 1)
+  Function farewell (line 5)
+  Struct Calculator (line 9)
+  Field result (line 10)
+  Object impl Calculator (line 13)
+  Function new (line 14)
+  Method add (line 18)
+  Function main (line 24)"
+`;
+
+exports[`Rust — full suite > reports diagnostics for main.rs > diagnostics-main 1`] = `
+"Diagnostics for src/main.rs (rust):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;
+
+exports[`Rust — full suite > shows hover info for a function > hover-function 1`] = `
+"Hover info at src/main.rs:1:4:
+
+regression
+
+fn greet(name: &str) -> String
+
+Range: line 1:4 to line 1:9"
+`;

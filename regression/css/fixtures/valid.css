@@ -1,0 +1,20 @@
+:root {
+  --primary-color: #333;
+  --font-size: 16px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  color: var(--primary-color);
+  font-size: var(--font-size);
+}
+
+.container .header {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.container .content {
+  padding: 20px;
+}

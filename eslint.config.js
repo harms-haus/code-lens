@@ -7,7 +7,7 @@ export default tseslint.config(
   ...tseslint.configs.strictTypeChecked,
   prettierConfig,
   {
-    ignores: ["dist/", "node_modules/", "coverage/", "vitest.config.ts", "tsup.config.ts"],
+    ignores: ["dist/", "node_modules/", "coverage/", "vitest.config.ts", "vitest.config.regression.ts", "vitest.workspace.ts", "tsup.config.ts"],
   },
   {
     files: ["src/**/*.ts"],
@@ -65,6 +65,27 @@ export default tseslint.config(
       "max-lines-per-function": "off",
       complexity: "off",
       "max-depth": "off",
+    },
+  },
+  {
+    files: ["regression/**/*.test.ts", "regression/_shared/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        { checksConditionals: false, checksVoidReturn: false },
+      ],
+      "max-lines-per-function": "off",
+      complexity: "off",
+      "max-depth": "off",
+      "no-console": "off",
     },
   },
 );
