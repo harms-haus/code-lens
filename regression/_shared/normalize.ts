@@ -46,10 +46,14 @@ export function normalizeOutput(output: string, options: NormalizeOptions): stri
       // 9. Normalize TypeScript file paths in stack traces
       //    e.g., "/path/to/typescript/lib/typescript.js:186170:11" → "<TS_PATH>/typescript.js:<LINE>:<COL>"
       .replace(/([^\s("']+\/typescript\.js):\d+:\d+/g, "$1:<LINE>:<COL>")
-      // 10. Normalize npm-global paths (after home dir replacement)
-      .replace(/~\/\.npm-global\/lib\/node_modules/g, "~/npm-modules")
-      // 11. Normalize hosted toolcache paths (CI)
-      .replace(/\/opt\/hostedtoolcache\/node\/[^/]+\/x64\/lib\/node_modules/g, "<CI_NODE_MODULES>")
+      .replace(/([^\s("']+\/_tsserver\.js):\d+:\d+/g, "$1:<LINE>:<COL>")
+      // 10. Normalize all node_modules paths (npm-global, CI toolcache, etc.)
+      .replace(/~\/\.npm-global\/lib\/node_modules/g, "<NODE_MODULES>")
+      .replace(/\/opt\/hostedtoolcache\/node\/[^/]+\/x64\/lib\/node_modules/g, "<NODE_MODULES>")
+      // 11. Normalize Node.js internal line numbers (differ between versions)
+      .replace(/(node:events):\d+:\d+/g, "$1:<LINE>:<COL>")
+      .replace(/(node:internal\/child_process):\d+:\d+/g, "$1:<LINE>:<COL>")
+      .replace(/(node:internal\/process\/task_queues):\d+:\d+/g, "$1:<LINE>:<COL>")
       // 9. Trim trailing whitespace on each line, then leading/trailing blank lines
       .split("\n")
       .map((line) => line.trimEnd())
