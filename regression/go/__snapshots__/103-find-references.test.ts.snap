@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Go — find-references > finds references to greet function > references-to-greet 1`] = `
+"References found: 2 locations
+
+  <ROOT>/fixtures/main.go:5:6
+  <ROOT>/fixtures/main.go:27:13"
+`;

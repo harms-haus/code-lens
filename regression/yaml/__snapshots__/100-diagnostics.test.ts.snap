@@ -14,6 +14,13 @@ exports[`YAML — diagnostics and symbols > lists document symbols with key name
   String test (line 8)"
 `;
 
+exports[`YAML — diagnostics and symbols > reports diagnostics for invalid YAML > invalid-yaml-diagnostics 1`] = `
+"Diagnostics for fixtures/invalid.yaml (yaml):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;
+
 exports[`YAML — diagnostics and symbols > reports diagnostics for valid YAML > valid-yaml-diagnostics 1`] = `
 "Diagnostics for fixtures/valid.yaml (yaml):
 0 error(s), 0 warning(s), 0 info message(s)

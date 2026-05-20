@@ -1,0 +1,8 @@
+.container {
+  color: var(--nonexistent-var);
+  display: invalid-value;
+}
+
+/* Intentional syntax error: missing closing brace
+.header {
+  font-weight: bold;

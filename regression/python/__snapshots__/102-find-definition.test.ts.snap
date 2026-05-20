@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Python — find-definition > finds definition of imported function > definition-of-greet 1`] = `
+"Definition found: 1 location
+
+  <ROOT>/fixtures/valid.py:1:5"
+`;

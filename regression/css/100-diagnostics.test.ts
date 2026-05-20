@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { RegressionTestContext } from "../_shared/test-context.js";
-import { runCLI, runCLISlow } from "../_shared/run-cli.js";
+import { runCLISlow } from "../_shared/run-cli.js";
 import { normalizeOutput } from "../_shared/normalize.js";
 
 const ctx = new RegressionTestContext("css");
@@ -14,5 +14,14 @@ describe("CSS — diagnostics", () => {
     const result = await runCLISlow(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/valid.css"]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("valid-css-diagnostics");
+  });
+
+  it("reports diagnostics for an invalid CSS file", async () => {
+    if (!ctx.isServerInstalled) return;
+    const result = await runCLISlow(ctx.fixtureDir, [
+      "diagnostics", "--file", "fixtures/invalid.css",
+    ]);
+    const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
+    expect(normalized).toMatchSnapshot("invalid-css-diagnostics");
   });
 });

@@ -22,7 +22,7 @@ describe("Python — find-implementations", () => {
     ]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // pylsp may return implementations or an error depending on server version
-    expect(normalized).toMatch(/Implementations found: \d+ location|No implementations|Failed|Error/i);
+    // pylsp does not support textDocument/implementation — accepts error response
+    expect(normalized).toMatch(/Implementations found: \d+ location|No implementations found|Failed to find implementations|Method Not Found/i);
   });
 });

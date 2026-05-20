@@ -16,6 +16,15 @@ describe("YAML — diagnostics and symbols", () => {
     expect(normalized).toMatchSnapshot("valid-yaml-diagnostics");
   });
 
+  it("reports diagnostics for invalid YAML", async () => {
+    if (!ctx.isServerInstalled) return;
+    const result = await runCLISlow(ctx.fixtureDir, [
+      "diagnostics", "--file", "fixtures/invalid.yaml",
+    ]);
+    const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
+    expect(normalized).toMatchSnapshot("invalid-yaml-diagnostics");
+  });
+
   it("lists document symbols with key names and validates structure", async () => {
     if (!ctx.isServerInstalled) return;
     const result = await runCLI(ctx.fixtureDir, [

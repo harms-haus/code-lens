@@ -206,8 +206,20 @@ export class RegressionTestContext {
         this.isServerInstalled = false;
         return;
       }
-      await execa(cmd[0], cmd.slice(1), { timeout: 10_000, reject: true });
-      this.isServerInstalled = true;
+      try {
+        await execa(cmd[0], cmd.slice(1), { timeout: 10_000, reject: true });
+        this.isServerInstalled = true;
+      } catch {
+        // Some LSP servers (css-languageserver, json-languageserver, intelephense)
+        // are stdio-mode only and don't support --version. Fall back to checking
+        // if the binary exists in PATH.
+        try {
+          await execa("which", [cmd[0]], { timeout: 5_000, reject: true });
+          this.isServerInstalled = true;
+        } catch {
+          this.isServerInstalled = false;
+        }
+      }
     } catch {
       this.isServerInstalled = false;
     }

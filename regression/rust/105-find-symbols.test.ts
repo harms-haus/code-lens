@@ -27,9 +27,7 @@ describe("Rust — find-symbols", () => {
     const result = await runCLI(ctx.fixtureDir, ["find-symbols", "--query", "greet"]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // find-symbols may succeed with results or fail if it falls back to a
-    // TS server with no project — accept either outcome
-    expect(normalized).toMatch(/greet|No symbols found|Failed to find symbols/i);
+    expect(normalized).toMatchSnapshot("symbols-greet");
   });
 
   it("finds symbols matching 'Calculator'", async () => {
@@ -38,6 +36,6 @@ describe("Rust — find-symbols", () => {
     const result = await runCLI(ctx.fixtureDir, ["find-symbols", "--query", "Calculator"]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatch(/Calculator|No symbols found|Failed to find symbols/i);
+    expect(normalized).toMatchSnapshot("symbols-calculator");
   });
 });

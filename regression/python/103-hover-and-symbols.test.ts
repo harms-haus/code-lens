@@ -15,7 +15,7 @@ describe("Python — hover & document-symbols", () => {
       "hover", "--file", "fixtures/valid.py", "--line", "1", "--col", "5",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toContain("Hover info");
+    expect(normalized).toMatchSnapshot("hover-function");
   });
 
   it("lists document symbols", async () => {
@@ -24,6 +24,6 @@ describe("Python — hover & document-symbols", () => {
       "find-document-symbols", "--file", "fixtures/valid.py",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toContain("Function greet");
+    expect(normalized).toMatchSnapshot("document-symbols");
   });
 });

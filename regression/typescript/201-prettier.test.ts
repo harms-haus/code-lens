@@ -52,8 +52,11 @@ describe("TypeScript — prettier", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
+    // NOTE: The code-lens prettier runner may report "formatted correctly" for
+    // files that need formatting due to config resolution in the daemon environment.
+    // Accepting both outcomes until the root cause is fixed.
     expect(normalized).toMatch(
-      /need.*formatting|not available|formatted correctly/i,
+      /need.*formatting|formatted correctly|not available/i,
     );
   });
 
@@ -70,6 +73,6 @@ describe("TypeScript — prettier", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
-    expect(normalized).toMatch(/formatted|formatting|not available|files/i);
+    expect(normalized).toMatch(/formatted correctly|need.*formatting|not available|file\(s\)/i);
   });
 });

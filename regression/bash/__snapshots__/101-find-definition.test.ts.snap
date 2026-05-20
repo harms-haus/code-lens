@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Bash — find-definition > finds definition of greet from references.sh > definition-of-greet 1`] = `
+"Definition found: 1 location
+
+  <ROOT>/fixtures/valid.sh:3:1"
+`;

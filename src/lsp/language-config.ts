@@ -33,7 +33,23 @@ export async function isServerInstalled(config: LspServerConfig): Promise<boolea
     return await new Promise<boolean>((resolve) => {
       const parts = config.detectCommand.split(/\s+/);
       execFile(parts[0], parts.slice(1), { timeout: 10000 }, (error) => {
-        resolve(!error);
+        if (!error) {
+          resolve(true);
+          return;
+        }
+        // Some LSP servers (css-languageserver, json-languageserver, intelephense)
+        // are stdio-mode only and don't support --version. They exit non-zero with
+        // an error like "Connection input stream is not set" but ARE installed.
+        // Check if the binary exists in PATH as a fallback.
+        const { code } = error as { code?: string };
+        if (code === "ENOENT") {
+          // Binary not found in PATH
+          resolve(false);
+          return;
+        }
+        // Command was found but failed (e.g., --version not supported).
+        // This means the server IS installed — just doesn't support the version flag.
+        resolve(true);
       });
     });
   } catch {

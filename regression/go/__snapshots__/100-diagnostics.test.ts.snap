@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Go — navigation > finds definition of greet from call site > definition-of-greet 1`] = `
+"Definition found: 1 location
+
+  <ROOT>/fixtures/main.go:5:6"
+`;
+
+exports[`Go — navigation > finds references to greet function > references-to-greet 1`] = `
+"References found: 2 locations
+
+  <ROOT>/fixtures/main.go:5:6
+  <ROOT>/fixtures/main.go:27:13"
+`;
+
+exports[`Go — navigation > lists document symbols > document-symbols 1`] = `
+"Document symbols for fixtures/main.go:
+6 symbols found
+
+  Function greet (line 5)
+  Function farewell (line 9)
+  Struct Calculator (line 13)
+  Function NewCalculator (line 17)
+  Method (*Calculator).Add (line 21)
+  Function main (line 26)"
+`;
+
+exports[`Go — navigation > reports diagnostics for main.go > diagnostics-main 1`] = `
+"Diagnostics for fixtures/main.go (go):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;
+
+exports[`Go — navigation > shows hover info for a function > hover-function 1`] = `
+"Hover info at fixtures/main.go:5:6:
+
+\`\`\`go
+func greet(name string) string
+\`\`\`
+
+Range: line 5:6 to line 5:11"
+`;

@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`JSON — error states > errors on missing --file for diagnostics > missing-file-error 1`] = `"No files or workspace mode specified. Provide --files or --workspace."`;

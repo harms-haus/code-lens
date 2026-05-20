@@ -56,7 +56,7 @@ describe("Rust — find-calls", () => {
 
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatch(/Call hierarchy|No call hierarchy|greet/i);
+    expect(normalized).toMatchSnapshot("calls-greet");
   });
 
   it("shows call hierarchy for Calculator::add method", async () => {

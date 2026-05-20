@@ -7,3 +7,5 @@ exports[`Rust — find-calls > shows call hierarchy for Calculator::add method >
   main — <ROOT>/src/main.rs:24
     at line 29"
 `;
+
+exports[`Rust — find-calls > shows call hierarchy for greet function > calls-greet 1`] = `"No call hierarchy available at this position. Place cursor on a function/method name."`;

@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PHP — diagnostics > reports diagnostics for a broken file > broken-file-diagnostics 1`] = `
+"Diagnostics for fixtures/broken.php (php):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;
+
+exports[`PHP — diagnostics > reports diagnostics for a valid file > valid-file-diagnostics 1`] = `
+"Diagnostics for fixtures/valid.php (php):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;

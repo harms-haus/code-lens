@@ -1,0 +1,36 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PHP — hover & document-symbols > lists document symbols > document-symbols 1`] = `
+"Document symbols for fixtures/valid.php:
+12 symbols found
+
+Function greet (line 3)
+  Variable $name (line 3)
+Function farewell (line 7)
+  Variable $name (line 7)
+Class Calculator (line 11)
+  Property $result (line 12)
+  Method add (line 14)
+    Variable $a (line 14)
+    Variable $b (line 14)
+  Method subtract (line 19)
+    Variable $a (line 19)
+    Variable $b (line 19)"
+`;
+
+exports[`PHP — hover & document-symbols > shows hover info for a function > hover-function 1`] = `
+"Hover info at fixtures/valid.php:3:10:
+
+__greet__
+
+\`\`\`php
+<?php
+function greet(string $name): string { }
+\`\`\`
+
+_@param_ \`string $name\`
+
+_@return_ \`string\`
+
+Range: line 3:10 to line 3:15"
+`;

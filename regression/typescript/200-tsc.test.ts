@@ -34,7 +34,7 @@ describe("TypeScript — tsc", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
-    expect(normalized).toMatch(/error|TS\d+|not available/i);
+    expect(normalized).toMatch(/TS\d+|\d+ error\(s\)|not available/i);
   });
 
   it("reports clean for valid files", async () => {
@@ -50,7 +50,7 @@ describe("TypeScript — tsc", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
-    expect(normalized).toMatch(/0 issues|not available|error/i);
+    expect(normalized).toMatch(/0 errors|0 issues|not available/i);
   });
 
   it("handles multiple files", async () => {
@@ -66,6 +66,6 @@ describe("TypeScript — tsc", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
-    expect(normalized).toMatch(/issues|error|not available/i);
+    expect(normalized).toMatch(/\d+ error\(s\)|0 issues|not available/i);
   });
 });

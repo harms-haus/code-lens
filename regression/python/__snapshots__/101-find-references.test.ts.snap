@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Python — find-references > finds references to a function > references-to-greet 1`] = `
+"References found: 3 locations
+
+  <ROOT>/fixtures/imports.py:1:19
+  <ROOT>/fixtures/imports.py:3:11
+  <ROOT>/fixtures/valid.py:1:5"
+`;

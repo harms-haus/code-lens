@@ -15,6 +15,6 @@ describe("Python — find-references", () => {
       "find-references", "--file", "fixtures/valid.py", "--line", "1", "--col", "5",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatch(/References found: \d+ location/);
+    expect(normalized).toMatchSnapshot("references-to-greet");
   });
 });

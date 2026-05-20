@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PHP — find-implementations > returns result for Calculator class > implementations-calculator 1`] = `
+"Implementations found: 0 locations
+
+(none)"
+`;

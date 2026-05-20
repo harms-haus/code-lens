@@ -15,7 +15,7 @@ describe("Go — navigation", () => {
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toContain("(go)");
-    expect(normalized).toMatch(/\d+ error\(s\)/);
+    expect(normalized).toMatchSnapshot("diagnostics-main");
   });
 
   it("lists document symbols", async () => {
@@ -24,8 +24,7 @@ describe("Go — navigation", () => {
       "find-document-symbols", "--file", "fixtures/main.go",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toContain("Function greet");
-    expect(normalized).toContain("Function main");
+    expect(normalized).toMatchSnapshot("document-symbols");
   });
 
   it("finds references to greet function", async () => {
@@ -34,7 +33,7 @@ describe("Go — navigation", () => {
       "find-references", "--file", "fixtures/main.go", "--line", "5", "--col", "6",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatch(/References found: \d+ location/);
+    expect(normalized).toMatchSnapshot("references-to-greet");
   });
 
   it("finds definition of greet from call site", async () => {
@@ -43,7 +42,7 @@ describe("Go — navigation", () => {
       "find-definition", "--file", "fixtures/main.go", "--line", "27", "--col", "14",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatch(/Definition found: \d+ location/);
+    expect(normalized).toMatchSnapshot("definition-of-greet");
   });
 
   it("shows hover info for a function", async () => {
@@ -52,6 +51,6 @@ describe("Go — navigation", () => {
       "hover", "--file", "fixtures/main.go", "--line", "5", "--col", "6",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toContain("Hover info");
+    expect(normalized).toMatchSnapshot("hover-function");
   });
 });

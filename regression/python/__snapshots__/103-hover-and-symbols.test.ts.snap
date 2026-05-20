@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Python — hover & document-symbols > lists document symbols > document-symbols 1`] = `
+"Document symbols for fixtures/valid.py:
+9 symbols found
+
+  Function greet (line 1)
+  Function farewell (line 4)
+  Class Calculator (line 7)
+  Method __init__ (line 8)
+  Method add (line 11)
+  Method subtract (line 15)
+  Field result (line 9)
+  Field result (line 12)
+  Field result (line 16)"
+`;
+
+exports[`Python — hover & document-symbols > shows hover info for a function > hover-function 1`] = `
+"Hover info at fixtures/valid.py:1:5:
+
+\`\`\`python
+greet(name: str) -> str
+\`\`\`"
+`;

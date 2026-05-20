@@ -15,7 +15,7 @@ describe("Python — diagnostics", () => {
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toContain("(python)");
-    expect(normalized).toMatch(/\d+ error\(s\)/);
+    expect(normalized).toContain("0 error(s)");
   });
 
   it("reports diagnostics for a broken file", async () => {
@@ -24,5 +24,6 @@ describe("Python — diagnostics", () => {
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toContain("(python)");
+    expect(normalized).toMatch(/\d+ error\(s\), \d+ warning\(s\), \d+ info message\(s\)/);
   });
 });

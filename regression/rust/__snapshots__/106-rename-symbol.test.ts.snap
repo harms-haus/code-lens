@@ -1,0 +1,27 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Rust — rename-symbol > generates rename diff for a function > rename-greet 1`] = `
+"Rename "greet" → "say_hello"
+File: src/main.rs
+Files affected: 1
+
+Patch:
+\`\`\`diff
+--- a/<ROOT>/src/main.rs
++++ b/<ROOT>/src/main.rs
+@@ -1,4 +1,4 @@
+-fn greet(name: &str) -> String {
++fn say_hello(name: &str) -> String {
+     format!("Hello, {}!", name)
+ }
+
+@@ -23,6 +23,6 @@
+
+ fn main() {
+-    let message = greet("world");
++    let message = say_hello("world");
+     println!("{}", message);
+
+     let mut calc = Calculator::new();
+\`\`\`"
+`;

@@ -27,6 +27,6 @@ describe("TypeScript — file-changed", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
-    expect(normalized).toMatch(/changed|updated|language|notified|success|ok/i);
+    expect(normalized).toMatch(/File change|changed|notification|notified|updated/i);
   });
 });
