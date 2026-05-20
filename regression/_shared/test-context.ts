@@ -235,11 +235,23 @@ export class RegressionTestContext {
         );
 
         const stdout = result.stdout ?? "";
+
+        // Require actual symbols (N > 0) to confirm server is fully indexed
+        const symbolMatch = stdout.match(/(\d+) symbols? found/);
+        const hasRealSymbols = symbolMatch && parseInt(symbolMatch[1], 10) > 0;
+
+        if (hasRealSymbols) {
+          this.isWarmedUp = true;
+          break;
+        }
+
+        // Also accept non-symbol responses as long as it's not an error
         if (
           !stdout.includes("timed out") &&
           !stdout.includes("Failed to") &&
           !stdout.includes("Path traversal") &&
-          !stdout.includes("Error:")
+          !stdout.includes("Error:") &&
+          !stdout.includes("No symbols found")
         ) {
           this.isWarmedUp = true;
           break;

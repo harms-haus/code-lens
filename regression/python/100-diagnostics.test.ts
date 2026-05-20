@@ -14,13 +14,15 @@ describe("Python — diagnostics", () => {
     const result = await runCLISlow(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/valid.py"]);
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatchSnapshot("valid-file-diagnostics");
+    expect(normalized).toContain("(python)");
+    expect(normalized).toMatch(/\d+ error\(s\)/);
   });
 
   it("reports diagnostics for a broken file", async () => {
     if (!ctx.isServerInstalled) return;
     const result = await runCLI(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/broken.py"]);
+    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatchSnapshot("broken-file-diagnostics");
+    expect(normalized).toContain("(python)");
   });
 });

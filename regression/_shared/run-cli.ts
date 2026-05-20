@@ -70,3 +70,41 @@ export async function runCLISlow(
 ): Promise<CLIExecutionResult> {
   return runCLI(cwd, args, { timeout: 60_000 });
 }
+
+/**
+ * Run a CLI command with retry logic for navigation queries that may
+ * return empty results while the LSP server is still indexing.
+ * Retries until the result contains actual data (not "0 location" or
+ * "No hover information"), up to `maxAttempts` times.
+ */
+export async function runCLIWithRetry(
+  cwd: string,
+  args: string[],
+  options?: { timeout?: number; maxAttempts?: number; delayMs?: number },
+): Promise<CLIExecutionResult> {
+  const maxAttempts = options?.maxAttempts ?? 5;
+  const delayMs = options?.delayMs ?? 3_000;
+  let lastResult: CLIExecutionResult;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    lastResult = await runCLI(cwd, args, { timeout: options?.timeout });
+    const out = lastResult.stdout;
+
+    // Check if result has real data
+    const isEmpty =
+      out.includes("0 locations") ||
+      out.includes("0 location\n") ||
+      out.includes("No hover information") ||
+      out.includes("No hover info") ||
+      out.includes("No symbols found");
+
+    if (!isEmpty) return lastResult;
+
+    // Wait before retrying
+    if (attempt < maxAttempts - 1) {
+      await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+
+  return lastResult!;
+}
