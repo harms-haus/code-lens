@@ -96,7 +96,9 @@ export async function runCLIWithRetry(
       out.includes("0 location\n") ||
       out.includes("No hover information") ||
       out.includes("No hover info") ||
-      out.includes("No symbols found");
+      out.includes("No symbols found") ||
+      out.includes("Failed to get hover information") ||
+      out.includes("content modified");
 
     if (!isEmpty) return lastResult;
 
