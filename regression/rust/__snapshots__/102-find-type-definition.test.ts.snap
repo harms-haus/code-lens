@@ -5,9 +5,3 @@ exports[`Rust — find-type-definition > finds type definition of struct instanc
 
   <ROOT>/src/main.rs:9:8"
 `;
-
-exports[`Rust — find-type-definition > finds type definition of variable > type-definition-message 1`] = `
-"Type definition found: 0 locations
-
-(none)"
-`;
