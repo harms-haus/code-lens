@@ -3,3 +3,6 @@ dist/
 coverage/
 .DS_Store
 *.tsbuildinfo
+regression/PLAN.md
+regression/rust/fixtures/target/
+regression/rust/fixtures/Cargo.lock
