@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`CSS — document-symbols > lists document symbols in CSS > document-symbols 1`] = `"Failed to get document symbols: Cannot read properties of undefined (reading 'range')"`;

@@ -175,15 +175,30 @@ describe("language-config", () => {
       expect(result).toBe(true);
     });
 
-    it("returns false when execFile returns an error", async () => {
+    it("returns false when execFile returns an ENOENT error (binary not found)", async () => {
+      const notFoundError = new Error("not found") as NodeJS.ErrnoException;
+      notFoundError.code = "ENOENT";
       vi.mocked(execFile).mockImplementation(
         (_cmd: string, _args: string[], _opts: any, cb: any) => {
-          cb(new Error("not found"), null);
+          cb(notFoundError, null);
         },
       );
 
       const result = await isServerInstalled(mockConfig);
       expect(result).toBe(false);
+    });
+
+    it("returns true when execFile returns a non-ENOENT error (binary exists but --version fails)", async () => {
+      const versionError = new Error("Connection input stream is not set") as NodeJS.ErrnoException;
+      versionError.code = "ERR_CHILD_PROCESS_STDIO_MAXBUFFER";
+      vi.mocked(execFile).mockImplementation(
+        (_cmd: string, _args: string[], _opts: any, cb: any) => {
+          cb(versionError, null);
+        },
+      );
+
+      const result = await isServerInstalled(mockConfig);
+      expect(result).toBe(true);
     });
   });
 });

@@ -40,8 +40,16 @@ export function normalizeOutput(output: string, options: NormalizeOptions): stri
       // 7. Normalize timing values (e.g., "123ms", "45.6s")
       .replace(/\b\d+ms\b/g, "<TIME>")
       .replace(/\b\d+\.\d+s\b/g, "<TIME>")
-      // 8. Normalize line numbers in diff output that may shift
-      //    (not applied — line numbers are deterministic for fixed fixtures)
+      // 8. Normalize TypeScript version numbers in error messages
+      //    e.g., "TypeScript Server Error (5.9.3)" → "TypeScript Server Error (<TS_VERSION>)"
+      .replace(/TypeScript Server Error \(\d+\.\d+\.\d+\)/g, "TypeScript Server Error (<TS_VERSION>)")
+      // 9. Normalize TypeScript file paths in stack traces
+      //    e.g., "/path/to/typescript/lib/typescript.js:186170:11" → "<TS_PATH>/typescript.js:<LINE>:<COL>"
+      .replace(/([^\s("']+\/typescript\.js):\d+:\d+/g, "$1:<LINE>:<COL>")
+      // 10. Normalize npm-global paths (after home dir replacement)
+      .replace(/~\/\.npm-global\/lib\/node_modules/g, "~/npm-modules")
+      // 11. Normalize hosted toolcache paths (CI)
+      .replace(/\/opt\/hostedtoolcache\/node\/[^/]+\/x64\/lib\/node_modules/g, "<CI_NODE_MODULES>")
       // 9. Trim trailing whitespace on each line, then leading/trailing blank lines
       .split("\n")
       .map((line) => line.trimEnd())

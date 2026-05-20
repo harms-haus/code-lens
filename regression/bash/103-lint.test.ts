@@ -28,8 +28,7 @@ describe("Bash — lint", () => {
 
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // shellcheck may report issues or "No linters" if not installed
-    expect(normalized).toMatch(/\d+ issues|No linters|0 issues/i);
+    expect(normalized).toMatch(/\d+ (issue|info)\(s\)|No linters|0 issues/i);
   });
 
   it("returns lint result for references file", async () => {
@@ -41,6 +40,7 @@ describe("Bash — lint", () => {
 
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatch(/\d+ issues|No linters|0 issues/i);
+    // shellcheck may report issues, info, or "No linters" if not installed
+    expect(normalized).toMatch(/\d+ (issue|info)\(s\)|No linters|0 issues/i);
   });
 });

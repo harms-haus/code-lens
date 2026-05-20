@@ -37,19 +37,13 @@ export async function isServerInstalled(config: LspServerConfig): Promise<boolea
           resolve(true);
           return;
         }
+        // If the binary was not found (ENOENT), the server is not installed.
         // Some LSP servers (css-languageserver, json-languageserver, intelephense)
         // are stdio-mode only and don't support --version. They exit non-zero with
         // an error like "Connection input stream is not set" but ARE installed.
-        // Check if the binary exists in PATH as a fallback.
-        const { code } = error as { code?: string };
-        if (code === "ENOENT") {
-          // Binary not found in PATH
-          resolve(false);
-          return;
-        }
-        // Command was found but failed (e.g., --version not supported).
-        // This means the server IS installed — just doesn't support the version flag.
-        resolve(true);
+        // We distinguish by checking the error code: ENOENT = not in PATH = not installed.
+        const execError = error as NodeJS.ErrnoException;
+        resolve(execError.code !== "ENOENT");
       });
     });
   } catch {
