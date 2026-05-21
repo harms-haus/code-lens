@@ -122,8 +122,9 @@ jobs:
         run: npm install -g @taplo/lsp
 
       - name: Install Terraform language server
+        continue-on-error: true
         run: |
-          curl -Lo /tmp/terraform-ls.zip https://releases.hashicorp.com/terraform-ls/0.39.0/terraform-ls_0.39.0_linux_amd64.zip
+          curl -Lo /tmp/terraform-ls.zip https://releases.hashicorp.com/terraform-ls/0.36.0/terraform-ls_0.36.0_linux_amd64.zip
           sudo unzip /tmp/terraform-ls.zip -d /usr/local/bin
 
       - name: Install Lua language server
