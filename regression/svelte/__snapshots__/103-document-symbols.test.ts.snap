@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Svelte — find-document-symbols > lists all symbols in valid.svelte > document-symbols 1`] = `
+"Document symbols for fixtures/valid.svelte:
+8 symbols found
+
+  Field script (line 1)
+  Field h1 (line 22)
+  Class Calculator (line 10)
+  Method add (line 11)
+  Method subtract (line 14)
+  Function farewell (line 6)
+  Function greet (line 2)
+  Constant result (line 19)"
+`;

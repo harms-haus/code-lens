@@ -1,0 +1,51 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Svelte — diagnostics > errors on unsupported file extension > unsupported-extension 1`] = `
+"No LSP server configured for "fixtures/test.xyz".
+
+Supported languages: typescript, python, rust, go, java, cpp, csharp, php, ruby, lua, html, css, json, yaml, markdown, dart, kotlin, swift, zig, haskell, ocaml, elixir, scala, terraform, dockerfile, sql, vue, svelte, toml, nix, latex, r, bash"
+`;
+
+exports[`Svelte — diagnostics > reports diagnostics for multiple files > multi-file-diagnostics 1`] = `
+"Diagnostics for fixtures/valid.svelte (svelte):
+0 error(s), 0 warning(s), 2 info message(s)
+
+  Hint: 6:12: [js] 'farewell' is declared but its value is never read. (6133)
+  Hint: 10:9: [js] 'Calculator' is declared but never used. (6196)
+
+---
+
+Diagnostics for fixtures/broken.svelte (svelte):
+2 error(s), 0 warning(s), 0 info message(s)
+
+  Error: 2:13: [svelte] Unexpected token
+https://svelte.dev/e/js_parse_error
+
+If you expect this syntax to work, here are some suggestions:
+If you use typescript with \`svelte-preprocess\`, did you add \`lang="ts"\` to your \`script\` tag?
+Did you setup a \`svelte.config.js\`?
+See https://github.com/sveltejs/language-tools/tree/master/docs#using-with-preprocessors for more info. (js_parse_error)
+  Error: 2:13: [js] Expression expected. (1109)"
+`;
+
+exports[`Svelte — diagnostics > reports errors for a broken file > broken-file-diagnostics 1`] = `
+"Diagnostics for fixtures/broken.svelte (svelte):
+2 error(s), 0 warning(s), 0 info message(s)
+
+  Error: 2:13: [svelte] Unexpected token
+https://svelte.dev/e/js_parse_error
+
+If you expect this syntax to work, here are some suggestions:
+If you use typescript with \`svelte-preprocess\`, did you add \`lang="ts"\` to your \`script\` tag?
+Did you setup a \`svelte.config.js\`?
+See https://github.com/sveltejs/language-tools/tree/master/docs#using-with-preprocessors for more info. (js_parse_error)
+  Error: 2:13: [js] Expression expected. (1109)"
+`;
+
+exports[`Svelte — diagnostics > reports no diagnostics for a valid file > valid-file-diagnostics 1`] = `
+"Diagnostics for fixtures/valid.svelte (svelte):
+0 error(s), 0 warning(s), 2 info message(s)
+
+  Hint: 6:12: [js] 'farewell' is declared but its value is never read. (6133)
+  Hint: 10:9: [js] 'Calculator' is declared but never used. (6196)"
+`;

@@ -140,10 +140,10 @@ jobs:
 
       # ── Run regression tests ──────────────────────────────────────────
       - name: Run regression tests
-        run: npm run test:regression:update
+        run: npm run test:regression
 
       - name: Upload snapshot artifacts on failure
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: regression-snapshots

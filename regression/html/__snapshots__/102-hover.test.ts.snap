@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`HTML — hover > shows hover info for a <title> element > hover-title 1`] = `"No hover information available at this position."`;

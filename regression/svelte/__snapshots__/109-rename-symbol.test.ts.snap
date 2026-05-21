@@ -1,0 +1,27 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Svelte — rename-symbol > generates rename diff for greet function > rename-greet 1`] = `
+"Rename "greet" → "say_hello"
+File: fixtures/valid.svelte
+Files affected: 1
+
+Patch:
+\`\`\`diff
+--- a/<ROOT>/fixtures/valid.svelte
++++ b/<ROOT>/fixtures/valid.svelte
+@@ -1,5 +1,5 @@
+ <script>
+-  function greet(name) {
++  function say_hello(name) {
+     return \`Hello, \${name}!\`;
+   }
+
+@@ -18,5 +18,5 @@
+
+-  const result = greet("World");
++  const result = say_hello("World");
+ </script>
+
+ <h1>{result}</h1>
+\`\`\`"
+`;

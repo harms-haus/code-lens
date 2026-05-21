@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Vue — diagnostics > errors on unsupported file extension > unsupported-extension 1`] = `
+"No LSP server configured for "fixtures/test.xyz".
+
+Supported languages: typescript, python, rust, go, java, cpp, csharp, php, ruby, lua, html, css, json, yaml, markdown, dart, kotlin, swift, zig, haskell, ocaml, elixir, scala, terraform, dockerfile, sql, vue, svelte, toml, nix, latex, r, bash"
+`;
+
+exports[`Vue — diagnostics > reports diagnostics for multiple files > multi-file-diagnostics 1`] = `"Failed to get diagnostics: Request initialize failed with message: Cannot read properties of undefined (reading 'typescript')"`;
+
+exports[`Vue — diagnostics > reports errors for a broken file > broken-file-diagnostics 1`] = `"Failed to get diagnostics: Request initialize failed with message: Cannot read properties of undefined (reading 'typescript')"`;
+
+exports[`Vue — diagnostics > reports no diagnostics for a valid file > valid-file-diagnostics 1`] = `"Failed to get diagnostics: Request initialize failed with message: Cannot read properties of undefined (reading 'typescript')"`;

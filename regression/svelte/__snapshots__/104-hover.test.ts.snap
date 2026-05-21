@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Svelte — hover > shows type info for greet function > hover-greet 1`] = `
+"Hover info at fixtures/valid.svelte:2:12:
+
+\`\`\`typescript
+(local function) greet(name: any): string
+\`\`\`
+
+Range: line 2:12 to line 2:17"
+`;

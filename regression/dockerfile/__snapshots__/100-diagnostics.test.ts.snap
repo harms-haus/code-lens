@@ -1,0 +1,5 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Dockerfile — diagnostics > reports diagnostics for a broken Dockerfile > broken-dockerfile-diagnostics 1`] = `""`;
+
+exports[`Dockerfile — diagnostics > reports diagnostics for a valid Dockerfile > valid-dockerfile-diagnostics 1`] = `"Failed to get diagnostics: LSP request "initialize" timed out after <TIME>"`;
