@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`Dockerfile — hover > shows hover info for FROM instruction > hover-from 1`] = `""`;
