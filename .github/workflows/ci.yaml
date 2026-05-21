@@ -104,7 +104,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y clangd
 
       - name: Install Ruby LSP
-        run: gem install ruby-lsp
+        run: sudo gem install ruby-lsp
 
       - name: Install HTML language server
         run: npm install -g vscode-html-languageserver-bin
@@ -123,8 +123,8 @@ jobs:
 
       - name: Install Terraform language server
         run: |
-          curl -Lo /tmp/terraform-ls.zip https://releases.hashicorp.com/terraform-ls/1.0.1/terraform-ls_1.0.1_linux_amd64.zip
-          unzip /tmp/terraform-ls.zip -d /usr/local/bin
+          curl -Lo /tmp/terraform-ls.zip https://releases.hashicorp.com/terraform-ls/1.0.2/terraform-ls_1.0.2_linux_amd64.zip
+          sudo unzip /tmp/terraform-ls.zip -d /usr/local/bin
 
       - name: Install Lua language server
         run: npm install -g lua-language-server
