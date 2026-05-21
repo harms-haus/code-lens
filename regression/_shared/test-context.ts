@@ -28,6 +28,16 @@ const WARMUP_FILES: Record<string, string> = {
   css: "fixtures/valid.css",
   cpp: "fixtures/main.c",
   php: "fixtures/valid.php",
+  ruby: "fixtures/valid.rb",
+  html: "fixtures/valid.html",
+  markdown: "fixtures/valid.md",
+  vue: "fixtures/valid.vue",
+  dockerfile: "fixtures/Dockerfile",
+  toml: "fixtures/valid.toml",
+  terraform: "fixtures/main.tf",
+  lua: "fixtures/valid.lua",
+  java: "src/Main.java",
+  svelte: "fixtures/valid.svelte",
 };
 
 /**
@@ -37,6 +47,9 @@ const WARMUP_FILES: Record<string, string> = {
  */
 const WARMUP_EXTRA_FILES: Record<string, string[]> = {
   typescript: ["fixtures/broken.ts", "fixtures/references.ts", "fixtures/classes.ts"],
+  vue: ["fixtures/broken.vue", "fixtures/references.vue"],
+  svelte: ["fixtures/broken.svelte", "fixtures/references.svelte"],
+  java: ["src/Broken.java"],
 };
 
 /** Maximum number of warmup attempts (each ~2s) */
@@ -136,6 +149,10 @@ export class RegressionTestContext {
       this.initRustWorkspace();
     } else if (this.language === "cpp") {
       this.initCppProject();
+    } else if (this.language === "java") {
+      this.initJavaWorkspace();
+    } else if (this.language === "dockerfile") {
+      this.initDockerfileWorkspace();
     }
   }
 
@@ -186,6 +203,40 @@ export class RegressionTestContext {
     fs.writeFileSync(flagsPath, "-std=c11\n-I.\n", "utf-8");
   }
 
+  /** Initialize Java workspace with Maven pom.xml and src/ layout */
+  private initJavaWorkspace(): void {
+    const fixturesDir = path.join(this.fixtureDir, "fixtures");
+    const srcDir = path.join(this.fixtureDir, "src");
+    if (!fs.existsSync(srcDir)) {
+      fs.mkdirSync(srcDir, { recursive: true });
+    }
+    if (fs.existsSync(fixturesDir)) {
+      for (const entry of fs.readdirSync(fixturesDir)) {
+        if (entry.endsWith(".java")) {
+          fs.copyFileSync(path.join(fixturesDir, entry), path.join(srcDir, entry));
+        }
+      }
+    }
+    fs.writeFileSync(
+      path.join(this.fixtureDir, "pom.xml"),
+      '<project xmlns="http://maven.apache.org/POM/4.0.0">\n' +
+      '  <modelVersion>4.0.0</modelVersion>\n' +
+      '  <groupId>com.regression</groupId>\n' +
+      '  <artifactId>regression</artifactId>\n' +
+      '  <version>1.0.0</version>\n' +
+      '</project>'
+    );
+  }
+
+  /** Initialize Dockerfile workspace by copying Dockerfile to root */
+  private initDockerfileWorkspace(): void {
+    const fixturesDir = path.join(this.fixtureDir, "fixtures");
+    const dockerfileSrc = path.join(fixturesDir, "Dockerfile");
+    if (fs.existsSync(dockerfileSrc)) {
+      fs.copyFileSync(dockerfileSrc, path.join(this.fixtureDir, "Dockerfile"));
+    }
+  }
+
   /** Detect whether the LSP server for this language is installed */
   private async detectServer(): Promise<void> {
     try {
@@ -200,6 +251,16 @@ export class RegressionTestContext {
         css: ["css-languageserver", "--version"],
         cpp: ["clangd", "--version"],
         php: ["intelephense", "--version"],
+        ruby: ["ruby-lsp", "--version"],
+        html: ["html-languageserver", "--version"],
+        markdown: ["markdown-language-server", "--version"],
+        vue: ["vue-language-server", "--version"],
+        dockerfile: ["docker-langserver", "--version"],
+        toml: ["taplo", "--version"],
+        terraform: ["terraform-ls", "version"],
+        lua: ["lua-language-server", "--version"],
+        java: ["java", "-version"],
+        svelte: ["svelteserver", "--version"],
       };
       const cmd = detectCommands[this.language];
       if (!cmd) {
@@ -235,6 +296,28 @@ export class RegressionTestContext {
     const warmupFile = WARMUP_FILES[this.language];
     if (!warmupFile) {
       this.isWarmedUp = true;
+      return;
+    }
+
+    if (this.language === "dockerfile") {
+      // Dockerfile LSP doesn't support document-symbols
+      // Warm up using diagnostics instead
+      for (let attempt = 0; attempt < WARMUP_MAX_ATTEMPTS; attempt++) {
+        try {
+          const result = await execa(
+            "node", [CLI_PATH, "diagnostics", "--file", warmupFile],
+            { cwd: this.fixtureDir, reject: false, timeout: 60_000 },
+          );
+          const output = result.stdout;
+          if (!output.includes("timed out") && !output.includes("Failed") && !output.includes("Error:")) {
+            this.isWarmedUp = true;
+            break;
+          }
+        } catch {
+          // ignore
+        }
+        await new Promise((r) => setTimeout(r, WARMUP_DELAY_MS));
+      }
       return;
     }
 

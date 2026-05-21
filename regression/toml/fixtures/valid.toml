@@ -1,0 +1,16 @@
+[package]
+name = "regression-test"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+serde = "1.0"
+tokio = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+
+[features]
+default = ["serde"]
+full = ["serde", "tokio"]

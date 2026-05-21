@@ -1,0 +1,7 @@
+{
+  "name": "svelte-regression",
+  "version": "1.0.0",
+  "dependencies": {
+    "svelte": "^5.0.0"
+  }
+}

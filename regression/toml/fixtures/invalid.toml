@@ -1,0 +1,7 @@
+[package
+name = "regression-test"
+version =
+
+[dependencies
+serde = 1.0
+tokio =

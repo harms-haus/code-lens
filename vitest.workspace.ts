@@ -23,6 +23,16 @@ const LANGUAGES = [
   "css",
   "cpp",
   "php",
+  "ruby",
+  "html",
+  "markdown",
+  "vue",
+  "dockerfile",
+  "toml",
+  "terraform",
+  "lua",
+  "java",
+  "svelte",
 ] as const;
 
 export default defineWorkspace(
