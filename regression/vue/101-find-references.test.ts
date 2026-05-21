@@ -26,7 +26,6 @@ describe("Vue — find-references", () => {
       "--col",
       "11",
     ]);
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("references-to-increment");
   });

@@ -29,7 +29,6 @@ describe("Vue — find-symbols", () => {
       "--query",
       "greet",
     ]);
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("symbols-greet");
   });

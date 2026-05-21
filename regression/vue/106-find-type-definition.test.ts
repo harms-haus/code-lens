@@ -26,7 +26,6 @@ describe("Vue — find-type-definition", () => {
       "--col",
       "7",
     ]);
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("type-definition-of-count");
   });

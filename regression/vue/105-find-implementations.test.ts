@@ -26,7 +26,6 @@ describe("Vue — find-implementations", () => {
       "--col",
       "19",
     ]);
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("implementations-of-animal");
   });

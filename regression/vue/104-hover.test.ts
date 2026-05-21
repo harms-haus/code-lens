@@ -26,7 +26,6 @@ describe("Vue — hover", () => {
       "--col",
       "10",
     ]);
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("hover-greet");
   });

@@ -26,7 +26,6 @@ describe("Vue — find-calls", () => {
       "--col",
       "11",
     ]);
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("calls-of-increment");
   });

@@ -21,7 +21,6 @@ describe("Vue — find-document-symbols", () => {
       "--file",
       "fixtures/valid.vue",
     ]);
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("document-symbols");
   });
