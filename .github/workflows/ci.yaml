@@ -128,7 +128,12 @@ jobs:
           sudo unzip /tmp/terraform-ls.zip -d /usr/local/bin
 
       - name: Install Lua language server
-        run: npm install -g lua-language-server
+        continue-on-error: true
+        run: |
+          curl -Lo /tmp/lua-language-server.tar.gz https://github.com/LuaLS/lua-language-server/releases/download/3.13.5/lua-language-server-3.13.5-linux-x64.tar.gz
+          mkdir -p /usr/local/lua-language-server
+          sudo tar xzf /tmp/lua-language-server.tar.gz -C /usr/local/lua-language-server
+          sudo ln -s /usr/local/lua-language-server/bin/lua-language-server /usr/local/bin/lua-language-server
 
       - name: Install Svelte language server
         run: npm install -g svelte-language-server
