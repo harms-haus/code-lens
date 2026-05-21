@@ -27,9 +27,9 @@ exports[`Go — navigation > lists document symbols > document-symbols 1`] = `
 
 exports[`Go — navigation > reports diagnostics for main.go > diagnostics-main 1`] = `
 "Diagnostics for fixtures/main.go (go):
-0 error(s), 0 warning(s), 1 info message(s)
+0 error(s), 0 warning(s), 0 info message(s)
 
-  Info: 9:6: [unusedfunc] function "farewell" is unused (default)"
+No issues found."
 `;
 
 exports[`Go — navigation > shows hover info for a function > hover-function 1`] = `
