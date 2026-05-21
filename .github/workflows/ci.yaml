@@ -113,7 +113,7 @@ jobs:
         run: npm install -g vscode-markdown-languageserver
 
       - name: Install Vue language server
-        run: npm install -g @vue/language-server @vue/typescript-plugin typescript
+        run: npm install -g @vue/language-server@2 @vue/typescript-plugin typescript
 
       - name: Install Dockerfile language server
         run: npm install -g dockerfile-language-server-nodejs

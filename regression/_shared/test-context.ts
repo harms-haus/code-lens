@@ -157,6 +157,8 @@ export class RegressionTestContext {
       await this.initVueWorkspace();
     } else if (this.language === "svelte") {
       await this.initSvelteWorkspace();
+    } else if (this.language === "ruby") {
+      this.initRubyWorkspace();
     }
   }
 
@@ -291,6 +293,17 @@ export class RegressionTestContext {
         // npm may not be available or install may fail
       }
     }
+  }
+
+  /** Initialize Ruby workspace: ruby-lsp needs a Gemfile or .ruby-version */
+  private initRubyWorkspace(): void {
+    // ruby-lsp requires either a Gemfile, .ruby-version, or to be in a Git repo
+    // Create a minimal Gemfile to satisfy the server
+    fs.writeFileSync(
+      path.join(this.fixtureDir, "Gemfile"),
+      "source 'https://rubygems.org'\n",
+      "utf-8"
+    );
   }
 
   /** Detect whether the LSP server for this language is installed */
