@@ -153,6 +153,10 @@ export class RegressionTestContext {
       this.initJavaWorkspace();
     } else if (this.language === "dockerfile") {
       this.initDockerfileWorkspace();
+    } else if (this.language === "vue") {
+      await this.initVueWorkspace();
+    } else if (this.language === "svelte") {
+      await this.initSvelteWorkspace();
     }
   }
 
@@ -237,6 +241,58 @@ export class RegressionTestContext {
     }
   }
 
+  /** Initialize Vue workspace: copy tsconfig.json to root, run npm install */
+  private async initVueWorkspace(): Promise<void> {
+    const fixturesDir = path.join(this.fixtureDir, "fixtures");
+    // Copy tsconfig.json and package.json to workspace root
+    for (const file of ["tsconfig.json", "package.json"]) {
+      const src = path.join(fixturesDir, file);
+      if (fs.existsSync(src)) {
+        fs.copyFileSync(src, path.join(this.fixtureDir, file));
+      }
+    }
+    await this.npmInstallFixtures();
+  }
+
+  /** Initialize Svelte workspace: run npm install */
+  private async initSvelteWorkspace(): Promise<void> {
+    const fixturesDir = path.join(this.fixtureDir, "fixtures");
+    // Copy package.json to workspace root
+    const pkgSrc = path.join(fixturesDir, "package.json");
+    if (fs.existsSync(pkgSrc)) {
+      fs.copyFileSync(pkgSrc, path.join(this.fixtureDir, "package.json"));
+    }
+    await this.npmInstallFixtures();
+  }
+
+  /** Run npm install in the fixtures directory (for Vue, Svelte, etc.) */
+  private async npmInstallFixtures(): Promise<void> {
+    const fixturesDir = path.join(this.fixtureDir, "fixtures");
+    if (fs.existsSync(path.join(fixturesDir, "package.json"))) {
+      try {
+        await execa("npm", ["install"], {
+          cwd: fixturesDir,
+          timeout: 60_000,
+          reject: false,
+        });
+      } catch {
+        // npm may not be available or install may fail
+      }
+    }
+    // Also install at root if package.json exists there
+    if (fs.existsSync(path.join(this.fixtureDir, "package.json"))) {
+      try {
+        await execa("npm", ["install"], {
+          cwd: this.fixtureDir,
+          timeout: 60_000,
+          reject: false,
+        });
+      } catch {
+        // npm may not be available or install may fail
+      }
+    }
+  }
+
   /** Detect whether the LSP server for this language is installed */
   private async detectServer(): Promise<void> {
     try {
@@ -259,7 +315,7 @@ export class RegressionTestContext {
         toml: ["taplo", "--version"],
         terraform: ["terraform-ls", "version"],
         lua: ["lua-language-server", "--version"],
-        java: ["java", "-version"],
+        java: ["jdtls", "--version"],
         svelte: ["svelteserver", "--version"],
       };
       const cmd = detectCommands[this.language];

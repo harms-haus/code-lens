@@ -21,7 +21,7 @@ describe("Dockerfile — diagnostics", () => {
   it("reports diagnostics for a broken Dockerfile", async () => {
     if (!ctx.isServerInstalled) return;
     const result = await runCLISlow(ctx.fixtureDir, [
-      "diagnostics", "--file", "fixtures/broken.Dockerfile",
+      "diagnostics", "--file", "fixtures/broken.dockerfile",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatch(/\d+ error\(s\)/);

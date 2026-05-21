@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
-def greet(name)
-  "Hello, #{name}!"
+# Simple module with methods
+module Greeter
+  def self.greet(name)
+    "Hello, #{name}!"
+  end
+
+  def self.farewell(name)
+    "Goodbye, #{name}!"
+  end
 end
 
-def farewell(name)
-  "Goodbye, #{name}!"
-end
-
+# Calculator class
 class Calculator
   def add(a, b)
     a + b
@@ -18,6 +22,7 @@ class Calculator
   end
 end
 
+# Student class
 class Student
   def initialize(name)
     @name = name
@@ -27,7 +32,3 @@ class Student
     "Hello, I'm #{@name}!"
   end
 end
-
-result = greet("World")
-calc = Calculator.new
-sum = calc.add(2, 3)
