@@ -1,16 +1,18 @@
-<script setup lang="ts">
-abstract class Animal {
-  abstract speak(): string;
+<script>
+class Animal {
+  speak() {
+    return '...';
+  }
 }
 
 class Dog extends Animal {
-  speak(): string {
+  speak() {
     return 'Woof!';
   }
 }
 
 class Cat extends Animal {
-  speak(): string {
+  speak() {
     return 'Meow!';
   }
 }

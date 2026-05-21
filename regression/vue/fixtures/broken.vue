@@ -1,11 +1,11 @@
-<script setup lang="ts">
-const x: string = 42;
+<script>
+const x = ;
 
-function broken(): string {
+function broken() {
   return nonexistent_variable;
 }
 
-const arr: number[] = [1, 2, "three"];
+const arr = [1, 2, "three";
 </script>
 
 <template>

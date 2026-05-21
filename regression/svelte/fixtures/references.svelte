@@ -1,15 +1,13 @@
-<script lang="ts">
+<script>
   import { writable } from 'svelte/store';
-
 
   const count = writable(0);
 
-
-  function increment(): void {
+  function increment() {
     count.update(n => n + 1);
   }
 
-  function decrement(): void {
+  function decrement() {
     count.update(n => n - 1);
   }
 

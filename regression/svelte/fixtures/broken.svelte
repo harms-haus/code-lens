@@ -1,7 +1,7 @@
-<script lang="ts">
-  const x: string = 42;
+<script>
+  const x = ;
 
-  function broken(): string {
+  function broken() {
     return nonexistent_variable;
   }
 </script>

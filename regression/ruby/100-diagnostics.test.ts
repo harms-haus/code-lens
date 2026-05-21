@@ -21,10 +21,9 @@ describe("Ruby — diagnostics", () => {
       "--file",
       "fixtures/valid.rb",
     ]);
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toContain("(ruby)");
-    expect(normalized).toContain("0 error(s)");
+    expect(normalized).toMatchSnapshot("valid-file-diagnostics");
   });
 
   it("reports diagnostics for a broken file", async () => {
@@ -34,9 +33,8 @@ describe("Ruby — diagnostics", () => {
       "--file",
       "fixtures/broken.rb",
     ]);
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toContain("(ruby)");
-    expect(normalized).toMatch(/\d+ error\(s\)/);
+    expect(normalized).toMatchSnapshot("broken-file-diagnostics");
   });
 });

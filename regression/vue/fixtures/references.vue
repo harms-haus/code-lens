@@ -1,13 +1,13 @@
-<script setup lang="ts">
+<script>
 import { ref } from 'vue';
 
 const count = ref(0);
 
-function increment(): void {
+function increment() {
   count.value++;
 }
 
-function decrement(): void {
+function decrement() {
   count.value--;
 }
 

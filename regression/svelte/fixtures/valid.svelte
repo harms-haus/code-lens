@@ -1,17 +1,17 @@
-<script lang="ts">
-  function greet(name: string): string {
+<script>
+  function greet(name) {
     return `Hello, ${name}!`;
   }
 
-  function farewell(name: string): string {
+  function farewell(name) {
     return `Goodbye, ${name}!`;
   }
 
   class Calculator {
-    add(a: number, b: number): number {
+    add(a, b) {
       return a + b;
     }
-    subtract(a: number, b: number): number {
+    subtract(a, b) {
       return a - b;
     }
   }

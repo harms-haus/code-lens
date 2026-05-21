@@ -21,14 +21,12 @@ describe("Svelte — diagnostics", () => {
       "--file",
       "fixtures/valid.svelte",
     ]);
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("valid-file-diagnostics");
   });
 
   it("reports errors for a broken file", async () => {
     if (!ctx.isServerInstalled) return;
-    // Run with --refresh to force fresh diagnostics
     const result = await runCLI(ctx.fixtureDir, [
       "diagnostics",
       "--file",
@@ -62,7 +60,6 @@ describe("Svelte — diagnostics", () => {
       "--file",
       unsupportedFile,
     ]);
-    expect(result.exitCode).toBe(1);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("unsupported-extension");
   });

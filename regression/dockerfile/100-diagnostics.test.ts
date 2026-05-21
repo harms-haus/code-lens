@@ -15,7 +15,7 @@ describe("Dockerfile — diagnostics", () => {
       "diagnostics", "--file", "fixtures/Dockerfile",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatch(/\d+ error\(s\)/);
+    expect(normalized).toMatchSnapshot("valid-dockerfile-diagnostics");
   });
 
   it("reports diagnostics for a broken Dockerfile", async () => {
@@ -24,6 +24,6 @@ describe("Dockerfile — diagnostics", () => {
       "diagnostics", "--file", "fixtures/broken.dockerfile",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatch(/\d+ error\(s\)/);
+    expect(normalized).toMatchSnapshot("broken-dockerfile-diagnostics");
   });
 });
