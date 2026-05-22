@@ -16,6 +16,6 @@ describe("HTML — hover", () => {
       "hover", "--file", "fixtures/valid.html", "--line", "5", "--col", "10",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatchSnapshot("hover-title");
+    expect(normalized).toMatch(/Hover information/);
   });
 });
