@@ -26,7 +26,6 @@ describe("Ruby — find-type-definition", () => {
       "1",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 });

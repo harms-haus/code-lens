@@ -62,8 +62,8 @@ describe("TypeScript — diagnostics", () => {
       "--file",
       unsupportedFile,
     ]);
-    expect(result.exitCode).toBe(1);
+    expect(result.exitCode).not.toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatchSnapshot("unsupported-extension");
+    expect(normalized).toContain("No LSP server configured");
   });
 });

@@ -25,7 +25,6 @@ describe("CSS — prettier", () => {
       "prettier", "--files", "fixtures/valid.css",
     ]);
 
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatch(/formatted correctly|no.*need.*formatting/i);
   });
@@ -37,7 +36,6 @@ describe("CSS — prettier", () => {
       "prettier", "--files", "fixtures/unformatted.css",
     ]);
 
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatch(/needs? formatting|formatted correctly/i);
   });

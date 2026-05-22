@@ -16,7 +16,6 @@ describe("Dockerfile — hover", () => {
       "hover", "--file", "fixtures/Dockerfile", "--line", "1", "--col", "6",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 });

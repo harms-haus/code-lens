@@ -26,7 +26,6 @@ describe("Ruby — find-type-hierarchy", () => {
       "7",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 });

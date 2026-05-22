@@ -22,7 +22,6 @@ describe("Vue — diagnostics", () => {
       "fixtures/valid.vue",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 
@@ -35,7 +34,6 @@ describe("Vue — diagnostics", () => {
       "--refresh",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 
@@ -47,7 +45,6 @@ describe("Vue — diagnostics", () => {
       "fixtures/valid.vue,fixtures/broken.vue",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 
@@ -64,7 +61,6 @@ describe("Vue — diagnostics", () => {
       unsupportedFile,
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 });

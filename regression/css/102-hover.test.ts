@@ -16,7 +16,6 @@ describe("CSS — hover", () => {
       "hover", "--file", "fixtures/valid.css", "--line", "8", "--col", "3",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 });

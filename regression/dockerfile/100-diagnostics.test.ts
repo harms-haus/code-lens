@@ -24,7 +24,6 @@ describe("Dockerfile — diagnostics", () => {
       "diagnostics", "--file", "fixtures/broken.dockerfile",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 });

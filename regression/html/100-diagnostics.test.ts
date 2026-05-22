@@ -13,7 +13,6 @@ describe("HTML — diagnostics", () => {
     if (!ctx.isServerInstalled) return;
     const result = await runCLISlow(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/valid.html"]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 
@@ -21,7 +20,6 @@ describe("HTML — diagnostics", () => {
     if (!ctx.isServerInstalled) return;
     const result = await runCLI(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/broken.html"]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 });

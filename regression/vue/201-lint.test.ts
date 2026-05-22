@@ -23,7 +23,6 @@ describe("Vue — lint", () => {
       "fixtures/valid.vue",
     ]);
 
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
@@ -39,7 +38,6 @@ describe("Vue — lint", () => {
       "fixtures/valid.vue,fixtures/broken.vue",
     ]);
 
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });

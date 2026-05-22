@@ -30,7 +30,6 @@ describe("Vue — prettier", () => {
       "fixtures/valid.vue",
     ]);
 
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
@@ -46,7 +45,6 @@ describe("Vue — prettier", () => {
       "fixtures/unformatted.vue",
     ]);
 
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });

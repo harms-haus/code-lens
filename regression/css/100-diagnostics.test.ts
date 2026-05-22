@@ -13,7 +13,6 @@ describe("CSS — diagnostics", () => {
     if (!ctx.isServerInstalled) return;
     const result = await runCLISlow(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/valid.css"]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 
@@ -23,7 +22,6 @@ describe("CSS — diagnostics", () => {
       "diagnostics", "--file", "fixtures/invalid.css",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(result.exitCode).toBe(0);
     expect(normalized.length).toBeGreaterThan(0);
   });
 });

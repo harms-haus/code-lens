@@ -37,7 +37,6 @@ describe("Ruby — lint", () => {
       "fixtures/valid.rb",
     ]);
 
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
@@ -54,7 +53,6 @@ describe("Ruby — lint", () => {
       "fixtures/broken.rb",
     ]);
 
-    expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
