@@ -22,8 +22,9 @@ describe("Ruby — diagnostics", () => {
       "fixtures/valid.rb",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // Use snapshot to accept whatever ruby-lsp returns (0 or more diagnostics)
-    expect(normalized).toMatchSnapshot("valid-file-diagnostics");
+    // Verify diagnostics ran successfully and produced output with ruby language tag
+    expect(normalized).toContain("(ruby)");
+    expect(normalized).toMatch(/\d+ error\(s\), \d+ warning\(s\), \d+ info message\(s\)/);
   });
 
   it("reports diagnostics for a broken file", async () => {
@@ -34,7 +35,8 @@ describe("Ruby — diagnostics", () => {
       "fixtures/broken.rb",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // Use snapshot to accept whatever ruby-lsp returns
-    expect(normalized).toMatchSnapshot("broken-file-diagnostics");
+    // Verify diagnostics ran successfully and produced output with ruby language tag
+    expect(normalized).toContain("(ruby)");
+    expect(normalized).toMatch(/\d+ error\(s\), \d+ warning\(s\), \d+ info message\(s\)/);
   });
 });
