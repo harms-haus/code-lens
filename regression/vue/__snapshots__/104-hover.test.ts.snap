@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Vue — hover > shows type info for greet function > hover-greet 1`] = `"No hover information available at this position."`;

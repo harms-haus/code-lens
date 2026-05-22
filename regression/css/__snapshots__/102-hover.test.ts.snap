@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CSS — hover > shows hover info for a CSS property > hover-display 1`] = `"Failed to get hover information: LSP request "textDocument/hover" timed out after <TIME>"`;

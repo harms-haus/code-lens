@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CSS — document-symbols > lists document symbols in CSS > document-symbols 1`] = `
+"Document symbols for fixtures/valid.css:
+4 symbols found
+
+  Class :root (line 1)
+  Class .container (line 6)
+  Class .container .header (line 13)
+  Class .container .content (line 18)"
+`;

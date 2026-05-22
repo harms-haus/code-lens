@@ -1,0 +1,18 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Vue — find-document-symbols > lists all symbols in valid.vue > document-symbols 1`] = `
+"Document symbols for fixtures/valid.vue:
+11 symbols found
+
+Module template (line 22)
+  Field div.container (line 23)
+    Field h1 (line 24)
+Module script (line 1)
+  Class Calculator (line 10)
+    Method add (line 11)
+    Method subtract (line 14)
+  Function farewell (line 6)
+  Function greet (line 2)
+Module style scoped (line 28)
+  Class .container (line 29)"
+`;

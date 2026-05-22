@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`HTML — diagnostics > reports diagnostics for a broken HTML file > broken-html-diagnostics 1`] = `
+"Diagnostics for fixtures/broken.html (html):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;
+
+exports[`HTML — diagnostics > reports no diagnostics for a valid HTML file > valid-html-diagnostics 1`] = `
+"Diagnostics for fixtures/valid.html (html):
+0 error(s), 0 warning(s), 0 info message(s)
+
+No issues found."
+`;

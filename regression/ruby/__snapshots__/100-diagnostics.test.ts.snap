@@ -1,0 +1,5 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Ruby — diagnostics > reports diagnostics for a broken file > broken-ruby-diagnostics 1`] = `"Failed to get diagnostics: LSP server exited with code 78, signal null"`;
+
+exports[`Ruby — diagnostics > reports diagnostics for a valid file > valid-ruby-diagnostics 1`] = `"Failed to get diagnostics: LSP server exited with code 78, signal null"`;

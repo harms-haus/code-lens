@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Vue — find-type-hierarchy > shows type hierarchy for Animal class > type-hierarchy-animal 1`] = `"Type hierarchy is not supported by this language server, or no type at this position."`;

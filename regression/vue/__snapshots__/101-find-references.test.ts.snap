@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Vue — find-references > finds references to increment function > references-to-increment 1`] = `
+"References found: 0 locations
+
+(none)"
+`;

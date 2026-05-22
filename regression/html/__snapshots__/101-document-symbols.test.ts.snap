@@ -1,0 +1,23 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`HTML — document-symbols > lists document symbols in HTML > document-symbols 1`] = `
+"Document symbols for fixtures/valid.html:
+16 symbols found
+
+  Field html (line 2)
+  Field head (line 3)
+  Field meta (line 4)
+  Field title (line 5)
+  Field body (line 7)
+  Field header#main-header (line 8)
+  Field h1 (line 9)
+  Field nav#main-nav (line 10)
+  Field a.link (line 11)
+  Field a.link (line 12)
+  Field main#content (line 15)
+  Field section#about (line 16)
+  Field h2 (line 17)
+  Field p.description (line 18)
+  Field footer#main-footer (line 21)
+  Field p (line 22)"
+`;

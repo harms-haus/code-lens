@@ -1,0 +1,5 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Ruby — lint > returns lint result for broken file > lint-broken-ruby 1`] = `"No linters detected."`;
+
+exports[`Ruby — lint > returns lint result for valid file > lint-valid-ruby 1`] = `"No linters detected."`;

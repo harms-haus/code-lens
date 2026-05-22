@@ -1,0 +1,66 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Go — find-symbols > finds symbols matching 'Calculator' > symbols-calculator 1`] = `
+"Symbols matching "Calculator": 4
+
+  Calculator [example.com/regression] (Struct) — <ROOT>/fixtures/main.go:13
+  NewCalculator [example.com/regression] (Function) — <ROOT>/fixtures/main.go:17
+  Calculator.Add [example.com/regression] (Method) — <ROOT>/fixtures/main.go:21
+  Calculator.result [example.com/regression] (Field) — <ROOT>/fixtures/main.go:14"
+`;
+
+exports[`Go — find-symbols > finds symbols matching 'greet' > symbols-greet 1`] = `
+"Symbols matching "greet": 100
+
+  greet [example.com/regression] (Function) — <ROOT>/fixtures/main.go:5
+  example.com/regression.NewCalculator [example.com/regression] (Function) — <ROOT>/fixtures/main.go:17
+  PTRACE_GETREGSET [syscall] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/syscall/zerrors_linux_amd64.go:741
+  goexperiment.ExecTracer2 [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_exectracer2_on.go:8
+  goexperiment.ExecTracer2Int [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_exectracer2_on.go:9
+  example.com/regression.Calculator.result [example.com/regression] (Field) — <ROOT>/fixtures/main.go:14
+  IntArgRegBitmap.Get [internal/abi] (Method) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/abi/abi.go:100
+  IntArgRegBitmap.Set [internal/abi] (Method) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/abi/abi.go:90
+  goexperiment.Flags.ExecTracer2 [internal/goexperiment] (Field) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/flags.go:129
+  CoverageRedesignInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_coverageredesign_on.go:8
+  Other_Grapheme_Extend [unicode] (Variable) — /opt/hostedtoolcache/go/1.22.12/x64/src/unicode/tables.go:7211
+  Flags.PreemptibleLoops [internal/goexperiment] (Field) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/flags.go:59
+  goexperiment.PageTrace [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_pagetrace_off.go:7
+  goexperiment.FieldTrack [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_fieldtrack_off.go:7
+  goexperiment.PageTraceInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_pagetrace_off.go:8
+  goexperiment.FieldTrackInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_fieldtrack_off.go:8
+  Logical_Order_Exception [unicode] (Variable) — /opt/hostedtoolcache/go/1.22.12/x64/src/unicode/tables.go:7207
+  goexperiment.Flags.PageTrace [internal/goexperiment] (Field) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/flags.go:98
+  goexperiment.Flags.FieldTrack [internal/goexperiment] (Field) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/flags.go:58
+  goexperiment.ArenasInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_arenas_off.go:8
+  goexperiment.CacheProgInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_cacheprog_off.go:8
+  goexperiment.CgoCheck2Int [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_cgocheck2_off.go:8
+  goexperiment.RangeFuncInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_rangefunc_off.go:8
+  goexperiment.NewInlinerInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_newinliner_off.go:8
+  goexperiment.RegabiArgsInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_regabiargs_on.go:8
+  goexperiment.AllocHeadersInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_allocheaders_on.go:8
+  goexperiment.PreemptibleLoops [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_preemptibleloops_off.go:7
+  goexperiment.RegabiWrappersInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_regabiwrappers_on.go:8
+  goexperiment.PreemptibleLoopsInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_preemptibleloops_off.go:8
+  goexperiment.HeapMinimum512KiBInt [internal/goexperiment] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/goexperiment/exp_heapminimum512kib_off.go:8
+  Other_Default_Ignorable_Code_Point [unicode] (Variable) — /opt/hostedtoolcache/go/1.22.12/x64/src/unicode/tables.go:7210
+  testlog.Interface.Getenv [internal/testlog] (Method) — /opt/hostedtoolcache/go/1.22.12/x64/src/internal/testlog/log.go:17
+  StringWriter.WriteString [io] (Method) — /opt/hostedtoolcache/go/1.22.12/x64/src/io/io.go:308
+  gcResetMarkState [runtime] (Function) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/mgc.go:1630
+  greyobject [runtime] (Function) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/mgcmark.go:1615
+  gopreempt_m [runtime] (Function) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/proc.go:4081
+  traceLocker.GoPreempt [runtime] (Method) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/trace2runtime.go:424
+  traceStringTable.reset [runtime] (Method) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/trace2string.go:92
+  _Gpreempted [runtime] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/runtime2.go:88
+  _Gscanpreempted [runtime] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/runtime2.go:106
+  casGToPreemptScan [runtime] (Function) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/proc.go:1233
+  traceGoStopPreempted [runtime] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/trace2runtime.go:131
+  g.preempt [runtime] (Field) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/runtime2.go:462
+  g.preemptStop [runtime] (Field) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/runtime2.go:463
+  g.preemptShrink [runtime] (Field) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/runtime2.go:464
+  gcDrainUntilPreempt [runtime] (Constant) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/mgcmark.go:1105
+  debugLogReader.tick [runtime] (Field) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/debuglog.go:495
+  gcStatsAggregate.totalScan [runtime] (Field) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/metrics.go:688
+  heapStatsAggregate.totalFreed [runtime] (Field) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/metrics.go:593
+  heapStatsAggregate.totalFrees [runtime] (Field) — /opt/hostedtoolcache/go/1.22.12/x64/src/runtime/metrics.go:601
+  ... and 50 more"
+`;

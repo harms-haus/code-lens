@@ -1,0 +1,12 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Vue — rename-symbol > generates rename diff for greet function > rename-greet 1`] = `
+"Rename "greet" → "say_hello"
+File: fixtures/valid.vue
+Files affected: 0
+
+Patch:
+\`\`\`diff
+No changes generated.
+\`\`\`"
+`;

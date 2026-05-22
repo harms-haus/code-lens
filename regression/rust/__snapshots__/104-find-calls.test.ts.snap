@@ -1,3 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Rust — find-calls > shows call hierarchy for Calculator::add method > calls-add 1`] = `
+"Call hierarchy for "add" in src/main.rs:18:8
+
+No incoming or outgoing calls found."
+`;
+
 exports[`Rust — find-calls > shows call hierarchy for greet function > call-hierarchy-greet 1`] = `"No call hierarchy available at this position. Place cursor on a function/method name."`;

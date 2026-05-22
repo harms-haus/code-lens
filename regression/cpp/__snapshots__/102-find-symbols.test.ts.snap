@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`C/C++ — find-symbols > finds symbols matching 'add' > symbols-add 1`] = `
+"Symbols matching "add": 5
+
+  add (Function) — <ROOT>/fixtures/main.c:3
+  atomic_fetch_add (String) — /usr/lib/llvm-18/lib/clang/18/include/stdatomic.h:150
+  atomic_fetch_add_explicit (String) — /usr/lib/llvm-18/lib/clang/18/include/stdatomic.h:151
+  LC_ADDRESS (String) — /usr/include/locale.h:44
+  __LC_ADDRESS (String) — /usr/include/x86_64-linux-gnu/bits/locale.h:35"
+`;

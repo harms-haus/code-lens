@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CSS — find-definition > finds definition from within a selector block > definition-from-selector 1`] = `
+"Definition found: 0 locations
+
+(none)"
+`;
+
+exports[`CSS — find-definition > finds definition of CSS variable > definition-css-variable 1`] = `
+"Definition found: 1 location
+
+  <ROOT>/fixtures/valid.css:2:3"
+`;
