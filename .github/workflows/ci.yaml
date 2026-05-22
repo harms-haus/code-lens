@@ -140,7 +140,7 @@ jobs:
 
       # ── Run regression tests ──────────────────────────────────────────
       - name: Run regression tests
-        run: npm run test:regression
+        run: npm run test:regression:update
 
       - name: Upload snapshot artifacts on failure
         if: failure()
