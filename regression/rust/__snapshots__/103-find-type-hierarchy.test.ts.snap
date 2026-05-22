@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`Rust — find-type-hierarchy > shows type hierarchy for Calculator struct > type-hierarchy-calculator 1`] = `"Type hierarchy is not supported by this language server, or no type at this position."`;

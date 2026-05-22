@@ -22,7 +22,7 @@ describe("CSS — find-definition", () => {
     ]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("definition-css-variable");
   });
 
   it("finds definition from within a selector block", async () => {
@@ -33,6 +33,6 @@ describe("CSS — find-definition", () => {
     ]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("definition-from-selector");
   });
 });

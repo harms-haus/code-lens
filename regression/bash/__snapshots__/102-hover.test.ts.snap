@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`Bash — hover > shows hover info for a function > hover-greet 1`] = `"No hover information available at this position."`;

@@ -16,6 +16,6 @@ describe("HTML — find-definition", () => {
       "find-definition", "--file", "fixtures/valid.html", "--line", "12", "--col", "15",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("definition-href");
   });
 });

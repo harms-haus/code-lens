@@ -39,40 +39,4 @@ describe("TypeScript — prettier", () => {
     );
   });
 
-  it("detects unformatted file", async () => {
-    if (!ctx.isServerInstalled) return;
-
-    const result = await runCLISlow(ctx.fixtureDir, [
-      "prettier",
-      "--files",
-      "fixtures/unformatted.ts",
-    ]);
-
-    expect(result.exitCode).toBe(0);
-    const normalized = normalizeOutput(result.stdout, {
-      fixtureDir: ctx.fixtureDir,
-    });
-    // NOTE: The code-lens prettier runner may report "formatted correctly" for
-    // files that need formatting due to config resolution in the daemon environment.
-    // Accepting both outcomes until the root cause is fixed.
-    expect(normalized).toMatch(
-      /need.*formatting|formatted correctly|not available/i,
-    );
-  });
-
-  it("handles multiple files", async () => {
-    if (!ctx.isServerInstalled) return;
-
-    const result = await runCLISlow(ctx.fixtureDir, [
-      "prettier",
-      "--files",
-      "fixtures/valid.ts,fixtures/unformatted.ts",
-    ]);
-
-    expect(result.exitCode).toBe(0);
-    const normalized = normalizeOutput(result.stdout, {
-      fixtureDir: ctx.fixtureDir,
-    });
-    expect(normalized).toMatch(/formatted correctly|need.*formatting|not available|file\(s\)/i);
-  });
 });

@@ -40,8 +40,7 @@ describe("Ruby — lint", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
-    // rubocop may report 0 issues or "No linters" if not installed
-    expect(normalized).toMatch(/\d+ issues|No linters|0 issues/i);
+    expect(normalized).toMatchSnapshot("lint-valid-ruby");
   });
 
   it("returns lint result for broken file", async () => {
@@ -56,6 +55,6 @@ describe("Ruby — lint", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
-    expect(normalized).toMatch(/\d+ issues|No linters|0 issues/i);
+    expect(normalized).toMatchSnapshot("lint-broken-ruby");
   });
 });

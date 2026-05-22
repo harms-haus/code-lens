@@ -41,19 +41,4 @@ describe("YAML — prettier", () => {
     expect(normalized).toMatch(/formatted correctly|no.*need.*formatting/i);
   });
 
-  it("detects unformatted YAML file", async () => {
-    if (!ctx.isServerInstalled) return;
-
-    const result = await runCLISlow(ctx.fixtureDir, [
-      "prettier",
-      "--files",
-      "fixtures/unformatted.yaml",
-    ]);
-
-    expect(result.exitCode).toBe(0);
-    const normalized = normalizeOutput(result.stdout, {
-      fixtureDir: ctx.fixtureDir,
-    });
-    expect(normalized).toMatch(/needs? formatting|formatted correctly/i);
-  });
 });

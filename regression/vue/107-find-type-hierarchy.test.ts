@@ -27,6 +27,6 @@ describe("Vue — find-type-hierarchy", () => {
       "6",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("type-hierarchy-animal");
   });
 });

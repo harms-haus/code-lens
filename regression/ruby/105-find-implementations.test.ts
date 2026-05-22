@@ -26,6 +26,6 @@ describe("Ruby — find-implementations", () => {
       "7",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("implementations-of-animal");
   });
 });

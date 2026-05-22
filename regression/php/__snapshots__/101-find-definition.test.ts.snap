@@ -1,7 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`PHP — find-definition > finds definition of an imported function > definition-of-greet 1`] = `
-"Definition found: 0 locations
-
-(none)"
-`;

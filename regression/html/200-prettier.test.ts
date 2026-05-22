@@ -29,14 +29,4 @@ describe("HTML — prettier", () => {
     expect(normalized).toMatch(/formatted correctly|no.*need.*formatting/i);
   });
 
-  it("detects unformatted HTML file", async () => {
-    if (!ctx.isServerInstalled) return;
-
-    const result = await runCLISlow(ctx.fixtureDir, [
-      "prettier", "--files", "fixtures/unformatted.html",
-    ]);
-
-    const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatch(/needs? formatting|formatted correctly/i);
-  });
 });

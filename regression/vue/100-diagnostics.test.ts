@@ -22,7 +22,7 @@ describe("Vue — diagnostics", () => {
       "fixtures/valid.vue",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("valid-vue-diagnostics");
   });
 
   it("reports errors for a broken file", async () => {
@@ -34,7 +34,7 @@ describe("Vue — diagnostics", () => {
       "--refresh",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("broken-vue-diagnostics");
   });
 
   it("reports diagnostics for multiple files", async () => {
@@ -45,7 +45,7 @@ describe("Vue — diagnostics", () => {
       "fixtures/valid.vue,fixtures/broken.vue",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("multi-file-diagnostics");
   });
 
   it("errors on unsupported file extension", async () => {
@@ -61,6 +61,6 @@ describe("Vue — diagnostics", () => {
       unsupportedFile,
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("unsupported-extension-diagnostics");
   });
 });

@@ -68,6 +68,6 @@ describe("Rust — find-calls", () => {
     );
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("calls-add");
   });
 });

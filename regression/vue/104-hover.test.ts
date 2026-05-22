@@ -27,6 +27,6 @@ describe("Vue — hover", () => {
       "10",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("hover-greet");
   });
 });

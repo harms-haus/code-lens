@@ -14,7 +14,7 @@ describe("Ruby — find-type-definition", () => {
     await ctx.teardown();
   }, 30_000);
 
-  it("finds type definition of calc instance", async () => {
+  it("finds type definition of greet in Student", async () => {
     if (!ctx.isServerInstalled) return;
     const result = await runCLIWithRetry(ctx.fixtureDir, [
       "find-type-definition",
@@ -26,6 +26,6 @@ describe("Ruby — find-type-definition", () => {
       "1",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("type-definition");
   });
 });

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { RegressionTestContext } from "../_shared/test-context.js";
-import { runCLI, runCLISlow } from "../_shared/run-cli.js";
+import { runCLISlow } from "../_shared/run-cli.js";
 import { normalizeOutput } from "../_shared/normalize.js";
 
 const ctx = new RegressionTestContext("css");
@@ -16,6 +16,6 @@ describe("CSS — hover", () => {
       "hover", "--file", "fixtures/valid.css", "--line", "8", "--col", "3",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("hover-display");
   });
 });

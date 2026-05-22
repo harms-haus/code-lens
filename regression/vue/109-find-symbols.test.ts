@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { RegressionTestContext } from "../_shared/test-context.js";
-import { runCLI, runCLIWithRetry, runCLISlow } from "../_shared/run-cli.js";
+import { runCLIWithRetry, runCLISlow } from "../_shared/run-cli.js";
 import { normalizeOutput } from "../_shared/normalize.js";
 
 const ctx = new RegressionTestContext("vue");
@@ -32,6 +32,6 @@ describe("Vue — find-symbols", () => {
       "fixtures/valid.vue",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("symbols-greet");
   });
 });

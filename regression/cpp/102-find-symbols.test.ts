@@ -27,6 +27,6 @@ describe("C/C++ — find-symbols", () => {
     const result = await runCLI(ctx.fixtureDir, ["find-symbols", "--query", "add", "--file", "fixtures/main.c"]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("symbols-add");
   });
 });

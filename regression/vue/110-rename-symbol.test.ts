@@ -29,6 +29,6 @@ describe("Vue — rename-symbol", () => {
       "say_hello",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("rename-greet");
   });
 });

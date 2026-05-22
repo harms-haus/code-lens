@@ -1,7 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`Svelte — find-type-definition > finds type definition of count variable > type-definition-of-count 1`] = `
-"Type definition found: 0 locations
-
-(none)"
-`;

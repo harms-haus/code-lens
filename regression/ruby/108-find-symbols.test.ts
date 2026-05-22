@@ -24,6 +24,6 @@ describe("Ruby — find-symbols", () => {
       "fixtures/valid.rb",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("symbols-greet");
   });
 });

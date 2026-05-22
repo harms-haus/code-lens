@@ -15,6 +15,6 @@ describe("Dockerfile — document-symbols", () => {
       "find-document-symbols", "--file", "fixtures/Dockerfile",
     ], { timeout: 15_000 });
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("document-symbols");
   });
 });

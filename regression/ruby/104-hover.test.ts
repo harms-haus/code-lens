@@ -26,6 +26,6 @@ describe("Ruby — hover", () => {
       "6",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized.length).toBeGreaterThan(0);
+    expect(normalized).toMatchSnapshot("hover-greet");
   });
 });
