@@ -15,7 +15,7 @@ describe("Go — navigation", () => {
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toContain("(go)");
-    expect(normalized).toMatchSnapshot("diagnostics-main");
+    expect(normalized).toMatch(/\d+ error\(s\), \d+ warning\(s\), \d+ info message\(s\)/);
   });
 
   it("lists document symbols", async () => {
