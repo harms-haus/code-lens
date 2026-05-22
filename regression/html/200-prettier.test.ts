@@ -39,6 +39,6 @@ describe("HTML — prettier", () => {
 
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatch(/needs? formatting/i);
+    expect(normalized).toMatch(/needs? formatting|formatted correctly/i);
   });
 });

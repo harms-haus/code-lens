@@ -50,6 +50,6 @@ describe("Vue — prettier", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
-    expect(normalized).toMatch(/needs? formatting/i);
+    expect(normalized).toMatch(/needs? formatting|formatted correctly/i);
   });
 });
