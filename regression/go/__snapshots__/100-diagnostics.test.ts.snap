@@ -25,13 +25,6 @@ exports[`Go — navigation > lists document symbols > document-symbols 1`] = `
   Function main (line 26)"
 `;
 
-exports[`Go — navigation > reports diagnostics for main.go > diagnostics-main 1`] = `
-"Diagnostics for fixtures/main.go (go):
-0 error(s), 0 warning(s), 0 info message(s)
-
-No issues found."
-`;
-
 exports[`Go — navigation > shows hover info for a function > hover-function 1`] = `
 "Hover info at fixtures/main.go:5:6:
 
