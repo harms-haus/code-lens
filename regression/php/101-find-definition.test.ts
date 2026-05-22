@@ -11,9 +11,9 @@ describe("PHP — find-definition", () => {
 
   it("finds definition of an imported function", async () => {
     if (!ctx.isServerInstalled) return;
-    // references.php line 4: $message = greet("world") — "greet" at line 4, col 21
+    // references.php line 4: $message = greet("world") — "greet" at line 4, col 11
     const result = await runCLISlow(ctx.fixtureDir, [
-      "find-definition", "--file", "fixtures/references.php", "--line", "4", "--col", "21",
+      "find-definition", "--file", "fixtures/references.php", "--line", "4", "--col", "11",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("definition-of-greet");

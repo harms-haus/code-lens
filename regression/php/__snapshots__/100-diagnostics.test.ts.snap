@@ -2,9 +2,9 @@
 
 exports[`PHP — diagnostics > reports diagnostics for a broken file > broken-file-diagnostics 1`] = `
 "Diagnostics for fixtures/broken.php (php):
-0 error(s), 0 warning(s), 0 info message(s)
+1 error(s), 0 warning(s), 0 info message(s)
 
-No issues found."
+  Error: 9:12: [intelephense] Undefined function 'nonexistent_function'. (P1010)"
 `;
 
 exports[`PHP — diagnostics > reports diagnostics for a valid file > valid-file-diagnostics 1`] = `

@@ -1,3 +1,13 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Svelte — find-calls > shows call hierarchy for increment function > calls-of-increment 1`] = `"No call hierarchy available at this position. Place cursor on a function/method name."`;
+exports[`Svelte — find-calls > shows call hierarchy for increment function > calls-of-increment 1`] = `
+"Call hierarchy for "increment" in fixtures/references.svelte:6:11
+
+─── Incoming Calls (1) ───
+  references.svelte — <ROOT>/fixtures/references.svelte:1
+    at line 14
+─── Outgoing Calls (1) ───
+  update — <ROOT>/fixtures/node_modules/svelte/types/index.d.ts:2660
+    at line 7
+    at line 7"
+`;

@@ -15,7 +15,6 @@ describe("CSS — document-symbols", () => {
       "find-document-symbols", "--file", "fixtures/valid.css",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // CSS server support varies — accept successful symbol listing or error
-    expect(normalized).toMatch(/\d+ symbols found|Failed to get document symbols/i);
+    expect(normalized).toMatch(/\d+ symbols? found/);
   });
 });

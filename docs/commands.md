@@ -225,11 +225,18 @@ Search for symbols (functions, classes, variables, etc.) across the workspace.
 |--------|-------------|
 | `--query <string>` | Fuzzy symbol query (required) |
 | `--kind <kind>` | Filter by symbol kind (e.g., `class`, `function`, `interface`) |
+| `--file <file>` | File to determine language context for server routing (optional) |
 
 **Example:**
 
 ```bash
 code-lens find-symbols --query "UserService"
+```
+
+**Example with `--file` to target a specific language server:**
+
+```bash
+code-lens find-symbols --query "Calculator" --file src/main.go
 ```
 
 **Example output:**

@@ -16,7 +16,7 @@ describe("Svelte — find-implementations", () => {
 
   it("finds implementations of Animal base class", async () => {
     if (!ctx.isServerInstalled) return;
-    // classes.svelte line 2: abstract class Animal — "Animal" at col 19
+    // classes.svelte line 2: class Animal — "Animal" at col 8
     const result = await runCLIWithRetry(ctx.fixtureDir, [
       "find-implementations",
       "--file",
@@ -24,7 +24,7 @@ describe("Svelte — find-implementations", () => {
       "--line",
       "2",
       "--col",
-      "19",
+      "8",
     ]);
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });

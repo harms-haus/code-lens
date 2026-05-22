@@ -50,6 +50,7 @@ const WARMUP_EXTRA_FILES: Record<string, string[]> = {
   vue: ["fixtures/broken.vue", "fixtures/references.vue"],
   svelte: ["fixtures/broken.svelte", "fixtures/references.svelte"],
   java: ["src/Broken.java"],
+  php: ["fixtures/broken.php"],
 };
 
 /** Maximum number of warmup attempts (each ~2s) */
@@ -163,7 +164,7 @@ export class RegressionTestContext {
     } else if (this.language === "svelte") {
       await this.initSvelteWorkspace();
     } else if (this.language === "ruby") {
-      this.initRubyWorkspace();
+      await this.initRubyWorkspace();
     }
   }
 
@@ -323,6 +324,13 @@ export class RegressionTestContext {
     } catch {
       // Ruby may not be installed
     }
+
+    // After writing .ruby-version, generate Gemfile.lock
+    await execa("bundle", ["install"], {
+      cwd: this.fixtureDir,
+      timeout: 30_000,
+      reject: false,
+    });
   }
 
   /** Detect whether the LSP server for this language is installed */

@@ -16,7 +16,7 @@ describe("Vue — find-type-hierarchy", () => {
 
   it("shows type hierarchy for Animal class", async () => {
     if (!ctx.isServerInstalled) return;
-    // classes.vue line 2: abstract class Animal — "Animal" at col 19
+    // classes.vue line 2: class Animal — "Animal" at col 6
     const result = await runCLIWithRetry(ctx.fixtureDir, [
       "find-type-hierarchy",
       "--file",
@@ -24,7 +24,7 @@ describe("Vue — find-type-hierarchy", () => {
       "--line",
       "2",
       "--col",
-      "19",
+      "6",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("type-hierarchy-of-animal");

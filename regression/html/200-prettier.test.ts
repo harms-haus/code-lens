@@ -27,7 +27,7 @@ describe("HTML — prettier", () => {
 
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    expect(normalized).toMatch(/formatted correctly|no.*need.*formatting|not available/i);
+    expect(normalized).toMatch(/formatted correctly|no.*need.*formatting/i);
   });
 
   it("detects unformatted HTML file", async () => {
@@ -39,10 +39,6 @@ describe("HTML — prettier", () => {
 
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // NOTE: The code-lens prettier runner may report "formatted correctly" for
-    // files that need formatting due to config resolution in the daemon environment.
-    expect(normalized).toMatch(
-      /need.*formatting|formatted correctly|not available/i,
-    );
+    expect(normalized).toMatch(/needs? formatting/i);
   });
 });

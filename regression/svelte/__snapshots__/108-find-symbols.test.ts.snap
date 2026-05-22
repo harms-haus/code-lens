@@ -1,20 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Svelte — find-symbols > finds symbols matching 'greet' > symbols-greet 1`] = `
-"Failed to find symbols: <syntax> TypeScript Server Error (<TS_VERSION>)
-No Project.
-Error: No Project.
-    at Object.ThrowNoProject (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getProjects (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getFullNavigateToItems (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getNavigateToItems (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at navto (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at <NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>
-    at IpcIOSession.executeWithRequestId (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.executeCommand (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.onMessage (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at process.<anonymous> (<NODE_MODULES>/typescript/lib/_tsserver.js:<LINE>:<COL>)
-    at process.emit (node:events:<LINE>:<COL>)
-    at emit (node:internal/child_process:<LINE>:<COL>)
-    at process.processTicksAndRejections (node:internal/process/task_queues:<LINE>:<COL>)"
+"Symbols matching "greet": 1
+
+  greet() [script] (Function) — <ROOT>/fixtures/valid.svelte:2"
 `;

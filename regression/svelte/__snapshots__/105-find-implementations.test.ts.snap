@@ -1,7 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Svelte — find-implementations > finds implementations of Animal base class > implementations-of-animal 1`] = `
-"Implementations found: 0 locations
+"Implementations found: 3 locations
 
-(none)"
+  <ROOT>/fixtures/classes.svelte:2:9
+  <ROOT>/fixtures/classes.svelte:8:9
+  <ROOT>/fixtures/classes.svelte:14:9"
 `;

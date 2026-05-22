@@ -16,15 +16,15 @@ describe("Vue — find-calls", () => {
 
   it("shows call hierarchy for increment function", async () => {
     if (!ctx.isServerInstalled) return;
-    // references.vue line 9: function increment — "increment" at col 11
+    // references.vue line 6: function increment — "increment" at col 9
     const result = await runCLIWithRetry(ctx.fixtureDir, [
       "find-calls",
       "--file",
       "fixtures/references.vue",
       "--line",
-      "9",
+      "6",
       "--col",
-      "11",
+      "9",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("calls-of-increment");

@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`Ruby — hover > shows type info for greet function > hover-greet 1`] = `"Internal error: LSP server exited with code 78, signal null"`;

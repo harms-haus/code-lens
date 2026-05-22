@@ -16,15 +16,15 @@ describe("Svelte — find-definition", () => {
 
   it("finds definition of count variable", async () => {
     if (!ctx.isServerInstalled) return;
-    // references.svelte line 5: const count = writable(0) — "count" at col 9
+    // references.svelte line 4: const count = writable(0) — "count" at col 8
     const result = await runCLIWithRetry(ctx.fixtureDir, [
       "find-definition",
       "--file",
       "fixtures/references.svelte",
       "--line",
-      "5",
+      "4",
       "--col",
-      "9",
+      "8",
     ]);
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });

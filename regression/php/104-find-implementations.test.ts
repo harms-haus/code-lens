@@ -22,8 +22,6 @@ describe("PHP — find-implementations", () => {
     ]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // intelephense may return error for implementations
-    expect(normalized).toMatch(/Implementations found: \d+ location|No implementations found|Failed to find implementations/i);
     expect(normalized).toMatchSnapshot("implementations-calculator");
   });
 });

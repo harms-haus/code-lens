@@ -1,39 +1,66 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Go — find-symbols > finds symbols matching 'Calculator' > symbols-calculator 1`] = `
-"Failed to find symbols: <syntax> TypeScript Server Error (<TS_VERSION>)
-No Project.
-Error: No Project.
-    at Object.ThrowNoProject (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getProjects (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getFullNavigateToItems (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getNavigateToItems (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at navto (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at <NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>
-    at IpcIOSession.executeWithRequestId (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.executeCommand (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.onMessage (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at process.<anonymous> (<NODE_MODULES>/typescript/lib/_tsserver.js:<LINE>:<COL>)
-    at process.emit (node:events:<LINE>:<COL>)
-    at emit (node:internal/child_process:<LINE>:<COL>)
-    at process.processTicksAndRejections (node:internal/process/task_queues:<LINE>:<COL>)"
+"Symbols matching "Calculator": 4
+
+  Calculator [example.com/regression] (Struct) — <ROOT>/fixtures/main.go:13
+  NewCalculator [example.com/regression] (Function) — <ROOT>/fixtures/main.go:17
+  Calculator.Add [example.com/regression] (Method) — <ROOT>/fixtures/main.go:21
+  Calculator.result [example.com/regression] (Field) — <ROOT>/fixtures/main.go:14"
 `;
 
 exports[`Go — find-symbols > finds symbols matching 'greet' > symbols-greet 1`] = `
-"Failed to find symbols: <syntax> TypeScript Server Error (<TS_VERSION>)
-No Project.
-Error: No Project.
-    at Object.ThrowNoProject (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getProjects (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getFullNavigateToItems (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getNavigateToItems (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at navto (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at <NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>
-    at IpcIOSession.executeWithRequestId (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.executeCommand (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.onMessage (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at process.<anonymous> (<NODE_MODULES>/typescript/lib/_tsserver.js:<LINE>:<COL>)
-    at process.emit (node:events:<LINE>:<COL>)
-    at emit (node:internal/child_process:<LINE>:<COL>)
-    at process.processTicksAndRejections (node:internal/process/task_queues:<LINE>:<COL>)"
+"Symbols matching "greet": 100
+
+  greet [example.com/regression] (Function) — <ROOT>/fixtures/main.go:5
+  GreenTeaGC [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_greenteagc_on.go:7
+  GreenTeaGCInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_greenteagc_on.go:8
+  Flags.GreenTeaGC [internal/goexperiment] (Field) — /usr/lib/go/src/internal/goexperiment/flags.go:110
+  example.com/regression.NewCalculator [example.com/regression] (Function) — <ROOT>/fixtures/main.go:17
+  PTRACE_GETREGSET [syscall] (Constant) — /usr/lib/go/src/syscall/zerrors_linux_amd64.go:739
+  example.com/regression.Calculator.result [example.com/regression] (Field) — <ROOT>/fixtures/main.go:14
+  IntArgRegBitmap.Get [internal/abi] (Method) — /usr/lib/go/src/internal/abi/abi.go:100
+  IntArgRegBitmap.Set [internal/abi] (Method) — /usr/lib/go/src/internal/abi/abi.go:90
+  Other_Grapheme_Extend [unicode] (Variable) — /usr/lib/go/src/unicode/tables.go:8601
+  Flags.PreemptibleLoops [internal/goexperiment] (Field) — /usr/lib/go/src/internal/goexperiment/flags.go:59
+  goexperiment.FieldTrack [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_fieldtrack_off.go:7
+  goexperiment.FieldTrackInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_fieldtrack_off.go:8
+  GoroutineLeakProfileInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_goroutineleakprofile_off.go:8
+  Flags.RuntimeSecret [internal/goexperiment] (Field) — /usr/lib/go/src/internal/goexperiment/flags.go:130
+  Logical_Order_Exception [unicode] (Variable) — /usr/lib/go/src/unicode/tables.go:8597
+  goexperiment.Flags.FieldTrack [internal/goexperiment] (Field) — /usr/lib/go/src/internal/goexperiment/flags.go:58
+  goexperiment.ArenasInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_arenas_off.go:8
+  goexperiment.CgoCheck2Int [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_cgocheck2_off.go:8
+  goexperiment.NewInlinerInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_newinliner_off.go:8
+  goexperiment.RegabiArgsInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_regabiargs_on.go:8
+  goexperiment.RuntimeSecret [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_runtimesecret_off.go:7
+  goexperiment.PreemptibleLoops [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_preemptibleloops_off.go:7
+  goexperiment.RuntimeFreegcInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_runtimefreegc_off.go:8
+  goexperiment.RuntimeSecretInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_runtimesecret_off.go:8
+  goexperiment.RegabiWrappersInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_regabiwrappers_on.go:8
+  goexperiment.PreemptibleLoopsInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_preemptibleloops_off.go:8
+  goexperiment.HeapMinimum512KiBInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_heapminimum512kib_off.go:8
+  goexperiment.RandomizedHeapBase64Int [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_randomizedheapbase64_on.go:8
+  goexperiment.SizeSpecializedMallocInt [internal/goexperiment] (Constant) — /usr/lib/go/src/internal/goexperiment/exp_sizespecializedmalloc_off.go:8
+  Other_Default_Ignorable_Code_Point [unicode] (Variable) — /usr/lib/go/src/unicode/tables.go:8600
+  testlog.Interface.Getenv [internal/testlog] (Method) — /usr/lib/go/src/internal/testlog/log.go:17
+  StringWriter.WriteString [io] (Method) — /usr/lib/go/src/io/io.go:308
+  doubleCheckGreenTea [runtime] (Constant) — /usr/lib/go/src/runtime/mgcmark_greenteagc.go:48
+  gcResetMarkState [runtime] (Function) — /usr/lib/go/src/runtime/mgc.go:2113
+  greyobject [runtime] (Function) — /usr/lib/go/src/runtime/mgcmark.go:1639
+  gopreempt_m [runtime] (Function) — /usr/lib/go/src/runtime/proc.go:4361
+  gcRestoreSyncObjects [runtime] (Function) — /usr/lib/go/src/runtime/mgc.go:1281
+  traceLocker.GoPreempt [runtime] (Method) — /usr/lib/go/src/runtime/traceruntime.go:449
+  traceStringTable.reset [runtime] (Method) — /usr/lib/go/src/runtime/tracestring.go:90
+  _Gpreempted [runtime] (Constant) — /usr/lib/go/src/runtime/runtime2.go:92
+  _Gscanpreempted [runtime] (Constant) — /usr/lib/go/src/runtime/runtime2.go:117
+  casGToPreemptScan [runtime] (Function) — /usr/lib/go/src/runtime/proc.go:1412
+  traceGoStopPreempted [runtime] (Constant) — /usr/lib/go/src/runtime/traceruntime.go:139
+  ctrlGroupMatchEmptyOrDeleted [internal/runtime/maps] (Function) — /usr/lib/go/src/internal/runtime/maps/group.go:203
+  g.preempt [runtime] (Field) — /usr/lib/go/src/runtime/runtime2.go:514
+  g.preemptStop [runtime] (Field) — /usr/lib/go/src/runtime/runtime2.go:515
+  g.preemptShrink [runtime] (Field) — /usr/lib/go/src/runtime/runtime2.go:516
+  gcPrepareMarkRoots [runtime] (Function) — /usr/lib/go/src/runtime/mgcmark.go:109
+  gcDrainUntilPreempt [runtime] (Constant) — /usr/lib/go/src/runtime/mgcmark.go:1159
+  ... and 50 more"
 `;

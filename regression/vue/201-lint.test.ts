@@ -27,7 +27,7 @@ describe("Vue — lint", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
-    expect(normalized).toMatch(/0 issues|No linters|no.*issues/i);
+    expect(normalized).toMatch(/\d+ issues? found|No issues found/i);
   });
 
   it("handles multiple files", async () => {
@@ -43,6 +43,6 @@ describe("Vue — lint", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
-    expect(normalized).toMatch(/issues|No linters|0 issues|not available/i);
+    expect(normalized).toMatch(/\d+ issues? found/);
   });
 });

@@ -22,8 +22,7 @@ describe("CSS — find-definition", () => {
     ]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // css-languageserver may not support go-to-definition for all positions
-    expect(normalized).toMatch(/Definition found: \d+ location|No definition found|Failed to find definition/i);
+    expect(normalized).toMatch(/Definition found: \d+ locations?/);
   });
 
   it("finds definition from within a selector block", async () => {
@@ -34,7 +33,6 @@ describe("CSS — find-definition", () => {
     ]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // css-languageserver may not support go-to-definition for all positions
-    expect(normalized).toMatch(/Definition found:|No definition found|Failed to find definition/i);
+    expect(normalized).toMatch(/Definition found: \d+ locations?/);
   });
 });

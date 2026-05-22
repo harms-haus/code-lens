@@ -17,7 +17,7 @@ describe("Go — find-symbols", () => {
       "find-document-symbols", "--file", "fixtures/main.go",
     ], { maxAttempts: 3, delayMs: 2_000 });
 
-    const result = await runCLI(ctx.fixtureDir, ["find-symbols", "--query", "greet"]);
+    const result = await runCLI(ctx.fixtureDir, ["find-symbols", "--query", "greet", "--file", "fixtures/main.go"]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("symbols-greet");
   });
@@ -25,7 +25,7 @@ describe("Go — find-symbols", () => {
   it("finds symbols matching 'Calculator'", async () => {
     if (!ctx.isServerInstalled) return;
 
-    const result = await runCLI(ctx.fixtureDir, ["find-symbols", "--query", "Calculator"]);
+    const result = await runCLI(ctx.fixtureDir, ["find-symbols", "--query", "Calculator", "--file", "fixtures/main.go"]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("symbols-calculator");
   });

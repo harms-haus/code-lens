@@ -3,54 +3,46 @@
  */
 
 import { registerCommand } from "../daemon/server.js";
-import { uriToFilePath } from "../utils/paths.js";
+import { uriToFilePath, resolveFile } from "../utils/paths.js";
 import {
   SYMBOL_KIND_NAMES,
   parseSymbolKind,
   MAX_SYMBOL_RESULTS,
 } from "../formatting/symbols.js";
 import { ok, err, sanitizeError } from "../formatting/output.js";
-import { LANGUAGE_SERVERS, isServerInstalled } from "../lsp/language-config.js";
 import type { LspManager } from "../lsp/lsp-manager.js";
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-/** Try to find an available LSP client (prefer TypeScript, fallback to any running) */
-async function findAvailableClient(
-  manager: LspManager,
-): Promise<ReturnType<LspManager["getClientForConfig"]> | null> {
-  // Prefer TypeScript server (best workspace symbol support)
-  const tsConfig = LANGUAGE_SERVERS.find((c) => c.language === "typescript");
-  if (tsConfig) {
-    const installed = await isServerInstalled(tsConfig);
-    if (installed) {
-      const client = await manager.getClientForConfig(tsConfig);
-      if (client) return client;
-    }
-  }
-
-  // Fall back to any running server
-  for (const serverConfig of LANGUAGE_SERVERS) {
-    const client = manager.getClientMap().get(serverConfig.language);
-    if (client) return client;
-  }
-
-  return null;
-}
 
 // ── Handler ────────────────────────────────────────────────────────────────
 
-registerCommand("find-symbols", async (params, manager, _cwd) => {
+registerCommand("find-symbols", async (params, manager, cwd) => {
   const query = params.query as string;
   const kind = params.kind as string | undefined;
+  const file = params.file as string | undefined;
 
   if (!query || query.length < 1) {
     return err("Please provide a symbol query to search for.");
   }
 
-  const client = await findAvailableClient(manager);
+  let client: Awaited<ReturnType<LspManager["getClientForConfig"]>> | null = null;
+
+  if (file) {
+    // File-based routing: detect language and use the correct LSP server
+    const filePath = resolveFile(file, cwd);
+    client = await manager.getClientForFile(filePath);
+  } else {
+    // Fallback: use any running server
+    for (const [, value] of manager.getClientMap()) {
+      client = value;
+      break;
+    }
+  }
+
   if (!client) {
-    return err("No LSP server running. Open a file first to start an LSP server.");
+    return err(
+      file
+        ? `No LSP server available for "${file}". Open a file first to start an LSP server.`
+        : "No LSP server running. Open a file first to start an LSP server.",
+    );
   }
 
   try {

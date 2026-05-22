@@ -21,7 +21,7 @@ describe("Ruby — find-type-definition", () => {
       "--file",
       "fixtures/valid.rb",
       "--line",
-      "24",
+      "26",
       "--col",
       "1",
     ]);

@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`Ruby — find-implementations > finds implementations of Animal base class > implementations-of-animal 1`] = `"Internal error: LSP server exited with code 78, signal null"`;

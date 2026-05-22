@@ -18,7 +18,7 @@ describe("Python — find-implementations", () => {
     if (!ctx.isServerInstalled) return;
 
     const result = await runCLIWithRetry(ctx.fixtureDir, [
-      "find-implementations", "--file", "fixtures/valid.py", "--line", "8", "--col", "7",
+      "find-implementations", "--file", "fixtures/valid.py", "--line", "7", "--col", "7",
     ]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });

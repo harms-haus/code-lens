@@ -16,7 +16,7 @@ describe("Vue — find-implementations", () => {
 
   it("finds implementations of Animal base class", async () => {
     if (!ctx.isServerInstalled) return;
-    // classes.vue line 2: abstract class Animal — "Animal" at col 19
+    // classes.vue line 2: class Animal — "Animal" at col 6
     const result = await runCLIWithRetry(ctx.fixtureDir, [
       "find-implementations",
       "--file",
@@ -24,7 +24,7 @@ describe("Vue — find-implementations", () => {
       "--line",
       "2",
       "--col",
-      "19",
+      "6",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("implementations-of-animal");

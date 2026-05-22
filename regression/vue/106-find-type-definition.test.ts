@@ -16,15 +16,15 @@ describe("Vue — find-type-definition", () => {
 
   it("finds type definition of count variable", async () => {
     if (!ctx.isServerInstalled) return;
-    // references.vue line 6: const count = ref(0) — "count" at col 7
+    // references.vue line 4: const count = ref(0) — "count" at col 6
     const result = await runCLIWithRetry(ctx.fixtureDir, [
       "find-type-definition",
       "--file",
       "fixtures/references.vue",
       "--line",
-      "6",
+      "4",
       "--col",
-      "7",
+      "6",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("type-definition-of-count");

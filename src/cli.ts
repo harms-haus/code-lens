@@ -125,10 +125,12 @@ program
   .description("Search for symbols across the workspace")
   .requiredOption("--query <string>", "Fuzzy symbol query")
   .option("--kind <kind>", "Filter by symbol kind (e.g., class, function, interface)")
+  .option("--file <file>", "File to determine language context")
   .action(async (opts) => {
     await dispatch("find-symbols", {
       query: opts.query,
       kind: opts.kind,
+      file: opts.file ?? undefined,
     });
   });
 

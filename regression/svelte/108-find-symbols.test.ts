@@ -28,6 +28,8 @@ describe("Svelte — find-symbols", () => {
       "find-symbols",
       "--query",
       "greet",
+      "--file",
+      "fixtures/valid.svelte",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("symbols-greet");

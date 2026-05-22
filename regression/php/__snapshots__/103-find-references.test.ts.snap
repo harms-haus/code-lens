@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PHP — find-references > finds references to Calculator class > references-to-calculator 1`] = `
+"References found: 2 locations
+
+  <ROOT>/fixtures/valid.php:11:7
+  <ROOT>/fixtures/references.php:7:13"
+`;
+
+exports[`PHP — find-references > finds references to greet function > references-to-greet 1`] = `
+"References found: 2 locations
+
+  <ROOT>/fixtures/valid.php:3:10
+  <ROOT>/fixtures/references.php:4:12"
+`;

@@ -12,7 +12,7 @@ describe("Terraform — find-definition", () => {
   it("finds definition of aws_ami data source", async () => {
     if (!ctx.isServerInstalled) return;
     const result = await runCLIWithRetry(ctx.fixtureDir, [
-      "find-definition", "--file", "fixtures/references.tf", "--line", "8", "--col", "16",
+      "find-definition", "--file", "fixtures/references.tf", "--line", "7", "--col", "17",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("definition-of-aws-ami");

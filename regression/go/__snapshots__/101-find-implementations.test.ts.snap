@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Go — find-implementations > finds implementations of Calculator struct > implementations-of-calculator 1`] = `
+"Implementations found: 0 locations
+
+(none)"
+`;
+
+exports[`Go — find-implementations > finds implementations returns result for function > implementations-of-function 1`] = `"Failed to find implementations: greet is a function, not a method (query at 'func' token to find matching signatures)"`;

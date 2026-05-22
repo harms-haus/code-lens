@@ -15,7 +15,7 @@ describe("Dockerfile — document-symbols", () => {
       "find-document-symbols", "--file", "fixtures/Dockerfile",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // Dockerfile LSP is inherently slow/flaky; accept any non-crash output
-    expect(typeof normalized).toBe("string");
+    // Dockerfile LSP is inherently slow/flaky; assert actual symbols were returned
+    expect(normalized).toMatch(/\d+ symbols? found/);
   });
 });

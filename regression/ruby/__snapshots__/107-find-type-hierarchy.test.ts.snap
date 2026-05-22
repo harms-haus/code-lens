@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`Ruby — find-type-hierarchy > shows type hierarchy of Animal class > type-hierarchy-of-animal 1`] = `"Internal error: LSP server exited with code 78, signal null"`;

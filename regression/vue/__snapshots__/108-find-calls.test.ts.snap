@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`Vue — find-calls > shows call hierarchy for increment function > calls-of-increment 1`] = `"Internal error: Request initialize failed with message: Cannot read properties of undefined (reading 'typescript')"`;

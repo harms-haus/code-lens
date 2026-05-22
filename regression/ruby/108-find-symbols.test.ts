@@ -20,6 +20,8 @@ describe("Ruby — find-symbols", () => {
       "find-symbols",
       "--query",
       "greet",
+      "--file",
+      "fixtures/valid.rb",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("symbols-greet");

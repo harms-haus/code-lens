@@ -16,7 +16,6 @@ describe("CSS — hover", () => {
       "hover", "--file", "fixtures/valid.css", "--line", "8", "--col", "3",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // CSS hover support varies — accept hover info or failure
-    expect(normalized).toMatch(/Hover info|Failed to get hover information|timed out/i);
+    expect(normalized).toMatch(/Hover information/);
   });
 });

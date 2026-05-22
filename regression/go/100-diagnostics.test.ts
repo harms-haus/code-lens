@@ -27,6 +27,8 @@ describe("Go — navigation", () => {
     expect(normalized).toMatchSnapshot("document-symbols");
   });
 
+  // Intentionally tests the same position as 103-find-references (line 5, col 6)
+  // but via runCLI (no retry), whereas 103 uses runCLIWithRetry.
   it("finds references to greet function", async () => {
     if (!ctx.isServerInstalled) return;
     const result = await runCLI(ctx.fixtureDir, [

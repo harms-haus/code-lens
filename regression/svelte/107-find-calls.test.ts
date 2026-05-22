@@ -16,15 +16,15 @@ describe("Svelte — find-calls", () => {
 
   it("shows call hierarchy for increment function", async () => {
     if (!ctx.isServerInstalled) return;
-    // references.svelte line 8: function increment — "increment" at col 12
+    // references.svelte line 6: function increment — "increment" at col 11
     const result = await runCLIWithRetry(ctx.fixtureDir, [
       "find-calls",
       "--file",
       "fixtures/references.svelte",
       "--line",
-      "8",
+      "6",
       "--col",
-      "12",
+      "11",
     ]);
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });

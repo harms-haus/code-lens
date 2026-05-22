@@ -1,20 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`C/C++ — find-symbols > finds symbols matching 'add' > symbols-add 1`] = `
-"Failed to find symbols: <syntax> TypeScript Server Error (<TS_VERSION>)
-No Project.
-Error: No Project.
-    at Object.ThrowNoProject (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getProjects (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getFullNavigateToItems (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.getNavigateToItems (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at navto (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at <NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>
-    at IpcIOSession.executeWithRequestId (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.executeCommand (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at IpcIOSession.onMessage (<NODE_MODULES>/typescript/lib/typescript.js:<LINE>:<COL>)
-    at process.<anonymous> (<NODE_MODULES>/typescript/lib/_tsserver.js:<LINE>:<COL>)
-    at process.emit (node:events:<LINE>:<COL>)
-    at emit (node:internal/child_process:<LINE>:<COL>)
-    at process.processTicksAndRejections (node:internal/process/task_queues:<LINE>:<COL>)"
+"Symbols matching "add": 5
+
+  add (Function) — <ROOT>/fixtures/main.c:3
+  atomic_fetch_add (String) — /usr/lib/clang/22/include/stdatomic.h:156
+  atomic_fetch_add_explicit (String) — /usr/lib/clang/22/include/stdatomic.h:157
+  LC_ADDRESS (String) — /usr/include/locale.h:44
+  __LC_ADDRESS (String) — /usr/include/bits/locale.h:35"
 `;

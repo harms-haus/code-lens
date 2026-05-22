@@ -24,7 +24,7 @@ describe("C/C++ — find-symbols", () => {
       { maxAttempts: 3, delayMs: 2_000 },
     );
 
-    const result = await runCLI(ctx.fixtureDir, ["find-symbols", "--query", "add"]);
+    const result = await runCLI(ctx.fixtureDir, ["find-symbols", "--query", "add", "--file", "fixtures/main.c"]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("symbols-add");

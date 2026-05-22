@@ -16,15 +16,15 @@ describe("Vue — find-references", () => {
 
   it("finds references to increment function", async () => {
     if (!ctx.isServerInstalled) return;
-    // references.vue line 9: function increment — "increment" at col 11
+    // references.vue line 6: function increment — "increment" at col 9
     const result = await runCLIWithRetry(ctx.fixtureDir, [
       "find-references",
       "--file",
       "fixtures/references.vue",
       "--line",
-      "9",
+      "6",
       "--col",
-      "11",
+      "9",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("references-to-increment");

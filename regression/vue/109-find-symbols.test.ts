@@ -28,6 +28,8 @@ describe("Vue — find-symbols", () => {
       "find-symbols",
       "--query",
       "greet",
+      "--file",
+      "fixtures/valid.vue",
     ]);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toMatchSnapshot("symbols-greet");

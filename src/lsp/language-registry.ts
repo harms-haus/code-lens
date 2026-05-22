@@ -312,6 +312,11 @@ export const LANGUAGE_SERVERS: LspServerConfig[] = [
     command: "vue-language-server",
     args: ["--stdio"],
     extensions: [".vue"],
+    initializationOptions: {
+      typescript: {
+        tsdk: "node_modules/typescript/lib",
+      },
+    },
     detectCommand: "vue-language-server --version",
     installCommand: "npm install -g @vue/language-server @vue/typescript-plugin typescript",
     installInstructions:

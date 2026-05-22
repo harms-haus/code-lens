@@ -22,8 +22,7 @@ describe("PHP — find-references", () => {
     ]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // intelephense may return error for some positions
-    expect(normalized).toMatch(/References found: \d+ location|No references|Failed to find references/i);
+    expect(normalized).toMatchSnapshot("references-to-greet");
   });
 
   it("finds references to Calculator class", async () => {
@@ -34,7 +33,6 @@ describe("PHP — find-references", () => {
     ]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // intelephense may return error for some positions
-    expect(normalized).toMatch(/References found: \d+ location|No references|Failed to find references/i);
+    expect(normalized).toMatchSnapshot("references-to-calculator");
   });
 });

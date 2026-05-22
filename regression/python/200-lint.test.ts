@@ -42,7 +42,7 @@ describe("Python — lint", () => {
       fixtureDir: ctx.fixtureDir,
     });
     // ruff may report 0 issues or "No linters" if not installed
-    expect(normalized).toMatch(/\d+ issues|No linters|0 issues/i);
+    expect(normalized).toMatch(/0 issues|No linters/i);
   });
 
   it("returns lint result for broken file", async () => {
@@ -58,6 +58,7 @@ describe("Python — lint", () => {
     const normalized = normalizeOutput(result.stdout, {
       fixtureDir: ctx.fixtureDir,
     });
-    expect(normalized).toMatch(/\d+ issues|No linters|0 issues/i);
+    // broken.py should have at least one lint issue
+    expect(normalized).toMatch(/[1-9]\d* issues|No linters detected/i);
   });
 });

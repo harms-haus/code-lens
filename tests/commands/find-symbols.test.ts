@@ -67,23 +67,33 @@ const mockClient = {
   workspaceSymbol: vi.fn(),
 };
 
+const mockClientMap = new Map([["typescript", mockClient]]);
+
 const mockManager = {
+  getClientForFile: vi.fn(),
   getClientForConfig: vi.fn(),
   getClientMap: vi.fn().mockReturnValue(new Map()),
 };
 
 const defaultCwd = "/project";
 
-/** Set up mockManager so findAvailableClient resolves mockClient */
+/** Set up mockManager so getClientMap yields mockClient (no file param case) */
 function setupClientAvailable() {
   mockIsServerInstalled.mockResolvedValue(true);
-  mockManager.getClientForConfig.mockResolvedValue(mockClient);
+  mockManager.getClientMap.mockReturnValue(mockClientMap);
 }
 
-/** Set up mockManager so findAvailableClient resolves null (no client) */
+/** Set up mockManager so getClientForFile resolves mockClient */
+function setupClientAvailableForFile() {
+  mockIsServerInstalled.mockResolvedValue(true);
+  mockManager.getClientForFile.mockResolvedValue(mockClient);
+}
+
+/** Set up mockManager so no client is available */
 function setupNoClient() {
   mockIsServerInstalled.mockResolvedValue(false);
   mockManager.getClientForConfig.mockResolvedValue(null);
+  mockManager.getClientForFile.mockResolvedValue(null);
   mockManager.getClientMap.mockReturnValue(new Map());
 }
 

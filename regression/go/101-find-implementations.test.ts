@@ -22,8 +22,7 @@ describe("Go — find-implementations", () => {
     ]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // gopls may return 0 or 1+ implementations depending on version/context
-    expect(normalized).toMatch(/Implementations found: \d+ location|No implementations found|Failed to find implementations/i);
+    expect(normalized).toMatchSnapshot("implementations-of-calculator");
   });
 
   it("finds implementations returns result for function", async () => {
@@ -34,7 +33,6 @@ describe("Go — find-implementations", () => {
     ]);
 
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
-    // gopls may return "Failed" for functions (no implementations concept for Go functions)
-    expect(normalized).toMatch(/Implementations found: \d+ location|No implementations found|Failed to find implementations/i);
+    expect(normalized).toMatchSnapshot("implementations-of-function");
   });
 });
