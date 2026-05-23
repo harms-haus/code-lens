@@ -133,6 +133,7 @@ jobs:
           curl --fail --retry 3 -Lo /tmp/lua-language-server.tar.gz https://github.com/LuaLS/lua-language-server/releases/download/3.13.5/lua-language-server-3.13.5-linux-x64.tar.gz
           sudo mkdir -p /usr/local/lua-language-server
           sudo tar xzf /tmp/lua-language-server.tar.gz -C /usr/local/lua-language-server
+          sudo chmod -R a+rw /usr/local/lua-language-server/log
           sudo ln -s /usr/local/lua-language-server/bin/lua-language-server /usr/local/bin/lua-language-server
 
       - name: Install Svelte language server

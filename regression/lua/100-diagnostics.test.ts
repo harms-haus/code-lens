@@ -12,7 +12,6 @@ describe("Lua — diagnostics", () => {
   it("reports diagnostics for a valid file", async () => {
     if (!ctx.isServerInstalled) return;
     const result = await runCLIWithRetry(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/valid.lua"], { maxAttempts: 3, delayMs: 5_000, retryOnError: true });
-    if (result.exitCode !== 0) console.log(`DEBUG stdout=${JSON.stringify(result.stdout)} stderr=${JSON.stringify(result.stderr)}`);
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toContain("(lua)");
@@ -22,7 +21,6 @@ describe("Lua — diagnostics", () => {
   it("reports diagnostics for a broken file", async () => {
     if (!ctx.isServerInstalled) return;
     const result = await runCLIWithRetry(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/broken.lua"], { maxAttempts: 3, delayMs: 5_000, retryOnError: true });
-    if (result.exitCode !== 0) console.log(`DEBUG stdout=${JSON.stringify(result.stdout)} stderr=${JSON.stringify(result.stderr)}`);
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toContain("(lua)");
