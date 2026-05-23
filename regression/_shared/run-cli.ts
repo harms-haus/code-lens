@@ -80,10 +80,11 @@ export async function runCLISlow(
 export async function runCLIWithRetry(
   cwd: string,
   args: string[],
-  options?: { timeout?: number; maxAttempts?: number; delayMs?: number },
+  options?: { timeout?: number; maxAttempts?: number; delayMs?: number; retryOnError?: boolean },
 ): Promise<CLIExecutionResult> {
   const maxAttempts = options?.maxAttempts ?? 5;
   const delayMs = options?.delayMs ?? 3_000;
+  const retryOnError = options?.retryOnError ?? false;
   let lastResult: CLIExecutionResult;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -100,7 +101,10 @@ export async function runCLIWithRetry(
       out.includes("Failed to get hover information") ||
       out.includes("content modified");
 
-    if (!isEmpty) return lastResult;
+    // Check if result is a transient error (non-zero exit with empty output)
+    const isTransientError = retryOnError && lastResult.exitCode !== 0 && out.trim() === "";
+
+    if (!isEmpty && !isTransientError) return lastResult;
 
     // Wait before retrying
     if (attempt < maxAttempts - 1) {

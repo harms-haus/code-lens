@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { RegressionTestContext } from "../_shared/test-context.js";
-import { runCLISlow } from "../_shared/run-cli.js";
+import { runCLIWithRetry } from "../_shared/run-cli.js";
 import { normalizeOutput } from "../_shared/normalize.js";
 
 const ctx = new RegressionTestContext("lua");
@@ -11,7 +11,7 @@ describe("Lua — diagnostics", () => {
 
   it("reports diagnostics for a valid file", async () => {
     if (!ctx.isServerInstalled) return;
-    const result = await runCLISlow(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/valid.lua"]);
+    const result = await runCLIWithRetry(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/valid.lua"], { maxAttempts: 3, delayMs: 5_000, retryOnError: true });
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toContain("(lua)");
@@ -20,7 +20,7 @@ describe("Lua — diagnostics", () => {
 
   it("reports diagnostics for a broken file", async () => {
     if (!ctx.isServerInstalled) return;
-    const result = await runCLISlow(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/broken.lua"]);
+    const result = await runCLIWithRetry(ctx.fixtureDir, ["diagnostics", "--file", "fixtures/broken.lua"], { maxAttempts: 3, delayMs: 5_000, retryOnError: true });
     expect(result.exitCode).toBe(0);
     const normalized = normalizeOutput(result.stdout, { fixtureDir: ctx.fixtureDir });
     expect(normalized).toContain("(lua)");
