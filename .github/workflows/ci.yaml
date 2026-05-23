@@ -124,14 +124,14 @@ jobs:
       - name: Install Terraform language server
         continue-on-error: true
         run: |
-          curl -Lo /tmp/terraform-ls.zip https://releases.hashicorp.com/terraform-ls/0.36.0/terraform-ls_0.36.0_linux_amd64.zip
+          curl --fail --retry 3 -Lo /tmp/terraform-ls.zip https://releases.hashicorp.com/terraform-ls/0.36.0/terraform-ls_0.36.0_linux_amd64.zip
           sudo unzip /tmp/terraform-ls.zip -d /usr/local/bin
 
       - name: Install Lua language server
         continue-on-error: true
         run: |
-          curl -Lo /tmp/lua-language-server.tar.gz https://github.com/LuaLS/lua-language-server/releases/download/3.13.5/lua-language-server-3.13.5-linux-x64.tar.gz
-          mkdir -p /usr/local/lua-language-server
+          curl --fail --retry 3 -Lo /tmp/lua-language-server.tar.gz https://github.com/LuaLS/lua-language-server/releases/download/3.13.5/lua-language-server-3.13.5-linux-x64.tar.gz
+          sudo mkdir -p /usr/local/lua-language-server
           sudo tar xzf /tmp/lua-language-server.tar.gz -C /usr/local/lua-language-server
           sudo ln -s /usr/local/lua-language-server/bin/lua-language-server /usr/local/bin/lua-language-server
 
