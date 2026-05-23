@@ -246,16 +246,17 @@ code-lens-cli/
 │   │   ├── prettier.ts
 │   │   ├── rename-symbol.ts
 │   │   ├── status.ts
-│   │   └── tsc.ts
+│   │   └── fix.ts
 │   ├── daemon/             # Daemon server, client, lifecycle, protocol
-│   ├── linting/            # Linting infrastructure (9 files)
+│   ├── linting/            # Linting infrastructure (10 files)
 │   │   ├── types.ts            # Shared linting types
 │   │   ├── parsers.ts          # Linter output parsers
 │   │   ├── definitions.ts      # Linter definitions and configs
 │   │   ├── linter-registry.ts  # Linter registration registry
 │   │   ├── linter-runner.ts    # Generic linter runner
-│   │   ├── prettier-runner.ts  # Prettier runner
-│   │   ├── tsc-runner.ts       # TypeScript compiler runner
+│   │   ├── formatter-definitions.ts # Formatter definitions and configs
+│   │   ├── formatter-registry.ts    # Formatter registration registry
+│   │   ├── formatter-runner.ts      # Generic formatter runner
 │   │   ├── bash-file-detector.ts # Shell script detection
 │   │   └── output-formatter.ts  # Lint result formatting
 │   ├── lsp/                # LSP client wrapper, manager, language configs

@@ -20,6 +20,7 @@ Get LSP diagnostics for files or the entire workspace.
 | `--files <paths>` | Comma-separated list of file paths |
 | `--workspace` | Check all files that have been opened in running LSP servers |
 | `--refresh` | Force refresh diagnostics (re-request from server) |
+| `--no-formatters` | Skip formatter diagnostics. By default, diagnostics includes a formatter check that runs the formatter registry in diagnose mode to detect files needing formatting. Use this flag to skip that check |
 
 **Example — single file:**
 
@@ -605,7 +606,7 @@ Only linters whose file patterns match the provided files are invoked. If no lin
 
 ## `prettier`
 
-Run `prettier --check` on the specified files. Prettier availability is cached for the daemon lifetime.
+Check formatting on the specified files using the formatter system. Under the hood this uses the same formatter registry and runner as `fullCheck` — it detects available formatters (e.g., Prettier) and runs their diagnose mode. Formatter availability is cached for the daemon lifetime.
 
 **Parameters:**
 
@@ -683,32 +684,36 @@ Run `prettier --check` on the specified files. Prettier availability is cached f
 
 ---
 
-## `tsc`
+## `fix`
 
-Run `tsc --noEmit` and filter results to the specified files. Only TypeScript/JavaScript files (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`) are checked. TSC availability is cached for the daemon lifetime.
+Run formatter and linter fix modes, **writing changes to disk**. Detects available formatters and linters (cached for the daemon lifetime) and runs their fix commands against the specified files.
+
+Formatters are run in fix mode (overwrites files). Linters are only invoked if they define a `fixCommand`; linters without fix support are skipped.
 
 **Parameters:**
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `files` | `string[]` | Yes | Array of file paths to type-check |
-| `timeoutMs` | `number` | No | Timeout in milliseconds |
+| `files` | `string` | Yes | Comma-separated file paths (same format as CLI `--files`) |
+| `formatters` | `boolean` | No | Run formatter fixes (default: `true`) |
+| `linters` | `boolean` | No | Run linter fixes (default: `true`) |
 
 **Example request:**
 
 ```json
 {
   "jsonrpc": "2.0",
-  "method": "tsc",
+  "method": "fix",
   "params": {
-    "files": ["src/index.ts", "src/utils.ts"],
-    "timeoutMs": 30000
+    "files": "src/index.ts,src/utils.ts",
+    "formatters": true,
+    "linters": true
   },
-  "id": 4
+  "id": 6
 }
 ```
 
-**Example response (errors found):**
+**Example response (files fixed):**
 
 ```json
 {
@@ -716,48 +721,32 @@ Run `tsc --noEmit` and filter results to the specified files. Only TypeScript/Ja
   "result": {
     "content": [{
       "type": "text",
-      "text": "tsc: 1 error(s), 0 warning(s) (342ms)\n  ✗ src/index.ts:23:5: Type 'string' is not assignable to type 'number'. (TS2322)"
+      "text": "Formatters:\n  ✅ src/index.ts — fixed\n  ✅ src/utils.ts — already formatted\nLinters:\n  ✅ src/index.ts — fixed (eslint)\n2 file(s) fixed, 0 error(s)"
     }],
     "details": {
-      "available": true,
-      "issues": ["..."],
-      "durationMs": 342
+      "fixedFiles": ["/abs/src/index.ts", "/abs/src/index.ts"],
+      "errors": []
     },
     "isError": false
   },
-  "id": 4
+  "id": 6
 }
 ```
 
-**Example response (no errors):**
+**Example response (no fixable tools available):**
 
 ```json
 {
   "jsonrpc": "2.0",
   "result": {
-    "content": [{ "type": "text", "text": "tsc: 0 errors (215ms)" }],
+    "content": [{ "type": "text", "text": "0 file(s) fixed, 0 error(s)" }],
     "details": {
-      "available": true,
-      "issues": [],
-      "durationMs": 215
+      "fixedFiles": [],
+      "errors": []
     },
     "isError": false
   },
-  "id": 4
-}
-```
-
-**Example response (tsc not available):**
-
-```json
-{
-  "jsonrpc": "2.0",
-  "result": {
-    "content": [{ "type": "text", "text": "tsc: not available" }],
-    "details": { "available": false, "issues": [] },
-    "isError": false
-  },
-  "id": 4
+  "id": 6
 }
 ```
 
@@ -767,14 +756,13 @@ Run `tsc --noEmit` and filter results to the specified files. Only TypeScript/Ja
 
 Run all enabled checks concurrently on the specified files. This is the primary method called by external integrations (e.g., pi-lens). Each check category is individually gated by its config flag and tool availability.
 
-The four check categories are:
+The three check categories are:
 
 | Check | Flag | What it does |
 |-------|------|--------------|
-| **Prettier** | `config.prettier` | Runs `prettier --check` on files |
+| **Prettier** | `config.prettier` | Runs formatter diagnose mode on files via the formatter registry |
 | **Linters** | `config.linters` | Runs detected linters matching the files |
 | **LSP** | `config.lsp` | Notifies LSP servers of changes, waits for diagnostics to settle, then collects them |
-| **TSC** | `config.tsc` | Runs `tsc --noEmit` on TypeScript/JavaScript files |
 
 All checks run in parallel via `Promise.all`. Each returns a status: `"clean"`, `"issues"`, `"error"`, or `"skipped"`.
 
@@ -784,15 +772,13 @@ All checks run in parallel via `Promise.all`. Each returns a status: `"clean"`, 
 |------|------|----------|-------------|
 | `files` | `string[]` | Yes | Array of file paths to check |
 | `config` | `object` | No | Feature flags and timeout settings (see below) |
-| `config.prettier` | `boolean` | No | Enable prettier check (default: disabled) |
+| `config.prettier` | `boolean` | No | Enable formatter check (default: disabled) |
 | `config.linters` | `boolean` | No | Enable linter check (default: disabled) |
 | `config.lsp` | `boolean` | No | Enable LSP diagnostics check (default: disabled) |
-| `config.tsc` | `boolean` | No | Enable TSC type check (default: disabled) |
 | `config.lspDelayMs` | `number` | No | Milliseconds to wait for LSP diagnostics to settle (default: `500`) |
 | `config.maxConcurrency` | `number` | No | Max parallel linters |
-| `config.prettierTimeoutMs` | `number` | No | Prettier timeout in milliseconds |
+| `config.prettierTimeoutMs` | `number` | No | Formatter check timeout in milliseconds |
 | `config.linterTimeoutMs` | `number` | No | Per-linter timeout in milliseconds |
-| `config.tscTimeoutMs` | `number` | No | TSC timeout in milliseconds |
 
 **Example request:**
 
@@ -806,9 +792,7 @@ All checks run in parallel via `Promise.all`. Each returns a status: `"clean"`, 
       "prettier": true,
       "linters": true,
       "lsp": true,
-      "tsc": true,
-      "lspDelayMs": 500,
-      "tscTimeoutMs": 30000
+      "lspDelayMs": 500
     }
   },
   "id": 5
@@ -823,14 +807,13 @@ All checks run in parallel via `Promise.all`. Each returns a status: `"clean"`, 
   "result": {
     "content": [{
       "type": "text",
-      "text": "  ✅ prettier: 2 file(s) formatted correctly\n  ⚠ 2 errors, 1 warning\n    ✗ src/index.ts:23:5: Unexpected any (no-explicit-any)\n  ⚠ lsp: 3 diagnostic(s) (1 error(s), 2 warning(s))\n    ✗ src/index.ts:23:5: Type 'string' is not assignable to type 'number'.\n  ⚠ tsc: 1 error(s), 0 warning(s)\n    ✗ src/index.ts:23:5: Type 'string' is not assignable to type 'number'. (TS2322)"
+      "text": "  ✅ prettier: 2 file(s) formatted correctly\n  ⚠ 2 errors, 1 warning\n    ✗ src/index.ts:23:5: Unexpected any (no-explicit-any)\n  ⚠ lsp: 3 diagnostic(s) (1 error(s), 2 warning(s))\n    ✗ src/index.ts:23:5: Type 'string' is not assignable to type 'number'."
     }],
     "details": {
       "statuses": {
         "prettier": "clean",
         "linters": "issues",
-        "lsp": "issues",
-        "tsc": "issues"
+        "lsp": "issues"
       },
       "hasIssues": true,
       "fileCount": 2,
@@ -853,8 +836,7 @@ All checks run in parallel via `Promise.all`. Each returns a status: `"clean"`, 
       "statuses": {
         "prettier": "clean",
         "linters": "clean",
-        "lsp": "clean",
-        "tsc": "clean"
+        "lsp": "clean"
       },
       "hasIssues": false,
       "fileCount": 2,

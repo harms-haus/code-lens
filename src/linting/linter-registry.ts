@@ -153,6 +153,19 @@ interface LinterCandidate {
   detectionSource: CandidateSource;
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+// Cache
+// ═══════════════════════════════════════════════════════════════════════
+
+let cachedLinters: DetectedLinter[] | null = null;
+let cachedCwd: string | null = null;
+
+/** Invalidate the linter detection cache so the next call re-detects. */
+export function invalidateLinterCache(): void {
+  cachedLinters = null;
+  cachedCwd = null;
+}
+
 /** Check a single linter definition against config files, package.json keys, and project markers. */
 function checkLinterCandidate(
   cwd: string,
@@ -190,9 +203,14 @@ function checkLinterCandidate(
 /**
  * Scan the project for available linters.
  * Checks config files, package.json keys, project markers, and verifies installation.
- * Runs version checks in parallel for speed.
+ * Results are cached per cwd; call invalidateLinterCache() to force re-detection.
  */
 export async function detectLinters(cwd: string): Promise<DetectedLinter[]> {
+  // Return cached result if cwd hasn't changed
+  if (cachedLinters !== null && cachedCwd === cwd) {
+    return cachedLinters;
+  }
+
   // Cache file reads that are shared across linter checks
   let pkgCache: Record<string, unknown> | undefined;
   const pkgPath = path.join(cwd, "package.json");
@@ -212,7 +230,11 @@ export async function detectLinters(cwd: string): Promise<DetectedLinter[]> {
     if (candidate) candidates.push(candidate);
   }
 
-  if (candidates.length === 0) return [];
+  if (candidates.length === 0) {
+    cachedLinters = [];
+    cachedCwd = cwd;
+    return [];
+  }
 
   // Phase 2: Verify installation in parallel
   const results = await Promise.allSettled(
@@ -235,6 +257,9 @@ export async function detectLinters(cwd: string): Promise<DetectedLinter[]> {
       });
     }
   }
+
+  cachedLinters = detected;
+  cachedCwd = cwd;
   return detected;
 }
 
@@ -244,6 +269,42 @@ export async function detectLinters(cwd: string): Promise<DetectedLinter[]> {
 export function getLintersForFile(filePath: string, detected: DetectedLinter[]): DetectedLinter[] {
   const ext = path.extname(filePath).toLowerCase();
   return detected.filter((d) => d.definition.extensions.includes(ext));
+}
+
+/**
+ * Return the subset of detected linters that are relevant for the given files,
+ * along with the matching files for each linter.
+ */
+export function getRelevantLinters(
+  linters: DetectedLinter[],
+  files: string[],
+): Map<DetectedLinter, string[]> {
+  // Pre-group files by extension for O(1) lookup
+  const filesByExt = new Map<string, string[]>();
+  for (const f of files) {
+    const ext = path.extname(f).toLowerCase();
+    let arr = filesByExt.get(ext);
+    if (!arr) {
+      arr = [];
+      filesByExt.set(ext, arr);
+    }
+    arr.push(f);
+  }
+
+  const result = new Map<DetectedLinter, string[]>();
+  for (const linter of linters) {
+    const matchingFiles: string[] = [];
+    for (const ext of linter.definition.extensions) {
+      const extFiles = filesByExt.get(ext);
+      if (extFiles) {
+        for (const f of extFiles) matchingFiles.push(f);
+      }
+    }
+    if (matchingFiles.length > 0) {
+      result.set(linter, matchingFiles);
+    }
+  }
+  return result;
 }
 
 /**

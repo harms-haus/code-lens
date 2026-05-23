@@ -1,9 +1,13 @@
 /**
  * fullCheck command: Run all checks concurrently
  *
- * Runs prettier, linters, LSP diagnostics, and tsc checks concurrently.
+ * Runs prettier, linters, and LSP diagnostics concurrently.
  * This is the primary command pi-lens calls in Phase 2+.
  * Each check is gated by its config flag and availability.
+ *
+ * Linter and formatter detection is cached at the registry level
+ * (linter-registry / formatter-registry), so no command-level cache
+ * is needed here.
  */
 
 import * as path from "node:path";
@@ -14,57 +18,12 @@ import { countSeverities } from "../formatting/diagnostics.js";
 import type { Diagnostic } from "vscode-languageserver-types";
 import { ok, err, sanitizeError } from "../formatting/output.js";
 import { resolveFile } from "../utils/paths.js";
-import { detectLinters, getLintersForFile } from "../linting/linter-registry.js";
-import { runLinters } from "../linting/linter-runner.js";
-import { isPrettierAvailable, runPrettier } from "../linting/prettier-runner.js";
-import { isTscAvailable, runTsc } from "../linting/tsc-runner.js";
+import { detectLinters, getRelevantLinters } from "../linting/linter-registry.js";
+import { runLinter } from "../linting/linter-runner.js";
+import { detectFormatters, getRelevantFormatters } from "../linting/formatter-registry.js";
+import { runFormatterDiagnose } from "../linting/formatter-runner.js";
 import { formatIssues, summarizeIssues } from "../linting/output-formatter.js";
-import type { DetectedLinter, LintIssue, PrettierResult, TscIssue, CheckStatus } from "../linting/types.js";
-
-// ── Module-level Cache ─────────────────────────────────────────────────────
-
-let cachedLinters: DetectedLinter[] | null = null;
-let cachedPrettierAvailable: boolean | null = null;
-let cachedTscAvailable: boolean | null = null;
-let cachedCwd: string | null = null;
-
-async function ensureCache(cwd: string): Promise<{ linters: DetectedLinter[]; prettierAvailable: boolean; tscAvailable: boolean }> {
-  if (cachedCwd === cwd && cachedLinters !== null && cachedPrettierAvailable !== null && cachedTscAvailable !== null) {
-    return { linters: cachedLinters, prettierAvailable: cachedPrettierAvailable, tscAvailable: cachedTscAvailable };
-  }
-
-  // Only re-detect what hasn't been cached yet or if cwd changed
-  if (cachedCwd !== cwd) {
-    // cwd changed — invalidate everything
-    cachedLinters = null;
-    cachedPrettierAvailable = null;
-    cachedTscAvailable = null;
-    cachedCwd = cwd;
-  }
-
-  const [linters, prettier, tsc] = await Promise.all([
-    cachedLinters ?? detectLinters(cwd),
-    cachedPrettierAvailable ?? isPrettierAvailable(cwd),
-    cachedTscAvailable ?? isTscAvailable(cwd),
-  ]);
-
-  cachedLinters = linters;
-  cachedPrettierAvailable = prettier;
-  cachedTscAvailable = tsc;
-
-  return { linters, prettierAvailable: prettier, tscAvailable: tsc };
-}
-
-/**
- * Invalidate all caches (e.g., after config changes).
- * Exported for use by other commands if needed.
- */
-export function invalidateFullCheckCache(): void {
-  cachedLinters = null;
-  cachedPrettierAvailable = null;
-  cachedTscAvailable = null;
-  cachedCwd = null;
-}
+import type { DetectedLinter, DetectedFormatter, LintIssue, FormatterResult, CheckStatus } from "../linting/types.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -80,12 +39,10 @@ interface FullCheckConfig {
   prettier?: boolean;
   linters?: boolean;
   lsp?: boolean;
-  tsc?: boolean;
   lspDelayMs?: number;
   maxConcurrency?: number;
   prettierTimeoutMs?: number;
   linterTimeoutMs?: number;
-  tscTimeoutMs?: number;
 }
 
 // ── Command Handler ────────────────────────────────────────────────────────
@@ -104,17 +61,19 @@ registerCommand("fullCheck", async (params, manager, cwd) => {
   const safeFiles = safeFilesResult;
 
   try {
-    const { linters, prettierAvailable, tscAvailable } = await ensureCache(cwd);
+    const [linters, formatters] = await Promise.all([
+      detectLinters(cwd),
+      detectFormatters(cwd),
+    ]);
 
-    const [prettierResult, linterResult, lspResult, tscResult] = await Promise.all([
-      runPrettierCheck(safeFiles, cwd, config, prettierAvailable),
+    const [prettierResult, linterResult, lspResult] = await Promise.all([
+      runPrettierCheck(safeFiles, cwd, config, formatters),
       runLinterCheck(safeFiles, cwd, config, linters),
       runLspCheck(safeFiles, cwd, config, manager),
-      runTscCheck(safeFiles, cwd, config, tscAvailable),
     ]);
 
     const { sections, statuses, hasIssues } = collectResults(
-      prettierResult, linterResult, lspResult, tscResult,
+      prettierResult, linterResult, lspResult,
     );
 
     const durationMs = Date.now() - startTime;
@@ -138,22 +97,32 @@ registerCommand("fullCheck", async (params, manager, cwd) => {
 // ── Individual Check Runners ───────────────────────────────────────────────
 
 interface PrettierCheckResult extends CheckResult {
-  results?: PrettierResult[];
+  results?: FormatterResult[];
 }
 
 async function runPrettierCheck(
   files: string[],
   cwd: string,
   config: FullCheckConfig,
-  prettierAvailable: boolean,
+  detectedFormatters: DetectedFormatter[],
 ): Promise<PrettierCheckResult> {
   if (!config.prettier) return { section: null, status: "skipped", hasIssues: false };
-  if (!prettierAvailable) return { section: null, status: "skipped", hasIssues: false };
+  if (detectedFormatters.length === 0) return { section: null, status: "skipped", hasIssues: false };
+
+  // Filter to formatters relevant for the given files
+  const relevantMap = getRelevantFormatters(detectedFormatters, files);
+  if (relevantMap.size === 0) return { section: null, status: "skipped", hasIssues: false };
 
   try {
-    const results = await runPrettier(files, cwd, undefined, config.prettierTimeoutMs);
-    const needFormatting = results.filter((r) => r.changed);
-    const errored = results.filter((r) => r.error);
+    const allResultArrays = await Promise.all(
+      [...relevantMap.entries()].map(([formatter, formatterFiles]) =>
+        runFormatterDiagnose(formatter, formatterFiles, cwd, undefined, config.prettierTimeoutMs),
+      ),
+    );
+    const allResults = allResultArrays.flat();
+
+    const needFormatting = allResults.filter((r) => r.changed);
+    const errored = allResults.filter((r) => r.error);
 
     if (needFormatting.length > 0) {
       const fileNames = needFormatting.map((r) => path.relative(cwd, r.file) || r.file);
@@ -161,7 +130,7 @@ async function runPrettierCheck(
         section: `  ⚠ prettier: ${needFormatting.length} file(s) need formatting\n    ${fileNames.join("\n    ")}`,
         status: "issues",
         hasIssues: true,
-        results,
+        results: allResults,
       };
     }
 
@@ -170,16 +139,16 @@ async function runPrettierCheck(
         section: `  ⚠ prettier: ${errored.length} file(s) had errors`,
         status: "error",
         hasIssues: false,
-        results,
+        results: allResults,
       };
     }
 
-    if (results.length > 0) {
+    if (allResults.length > 0) {
       return {
-        section: `  ✅ prettier: ${results.length} file(s) formatted correctly`,
+        section: `  ✅ prettier: ${allResults.length} file(s) formatted correctly`,
         status: "clean",
         hasIssues: false,
-        results,
+        results: allResults,
       };
     }
 
@@ -204,20 +173,18 @@ async function runLinterCheck(
   }
 
   // Get relevant linters for these files
-  const relevantLinters = getRelevantLinters(files, detectedLinters);
-  if (relevantLinters.length === 0) {
+  const relevantMap = getRelevantLinters(detectedLinters, files);
+  if (relevantMap.size === 0) {
     return { section: null, status: "skipped", hasIssues: false };
   }
 
   try {
-    const issues = await runLinters(
-      relevantLinters,
-      files,
-      cwd,
-      undefined,
-      config.maxConcurrency,
-      config.linterTimeoutMs,
+    const issueArrays = await Promise.all(
+      [...relevantMap.entries()].map(([linter, linterFiles]) =>
+        runLinter(linter, linterFiles, cwd, undefined, config.linterTimeoutMs),
+      ),
     );
+    const issues = issueArrays.flat();
 
     if (issues.length > 0) {
       const summary = summarizeIssues(issues);
@@ -289,47 +256,6 @@ async function runLspCheck(
   }
 }
 
-interface TscCheckResult extends CheckResult {
-  issues?: TscIssue[];
-}
-
-async function runTscCheck(
-  files: string[],
-  cwd: string,
-  config: FullCheckConfig,
-  tscAvailable: boolean,
-): Promise<TscCheckResult> {
-  if (!config.tsc) return { section: null, status: "skipped", hasIssues: false };
-  if (!tscAvailable) return { section: null, status: "skipped", hasIssues: false };
-
-  const tsFiles = filterToTsFiles(files);
-  if (tsFiles.length === 0) return { section: null, status: "skipped", hasIssues: false };
-
-  try {
-    const tscResult = await runTsc(cwd, tsFiles, undefined, config.tscTimeoutMs);
-
-    if (tscResult.error) {
-      return { section: `  ⚠ tsc: ${tscResult.error}`, status: "error", hasIssues: false };
-    }
-
-    if (tscResult.issues.length === 0) {
-      return { section: "  ✅ tsc: 0 errors", status: "clean", hasIssues: false, issues: [] };
-    }
-
-    const errorCount = tscResult.issues.filter((i) => i.severity === "error").length;
-    const warningCount = tscResult.issues.filter((i) => i.severity === "warning").length;
-    const issueLines = formatTscIssues(tscResult.issues, cwd);
-    return {
-      section: `  ⚠ tsc: ${errorCount} error(s), ${warningCount} warning(s)\n${issueLines}`,
-      status: "issues",
-      hasIssues: true,
-      issues: tscResult.issues,
-    };
-  } catch {
-    return { section: "  ⚠ tsc: check failed", status: "error", hasIssues: false };
-  }
-}
-
 // ── Internal Helpers ───────────────────────────────────────────────────────
 
 /** Validate and resolve file paths, returning safe absolute paths or an error result. */
@@ -350,7 +276,6 @@ function collectResults(
   prettierResult: CheckResult,
   linterResult: CheckResult,
   lspResult: CheckResult,
-  tscResult: CheckResult,
 ): { sections: string[]; statuses: Record<string, CheckStatus>; hasIssues: boolean } {
   const sections: string[] = [];
   const statuses: Record<string, CheckStatus> = {};
@@ -360,7 +285,6 @@ function collectResults(
     ["prettier", prettierResult],
     ["linters", linterResult],
     ["lsp", lspResult],
-    ["tsc", tscResult],
   ];
 
   for (const [key, result] of allResults) {
@@ -370,27 +294,6 @@ function collectResults(
   }
 
   return { sections, statuses, hasIssues };
-}
-
-/** Get all linters relevant for at least one of the given files */
-function getRelevantLinters(files: string[], detected: DetectedLinter[]): DetectedLinter[] {
-  const relevant = new Set<string>();
-  const result: DetectedLinter[] = [];
-  for (const file of files) {
-    for (const linter of getLintersForFile(file, detected)) {
-      if (!relevant.has(linter.definition.name)) {
-        relevant.add(linter.definition.name);
-        result.push(linter);
-      }
-    }
-  }
-  return result;
-}
-
-/** Filter files to TypeScript/JavaScript extensions */
-function filterToTsFiles(files: string[]): string[] {
-  const tsExts = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]);
-  return files.filter((f) => tsExts.has(path.extname(f).toLowerCase()));
 }
 
 /** Sleep for a given duration */
@@ -416,21 +319,6 @@ function formatDiagnosticSections(
           return `    ${icon} ${relativePath}:${line}:${col}: ${msg}`;
         })
         .join("\n");
-    })
-    .join("\n");
-}
-
-/** Format TSC issues for output */
-function formatTscIssues(
-  issues: { file: string; line: number; column: number; severity: string; message: string; code?: string }[],
-  cwd: string,
-): string {
-  return issues
-    .slice(0, 50)
-    .map((i) => {
-      const icon = i.severity === "error" ? "✗" : "⚠";
-      const relativePath = path.relative(cwd, i.file) || i.file;
-      return `    ${icon} ${relativePath}:${i.line}:${i.column}: ${i.message} (${i.code ?? "TS"})`;
     })
     .join("\n");
 }

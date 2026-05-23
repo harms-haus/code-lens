@@ -83,7 +83,7 @@ Each command is a self-contained module that registers itself with the daemon vi
 
 - **`preamble.ts`** — Shared preamble for file-based commands: resolves the file path, detects the language, checks if the server is installed, starts the LSP client if needed, and opens the file in the server. Returns a `PreambleResult` with `{ filePath, config, client, uri }`.
 - **`params.ts`** — Parameter extraction and validation (`extractPositionParams`, `extractRenameParams`).
-- Individual handlers: `diagnostics.ts`, `find-references.ts`, `find-definition.ts`, `find-implementations.ts`, `find-type-definition.ts`, `find-type-hierarchy.ts`, `find-symbols.ts`, `find-document-symbols.ts`, `find-calls.ts`, `hover.ts`, `rename-symbol.ts`, `status.ts`, `file-changed.ts`, `lint.ts`, `prettier.ts`, `tsc.ts`, `fullCheck.ts`.
+- Individual handlers: `diagnostics.ts`, `find-references.ts`, `find-definition.ts`, `find-implementations.ts`, `find-type-definition.ts`, `find-type-hierarchy.ts`, `find-symbols.ts`, `find-document-symbols.ts`, `find-calls.ts`, `hover.ts`, `rename-symbol.ts`, `status.ts`, `file-changed.ts`, `lint.ts`, `prettier.ts`, `fullCheck.ts`, `fix.ts`.
 
 ### Language Support — `src/lsp/language-registry.ts` & `src/lsp/language-config.ts`
 
@@ -113,7 +113,7 @@ Two-layer design:
 
 ### Linting Subsystem — `src/linting/`
 
-A self-contained subsystem for detecting, running, and formatting output from external linters, formatters, and type checkers. Designed to operate independently of the LSP subsystem — linting commands do not require an LSP server.
+A self-contained subsystem for detecting, running, and formatting output from external linters and formatters. Designed to operate independently of the LSP subsystem — linting commands do not require an LSP server.
 
 #### types.ts — Core types
 
@@ -124,8 +124,9 @@ Defines the shared data types used across all linting modules:
 | `LintIssue` | Normalized lint issue with file, line, column, severity, message, code, and source linter. The universal output format all parsers produce. |
 | `LinterDefinition` | Static definition of a supported linter: name, languages, extensions, config files, package keys, version/lint commands, parser function, and timeout. |
 | `DetectedLinter` | A linter confirmed available in the current project, with its `LinterDefinition`, resolved config file path, version string, and how it was detected (`"config-file"` \| `"package-key"` \| `"project-marker"`). |
-| `PrettierResult` | Per-file prettier check result: file path, whether it needs formatting, and optional error. |
-| `TscIssue` | Parsed `tsc` diagnostic with file, line, column, severity, message, and TS error code. |
+| `FormatterDefinition` | Static definition of a supported formatter: name, extensions, config files, package keys, version/diagnose/fix commands, parser function, and timeout. |
+| `FormatterResult` | Per-file formatter result: source formatter name, file path, whether it changed (needs formatting or was formatted), and optional error. |
+| `DetectedFormatter` | A formatter confirmed available in the current project, with its `FormatterDefinition`, resolved config file path, version string, and how it was detected (`"config-file"` \| `"package-key"` \| `"project-marker"`). |
 | `CheckStatus` | Union type: `"pending"` \| `"running"` \| `"clean"` \| `"issues"` \| `"error"` \| `"skipped"`. |
 
 #### definitions.ts — Linter definitions
@@ -168,6 +169,7 @@ Provides linter detection and file-to-linter matching:
 | `getLintersForFile(filePath, detected)` | Filters detected linters to those whose extensions match the file. |
 | `getCoveredExtensions(detected)` | Returns all file extensions covered by the detected linters. |
 | `discoverFilesNative(cwd, extensions, maxFiles?, signal?)` | Cross-platform recursive file discovery using `fs.promises.readdir`. Respects `IGNORE_DIRS` (node_modules, .git, target, etc.) and skips dot-directories. Returns up to `maxFiles` (default 1000). |
+| `getRelevantLinters(linters, files)` | Returns `Map<DetectedLinter, string[]>` — groups files by which linters can process them. |
 
 Detection order per linter: config file → `pyproject.toml` section → `package.json` dependency key → project marker. The `package.json` is read once and cached across all linter checks. Special handling for `setup.cfg`/`tox.ini` (require a section header like `[flake8]`) and `pyproject.toml` (requires `[tool.ruff]` etc.).
 
@@ -180,28 +182,42 @@ Runs linters with concurrency control:
 | `runLinter(linter, files, cwd, signal?, timeoutCap?)` | Execute a single linter against matching files. Uses `execCommand` from `utils/spawn`. Applies `timeoutCap` to clamp the linter's default timeout. Exit code 1 from linters is treated as normal (issues found), not an error. |
 | `runLinters(linters, files, cwd, signal?, maxConcurrency?, timeoutCap?)` | Runs multiple linters in parallel. Pre-groups files by extension for O(1) lookup. Batches tasks when `maxConcurrency` is set. Each linter only processes files matching its extensions. |
 
-Also re-exports `formatIssues` and `summarizeIssues` from `output-formatter` for backward compatibility.
 
-#### prettier-runner.ts — Prettier check runner
+#### formatter-definitions.ts — Formatter definitions
 
-Report-only prettier execution (does not write files):
+Exports `FORMATTER_DEFINITIONS`: an array of `FormatterDefinition` objects. Currently ships with a single entry:
 
-| Function | Purpose |
-|----------|----------|
-| `isPrettierAvailable(cwd)` | Runs `npx prettier --version` with a 10s timeout. |
-| `runPrettier(files, cwd, signal?, timeout?)` | Runs `npx prettier --check` on files with supported extensions. Exit code 0 = all formatted correctly; exit code 1 = parses stdout for file paths needing formatting. Returns `PrettierResult[]`. |
+| Formatter | Extensions | Key config files |
+|-----------|-----------|-----------------|
+| Prettier | `.js`, `.jsx`, `.ts`, `.tsx`, `.mjs`, `.cjs`, `.json`, `.jsonc`, `.css`, `.scss`, `.less`, `.html`, `.htm`, `.md`, `.mdx`, `.yaml`, `.yml`, `.vue`, `.svelte`, `.graphql`, `.gql` | `.prettierrc`, `.prettierrc.json`, `.prettierrc.yaml`, `.prettierrc.yml`, `.prettierrc.toml`, `.prettierrc.js`, `.prettierrc.cjs`, `.prettierrc.mjs`, `prettier.config.js`, `prettier.config.cjs`, `prettier.config.mjs` |
 
-Supported extensions: `.js`, `.jsx`, `.ts`, `.tsx`, `.json`, `.jsonc`, `.css`, `.scss`, `.less`, `.html`, `.md`, `.mdx`, `.yaml`, `.yml`, `.vue`, `.svelte`, `.graphql`.
+Each definition specifies extensions, config files, optional `packageKeys` (for `package.json` detection), `projectMarkers` (ecosystem files like `package.json`), a `versionCommand` string, a `diagnoseCommand` function (check-only, returns `[cmd, ...args]`), a `fixCommand` function (writes changes to disk, returns `[cmd, ...args]`), a `parseOutput` function reference, and a timeout (default 30s).
 
-#### tsc-runner.ts — TypeScript type checker
+#### formatter-registry.ts — Formatter detection
 
-Runs `tsc --noEmit` and parses diagnostics:
+Provides formatter detection and file-to-formatter matching. Mirrors the linter-registry pattern:
 
 | Function | Purpose |
 |----------|----------|
-| `isTscAvailable(cwd)` | Checks for `tsconfig.json` (fast fs check) then runs `npx tsc --version`. |
-| `detectTsconfig(cwd)` | Returns the path to `tsconfig.json` if found. |
-| `runTsc(cwd, files?, signal?, timeout?)` | Runs `tsc --noEmit --pretty false`. Parses output via regex `file(line,col): error|warning TSnnnn: message`. If `files` is provided, results are filtered to only those files. Returns `TscRunResult` with issues, duration, and optional error. |
+| `detectFormatters(cwd)` | Two-phase detection: (1) synchronous scan of config files, `package.json` keys, and project markers to collect candidates, (2) parallel `versionCommand` execution to verify installation. Returns `DetectedFormatter[]`. Results are cached per `cwd` via module-level variables; call `invalidateFormatterCache()` to force re-detection. |
+| `getFormattersForFile(formatters, filePath)` | Filters detected formatters to those whose extensions match the file. |
+| `getRelevantFormatters(formatters, files)` | Returns a `Map<DetectedFormatter, string[]>` mapping each formatter to its matching files. Pre-groups files by extension for O(1) lookup. |
+| `getFormatterCoveredExtensions(formatters)` | Returns all file extensions covered by the detected formatters as a `Set`. |
+
+Detection order per formatter: config file → `package.json` dependency key → project marker. The `package.json` is read once and cached across all formatter checks.
+
+#### formatter-runner.ts — Formatter execution
+
+Runs formatters in two modes — diagnose (check-only, no writes) and fix (writes to disk):
+
+| Function | Purpose |
+|----------|----------|
+| `runFormatterDiagnose(formatter, files, cwd, signal?, timeoutCap?)` | Runs a single formatter's diagnose command. Exit code 0 = all files formatted correctly; exit code 1 = parses stdout via `definition.parseOutput`. Applies `timeoutCap` to clamp the definition's default timeout. |
+| `runFormatterFix(formatter, files, cwd, signal?, timeoutCap?)` | Runs a single formatter's fix command. Writes changes to disk. Exit code 0 = all files fixed. |
+| `runFormattersDiagnose(formatters, files, cwd, signal?, timeoutCap?)` | Runs multiple formatters in diagnose mode in parallel. |
+| `runFormattersFix(formatters, files, cwd, signal?, timeoutCap?)` | Runs multiple formatters in fix mode in parallel. |
+| `formatFormatterResults(results, cwd?)` | Formats `FormatterResult[]` into human-readable lines with relative paths. Truncates at 2000 lines or 50KB. |
+| `summarizeFormatterResults(results)` | One-line summary: `"Formatter Results: 3 file(s) need formatting"`. |
 
 #### bash-file-detector.ts — Bash command file detection
 
@@ -237,7 +253,7 @@ Returns `DetectedBashFiles { written: string[], read: string[] }` with absolute 
 | `socket-path.ts` | `getSocketPath(cwd)` — SHA-256 hash of cwd → socket path in `$TMPDIR/code-lens-<hash>.sock` (or `\\.\pipe\code-lens-<hash>` on Windows). `getMetadataPath(cwd)` — `~/.code-lens/<hash>.json`. |
 | `paths.ts` | File path resolution, URI conversion (`filePathToUri`, `uriToFilePath`), location formatting. |
 | `env.ts` | `getSanitizedEnv()` — strips problematic env vars before spawning LSP servers. |
-| `spawn.ts` | `execCommand(command, args, options)` — Promise-based process spawning built on `child_process.spawn`. Returns `{ stdout, stderr, exitCode }`. Handles timeouts, `AbortSignal` cancellation, max-buffer overflow (stdout capped at `maxBuffer`, stderr kept to last 512KB when over 1MB), and process errors — never rejects, always resolves with an `ExecResult`. Used by linter, prettier, and tsc runners. |
+| `spawn.ts` | `execCommand(command, args, options)` — Promise-based process spawning built on `child_process.spawn`. Returns `{ stdout, stderr, exitCode }`. Handles timeouts, `AbortSignal` cancellation, max-buffer overflow (stdout capped at `maxBuffer`, stderr kept to last 512KB when over 1MB), and process errors — never rejects, always resolves with an `ExecResult`. Used by linter and formatter runners. |
 
 ---
 
@@ -338,7 +354,7 @@ All daemon mutable state is encapsulated in the `DaemonServer` class:
 
 | Field | Type | Purpose |
 |-------|------|---------|
-| `idleTimer` | `Timeout \| null` | Auto-shutdown timer (5 min idle) |
+| `idleTimer` | `NodeJS.Timeout \| null` | Auto-shutdown timer (5 min idle) |
 | `activeConnections` | `number` | Currently open socket connections |
 | `serverInstance` | `net.Server \| null` | The TCP/socket server |
 | `lspManager` | `LspManager \| null` | Manages all LSP servers |
@@ -393,25 +409,23 @@ Most commands share a common setup: resolve the file, detect the language, check
 
 ### New Commands — Linting & Checking
 
-Five new commands leverage the linting subsystem:
+Commands leverage the linting and formatting subsystems:
 
 | Command | Module | Purpose |
 |---------|--------|----------|
 | `fileChanged` | `file-changed.ts` | Notifies the LSP manager that a file has been modified. Calls `manager.onFileChanged(filePath)`. Lightweight — no linting, just keeps LSP diagnostics fresh. |
 | `lint` | `lint.ts` | Detects available linters, filters to those matching the provided files, runs them with `runLinters()`, and returns formatted issues. |
-| `prettier` | `prettier.ts` | Checks if prettier is available, runs `prettier --check` on supported files. Report-only — does not write. |
-| `tsc` | `tsc.ts` | Checks if TypeScript is available (`tsconfig.json` + `tsc --version`), runs `tsc --noEmit`, filters results to the provided files. |
-| `fullCheck` | `fullCheck.ts` | Runs all four check types (prettier, linters, LSP diagnostics, tsc) concurrently via `Promise.all`. Each check is gated by a config flag in `params.config` (e.g., `{ prettier: true, linters: true, lsp: true, tsc: true }`). LSP check includes a configurable `lspDelayMs` (default 500ms) to let diagnostics settle. |
+| `prettier` | `prettier.ts` | Detects available formatters, runs their diagnose commands on supported files. Report-only — does not write. |
+| `fullCheck` | `fullCheck.ts` | Runs all three check types (formatters, linters, LSP diagnostics) concurrently via `Promise.all`. Each check is gated by a config flag in `params.config` (e.g., `{ formatters: true, linters: true, lsp: true }`). LSP check includes a configurable `lspDelayMs` (default 500ms) to let diagnostics settle. |
+| `fix` | `fix.ts` | Detects available formatters and linters, runs their fix commands to write changes to disk. Accepts `formatters` and `linters` boolean params (both default to `true`). Runs formatter and linter fixes in parallel. Returns summary of fixed files and errors. |
 
 #### Caching behavior
 
-All linting commands use **module-level caching** to avoid re-detecting tools on every call within a daemon's lifetime:
+Detection results are cached at the **registry level** to avoid re-detecting tools on every call within a daemon's lifetime:
 
-- `lint.ts` caches detected linters (`DetectedLinter[]`) and re-detects only when `cwd` changes.
-- `prettier.ts` caches prettier availability (`boolean`).
-- `tsc.ts` caches tsc availability (`boolean`).
-- `fullCheck.ts` caches all three in a single `ensureCache()` call, invalidated together on `cwd` change.
-- Each module exports an `invalidate*Cache()` function for external cache busting.
+- `linter-registry.ts` caches detected linters (`DetectedLinter[]`) and re-detects only when `cwd` changes. Exports `invalidateLinterCache()` for external cache busting.
+- `formatter-registry.ts` caches detected formatters (`DetectedFormatter[]`) and re-detects only when `cwd` changes. Exports `invalidateFormatterCache()` for external cache busting.
+- Command modules (`lint.ts`, `prettier.ts`, `fullCheck.ts`, `fix.ts`) call `detectLinters()` / `detectFormatters()` which use the registry-level cache — no duplicate command-level caches.
 
 Since the daemon is per-workspace (one `cwd`), caches are effectively stable for the daemon's lifetime.
 

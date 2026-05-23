@@ -101,7 +101,7 @@ const result = await sendRequest(socketPath, {
   method: "fullCheck",
   params: {
     files: ["src/index.ts"],
-    config: { prettier: true, linters: true, lsp: true, tsc: true },
+    config: { prettier: true, linters: true, lsp: true },
   },
   id: 1,
 });
@@ -132,7 +132,7 @@ if (result.isError) {
 | `ok` / `err` | functions | Build `CommandResult` success/error values |
 | `DaemonRequest` | type | JSON-RPC request shape (`{ jsonrpc, method, params, id }`) |
 | `DaemonResponse` | type | JSON-RPC response shape |
-| `DaemonMetadata` | type | Daemon metadata persisted to disk (`{ pid, socketPath, version, startedAt }`) |
+| `DaemonMetadata` | type | Daemon metadata persisted to disk (`{ pid, socketPath, version, cwd }`) |
 | `CommandResult` | type | `{ content, details, isError }` |
 | `DAEMON_ERROR_CODES` | const | Standard error codes (`SERVER_NOT_FOUND`, `FILE_NOT_FOUND`, …) |
 | `DAEMON_VERSION` | const | Current daemon protocol version |
@@ -143,12 +143,12 @@ These are the `method` values you can pass in a `DaemonRequest`:
 
 | Method | Description |
 |---|---|
-| `fullCheck` | Run all checks (prettier, linters, LSP diagnostics, tsc) concurrently |
+| `fullCheck` | Run all checks (formatters, linters, LSP diagnostics) concurrently |
 | `diagnostics` | Get LSP diagnostics for files |
 | `fileChanged` | Notify the daemon that files have changed |
 | `lint` | Run configured linters |
-| `prettier` | Check formatting with Prettier |
-| `tsc` | Run TypeScript type checking |
+| `prettier` | Check formatting via the formatter system |
+| `fix` | Run formatter and linter fix modes (writes to disk) |
 | `hover` | Get type info at a position |
 | `find-references` | Find all references to a symbol |
 | `find-definition` | Go to definition |

@@ -79,12 +79,14 @@ program
   .option("--file <path>", "Single file path")
   .option("--workspace", "Check entire workspace")
   .option("--refresh", "Force refresh diagnostics")
+  .option("--no-formatters", "Skip formatter checks")
   .action(async (opts) => {
     await dispatch("diagnostics", {
       files: opts.files ?? undefined,
       file: opts.file ?? undefined,
       workspace: opts.workspace ?? false,
       refresh: opts.refresh ?? false,
+      noFormatters: !opts.formatters,
     });
   });
 
@@ -190,29 +192,14 @@ program
     });
   });
 
-// 14. tsc
-program
-  .command("tsc")
-  .description("Run TypeScript type checking")
-  .requiredOption("--files <paths>", "Comma-separated file paths")
-  .option("--timeout <ms>", "Timeout in milliseconds", parseInt)
-  .action(async (opts) => {
-    const files = opts.files.split(",").map((f) => f.trim());
-    await dispatch("tsc", {
-      files,
-      timeoutMs: opts.timeout ?? undefined,
-    });
-  });
-
-// 15. full-check
+// 14. full-check
 program
   .command("full-check")
-  .description("Run all checks (linters, prettier, tsc, LSP diagnostics)")
+  .description("Run all checks (linters, formatters, LSP diagnostics)")
   .requiredOption("--files <paths>", "Comma-separated file paths")
-  .option("--no-prettier", "Skip prettier check")
+  .option("--no-formatters", "Skip formatter checks")
   .option("--no-linters", "Skip linter checks")
   .option("--no-lsp", "Skip LSP diagnostics")
-  .option("--no-tsc", "Skip tsc check")
   .option("--max-concurrency <n>", "Maximum concurrent checks", parseInt)
   .option("--lsp-delay <ms>", "Delay for LSP diagnostics to settle", parseInt, 500)
   .option("--timeout <ms>", "Timeout per check in milliseconds", parseInt)
@@ -221,16 +208,31 @@ program
     await dispatch("fullCheck", {
       files,
       config: {
-        prettier: opts.prettier,
+        prettier: opts.formatters,
         linters: opts.linters,
         lsp: opts.lsp,
-        tsc: opts.tsc,
         maxConcurrency: opts.maxConcurrency,
         lspDelayMs: opts.lspDelay,
         prettierTimeoutMs: opts.timeout,
         linterTimeoutMs: opts.timeout,
-        tscTimeoutMs: opts.timeout,
       },
+    });
+  });
+
+// 15. fix
+program
+  .command("fix")
+  .description("Run formatter and linter fix modes (writes to disk)")
+  .requiredOption("--files <paths>", "Comma-separated file paths")
+  .option("--no-formatters", "Skip formatter fixes")
+  .option("--no-linters", "Skip linter fixes")
+  .option("--timeout <ms>", "Timeout in milliseconds", parseInt)
+  .action(async (opts) => {
+    await dispatch("fix", {
+      files: opts.files,
+      formatters: opts.formatters,
+      linters: opts.linters,
+      timeout: opts.timeout ?? undefined,
     });
   });
 

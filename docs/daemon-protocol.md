@@ -136,8 +136,7 @@ Note: Internally, positions are converted to **0-based** before sending to LSP s
 | `fileChanged` | `file` | — | Notify the daemon that a file was modified |
 | `diagnostics` | — | `file`, `files`, `workspace`, `refresh`, `raw` | Run LSP diagnostics (see below) |
 | `lint` | `files` | `maxConcurrency`, `timeoutMs` | Run detected linters on files |
-| `prettier` | `files` | `timeoutMs` | Run `prettier --check` on files |
-| `tsc` | `files` | `timeoutMs` | Run TypeScript type checking on files |
+| `prettier` | `files` | `timeoutMs` | Check formatting via the formatter system |
 
 #### fileChanged params
 
@@ -211,7 +210,7 @@ The response includes structured data:
 
 #### prettier params
 
-Runs `prettier --check` on the specified files. Prettier availability is cached for the daemon lifetime.
+Checks formatting on the specified files using the formatter system. Under the hood, this uses the same formatter registry and runner as `fullCheck` — it detects available formatters (e.g., Prettier) and runs their diagnose mode. Formatter availability is cached for the daemon lifetime.
 
 ```typescript
 {
@@ -222,48 +221,30 @@ Runs `prettier --check` on the specified files. Prettier availability is cached 
 
 The response includes structured data:
 
-- `{ available: false, results: [] }` — prettier not installed
-- `{ available: true, results: PrettierResult[], needsFormatting: number }` — check results
-
-#### tsc params
-
-Runs `tsc --noEmit` and filters results to the specified files. Only TypeScript/JavaScript files (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`) are checked. TSC availability is cached for the daemon lifetime.
-
-```typescript
-{
-  files: string[];     // File paths to check (required, must be non-empty)
-  timeoutMs?: number;  // Timeout in milliseconds
-}
-```
-
-The response includes structured data:
-
-- `{ available: false, issues: [] }` — tsc not installed
-- `{ available: true, issues: TscIssue[], durationMs: number }` — type check results
+- `{ available: false, results: [] }` — no formatters detected
+- `{ available: true, results: FormatterResult[], needsFormatting: number }` — check results
 
 ### Check commands
 
 | Method | Required params | Optional params | Description |
 |--------|----------------|-----------------|-------------|
-| `fullCheck` | `files`, `config` | — | Run all checks (prettier, linters, LSP diagnostics, tsc) concurrently |
+| `fullCheck` | `files`, `config` | — | Run all checks (formatters, linters, LSP diagnostics) concurrently |
 
 #### fullCheck params
 
-Runs prettier, linters, LSP diagnostics, and tsc type checking concurrently on the given files. Each check is gated by its corresponding config flag and tool availability. This is the primary command used by `pi-lens`.
+Runs formatter checks, linters, and LSP diagnostics concurrently on the given files. Each check is gated by its corresponding config flag and tool availability. This is the primary command used by `pi-lens`.
 
 ```typescript
 {
   files: string[];    // File paths to check (required, must be non-empty)
   config: {
-    prettier?: boolean;         // Enable prettier check (default: false)
+    prettier?: boolean;         // Enable formatter check (default: false)
     linters?: boolean;          // Enable linter check (default: false)
     lsp?: boolean;              // Enable LSP diagnostics check (default: false)
-    tsc?: boolean;              // Enable tsc type check (default: false)
     lspDelayMs?: number;        // Delay before collecting LSP diagnostics (default: 500)
     maxConcurrency?: number;    // Max parallel linter processes
-    prettierTimeoutMs?: number; // Prettier timeout in milliseconds
+    prettierTimeoutMs?: number; // Formatter check timeout in milliseconds
     linterTimeoutMs?: number;   // Per-linter timeout in milliseconds
-    tscTimeoutMs?: number;      // tsc timeout in milliseconds
   };
 }
 ```
@@ -276,6 +257,30 @@ The response `details` object includes:
   hasIssues: boolean;                      // true if any check reported issues
   fileCount: number;                       // Number of files checked
   durationMs: number;                      // Total wall-clock time in ms
+}
+```
+
+### Workspace commands
+
+#### fix params
+
+Run formatter and linter fix modes, **writing changes to disk**. Detects available formatters and linters (cached for the daemon lifetime) and runs their fix commands against the specified files. Formatters run their fix command; linters only run if they define a `fixCommand`.
+
+```typescript
+{
+  files: string;          // Comma-separated file paths (required)
+  formatters?: boolean;   // Run formatter fixes (default: true)
+  linters?: boolean;      // Run linter fixes (default: true)
+  timeout?: number;       // Timeout in milliseconds
+}
+```
+
+The response includes structured data:
+
+```typescript
+{
+  fixedFiles: string[];  // Absolute paths of files that were modified
+  errors: string[];      // Error messages from failed fixes
 }
 ```
 
@@ -387,7 +392,7 @@ Where `hash` is the same SHA-256 hash (first 16 hex chars) derived from `cwd`.
 interface DaemonMetadata {
   pid: number;        // OS process ID of the daemon
   socketPath: string; // Full path to the Unix socket or named pipe
-  version: string;    // Protocol version (e.g. "0.2.0")
+  version: string;    // Protocol version (e.g. "0.1.0")
   cwd: string;        // Working directory this daemon serves
 }
 ```
@@ -398,7 +403,7 @@ interface DaemonMetadata {
 {
   "pid": 48291,
   "socketPath": "/tmp/code-lens-a1b2c3d4e5f6g7h8.sock",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "cwd": "/home/user/projects/my-app"
 }
 ```
@@ -412,7 +417,7 @@ interface DaemonMetadata {
 The daemon protocol version is defined in `src/daemon/lifecycle.ts`:
 
 ```typescript
-export const DAEMON_VERSION = "0.2.0";
+export const DAEMON_VERSION = "0.1.0";
 ```
 
 ### Version mismatch handling

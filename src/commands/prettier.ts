@@ -1,45 +1,19 @@
 /**
  * prettier command: Run prettier --check on files
  *
- * Checks if prettier is available (cached at module level for the daemon
+ * Checks if prettier is available (cached at registry level for the daemon
  * lifetime) and runs prettier --check on the specified files.
+ *
+ * Uses the formatter system (formatter-registry + formatter-runner)
+ * but maintains the same output format for backward compatibility.
  */
 
 import * as path from "node:path";
 import { registerCommand } from "../daemon/server.js";
 import { ok, err, sanitizeError } from "../formatting/output.js";
 import { resolveFile } from "../utils/paths.js";
-import { isPrettierAvailable, runPrettier } from "../linting/prettier-runner.js";
-import type { PrettierResult } from "../linting/types.js";
-
-// ── Module-level Cache ─────────────────────────────────────────────────────
-
-/** Cached prettier availability (persists across daemon calls) */
-let cachedPrettierAvailable: boolean | null = null;
-/** The cwd used for the last check (invalidate if cwd changes) */
-let cachedCwd: string | null = null;
-
-/**
- * Check if prettier is available, using cache when possible.
- * Re-checks if the cwd changes or cache is empty.
- */
-async function checkPrettierAvailable(cwd: string): Promise<boolean> {
-  if (cachedPrettierAvailable !== null && cachedCwd === cwd) {
-    return cachedPrettierAvailable;
-  }
-  cachedPrettierAvailable = await isPrettierAvailable(cwd);
-  cachedCwd = cwd;
-  return cachedPrettierAvailable;
-}
-
-/**
- * Invalidate the prettier cache.
- * Exported for use by other commands if needed.
- */
-export function invalidatePrettierCache(): void {
-  cachedPrettierAvailable = null;
-  cachedCwd = null;
-}
+import { detectFormatters, getRelevantFormatters } from "../linting/formatter-registry.js";
+import { runFormatterDiagnose } from "../linting/formatter-runner.js";
 
 // ── Command Handler ────────────────────────────────────────────────────────
 
@@ -62,43 +36,49 @@ registerCommand("prettier", async (params, _manager, cwd) => {
   }
 
   try {
-    // 1. Check if prettier is available (cached)
-    const available = await checkPrettierAvailable(cwd);
-    if (!available) {
+    // 1. Detect available formatters (cached at registry level)
+    const detected = await detectFormatters(cwd);
+    if (detected.length === 0) {
       return ok("prettier: not available", { available: false, results: [] });
     }
 
-    // 2. Run prettier --check
-    const results: PrettierResult[] = await runPrettier(
-      safeFiles,
-      cwd,
-      undefined,
-      timeoutMs,
-    );
+    // 2. Filter to formatters relevant for the given files
+    const relevantMap = getRelevantFormatters(detected, safeFiles);
+    if (relevantMap.size === 0) {
+      return ok("prettier: not available", { available: false, results: [] });
+    }
 
-    // 3. Format output
-    const needFormatting = results.filter((r) => r.changed);
-    const errored = results.filter((r) => r.error);
+    // 3. Run formatter diagnose mode (parallel, with per-formatter file lists)
+    const allResultArrays = await Promise.all(
+      [...relevantMap.entries()].map(([formatter, files]) =>
+        runFormatterDiagnose(formatter, files, cwd, undefined, timeoutMs),
+      ),
+    );
+    const allResults = allResultArrays.flat();
+
+    // 4. Format output (maintain backward-compatible format)
+    const needFormatting = allResults.filter((r) => r.changed);
+    const errored = allResults.filter((r) => r.error);
 
     if (needFormatting.length > 0) {
       const fileNames = needFormatting.map((r) => path.relative(cwd, r.file) || r.file);
       return ok(
         `prettier: ${needFormatting.length} file(s) need formatting\n  ${fileNames.join("\n  ")}`,
-        { results, available: true, needsFormatting: needFormatting.length },
+        { results: allResults, available: true, needsFormatting: needFormatting.length },
       );
     }
 
     if (errored.length > 0) {
       return ok(
         `prettier: ${errored.length} file(s) had errors`,
-        { results, available: true, errorCount: errored.length },
+        { results: allResults, available: true, errorCount: errored.length },
       );
     }
 
-    if (results.length > 0) {
+    if (allResults.length > 0) {
       return ok(
-        `prettier: ${results.length} file(s) formatted correctly`,
-        { results, available: true, needsFormatting: 0 },
+        `prettier: ${allResults.length} file(s) formatted correctly`,
+        { results: allResults, available: true, needsFormatting: 0 },
       );
     }
 

@@ -2,9 +2,6 @@ import * as path from "node:path";
 import type { DetectedLinter, LintIssue } from "./types.js";
 import { execCommand } from "../utils/spawn.js";
 
-// Re-export formatters from output-formatter for backward compatibility
-export { formatIssues, summarizeIssues } from "./output-formatter.js";
-
 /**
  * Run a single linter against a set of files.
  */
@@ -111,4 +108,78 @@ async function runLintersInParallel(
     allIssues.push(...batchResults.flatMap((r) => (r.status === "fulfilled" ? r.value : [])));
   }
   return allIssues;
+}
+
+/**
+ * Result of running fix for a single linter.
+ */
+export interface LinterFixRunResult {
+  linter: string;
+  fixed: string[];
+  errors: string[];
+}
+
+/**
+ * Filter files down to those matching the linter's extensions.
+ */
+function filterFilesByExtensions(files: string[], extensions: string[]): string[] {
+  const extSet = new Set(extensions);
+  return files.filter((f) => extSet.has(path.extname(f).toLowerCase()));
+}
+
+/**
+ * Run a single linter's auto-fix command against a set of files.
+ */
+export async function runLinterFix(
+  linter: DetectedLinter,
+  files: string[],
+  cwd: string,
+): Promise<LinterFixRunResult> {
+  const name = linter.definition.name;
+  const empty: LinterFixRunResult = { linter: name, fixed: [], errors: [] };
+
+  if (!linter.definition.fixCommand) return empty;
+
+  const relevantFiles = filterFilesByExtensions(files, linter.definition.extensions);
+  if (relevantFiles.length === 0) return empty;
+
+  const args = linter.definition.fixCommand(relevantFiles);
+  const command = args[0];
+  const commandArgs = args.slice(1);
+
+  try {
+    const result = await execCommand(command, commandArgs, {
+      cwd,
+      timeout: linter.definition.timeout,
+      maxBuffer: 10 * 1024 * 1024,
+    });
+    if (result.exitCode === 0) {
+      return { linter: name, fixed: relevantFiles, errors: [] };
+    }
+    return {
+      linter: name,
+      fixed: [],
+      errors: [
+        result.stderr.trim() || `Linter ${name} exited with code ${result.exitCode}`,
+      ],
+    };
+  } catch (err) {
+    return {
+      linter: name,
+      fixed: [],
+      errors: [err instanceof Error ? err.message : String(err)],
+    };
+  }
+}
+
+/**
+ * Run multiple linters' auto-fix commands in parallel.
+ */
+export async function runLintersFix(
+  linters: DetectedLinter[],
+  files: string[],
+  cwd: string,
+): Promise<LinterFixRunResult[]> {
+  if (linters.length === 0 || files.length === 0) return [];
+  return Promise.all(linters.map((linter) => runLinterFix(linter, files, cwd)));
 }

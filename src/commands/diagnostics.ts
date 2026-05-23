@@ -8,6 +8,8 @@ import { uriToFilePath } from "../utils/paths.js";
 import { formatDiagnosticLine, countSeverities } from "../formatting/diagnostics.js";
 import { ok, err, sanitizeError } from "../formatting/output.js";
 import { executePreamble } from "./preamble.js";
+import { detectFormatters, getFormattersForFile } from "../linting/formatter-registry.js";
+import { runFormattersDiagnose, formatFormatterResults, summarizeFormatterResults } from "../linting/formatter-runner.js";
 
 // ── Workspace Mode ─────────────────────────────────────────────────────────
 
@@ -66,6 +68,7 @@ async function handleSingleFileDiagnostics(
   file: string,
   refresh: boolean,
   raw: boolean,
+  noFormatters: boolean,
   manager: LspManager,
   cwd: string,
 ) {
@@ -101,10 +104,23 @@ async function handleSingleFileDiagnostics(
 
   const lines = diagnostics.map(formatDiagnosticLine);
 
-  const summary =
+  let summary =
     `Diagnostics for ${file} (${config.language}):\n` +
     `${errorCount} error(s), ${warningCount} warning(s), ${infoCount} info message(s)\n\n` +
     (lines.length > 0 ? lines.join("\n") : "No issues found.");
+
+  // Run formatter diagnose unless explicitly disabled
+  if (!noFormatters) {
+    const formatters = await detectFormatters(cwd);
+    const matching = getFormattersForFile(formatters, filePath);
+    if (matching.length > 0) {
+      const formatterResults = await runFormattersDiagnose(matching, [filePath], cwd);
+      const formatterOutput = formatFormatterResults(formatterResults, cwd);
+      if (formatterOutput) {
+        summary += `\n\nFormatter: ${summarizeFormatterResults(formatterResults)}\n${formatterOutput}`;
+      }
+    }
+  }
 
   return ok(summary, {
     file,
@@ -121,6 +137,7 @@ async function handleSingleFileDiagnostics(
 async function handleMultiFileDiagnostics(
   files: string,
   refresh: boolean,
+  noFormatters: boolean,
   manager: LspManager,
   cwd: string,
 ) {
@@ -157,7 +174,21 @@ async function handleMultiFileDiagnostics(
     );
   }
 
-  return ok(sections.join("\n\n---\n\n"), {
+  let output = sections.join("\n\n---\n\n");
+
+  // Run formatter diagnose on all files unless explicitly disabled
+  if (!noFormatters) {
+    const formatters = await detectFormatters(cwd);
+    if (formatters.length > 0) {
+      const formatterResults = await runFormattersDiagnose(formatters, filePaths, cwd);
+      const formatterOutput = formatFormatterResults(formatterResults, cwd);
+      if (formatterOutput) {
+        output += `\n\nFormatter: ${summarizeFormatterResults(formatterResults)}\n${formatterOutput}`;
+      }
+    }
+  }
+
+  return ok(output, {
     files: filePaths,
     totalErrors,
     totalWarnings,
@@ -171,6 +202,7 @@ registerCommand("diagnostics", async (params, manager, cwd) => {
   const workspace = params.workspace === true;
   const refresh = params.refresh === true;
   const raw = params.raw === true;
+  const noFormatters = params.noFormatters === true;
   const files = typeof params.files === "string" ? params.files : undefined;
 
   if (workspace) {
@@ -183,7 +215,7 @@ registerCommand("diagnostics", async (params, manager, cwd) => {
 
   if (files) {
     try {
-      return await handleMultiFileDiagnostics(files, refresh, manager, cwd);
+      return await handleMultiFileDiagnostics(files, refresh, noFormatters, manager, cwd);
     } catch (e) {
       return err(sanitizeError(e, "Failed to get diagnostics"), { files });
     }
@@ -191,7 +223,7 @@ registerCommand("diagnostics", async (params, manager, cwd) => {
 
   if (typeof params.file === "string") {
     try {
-      return await handleSingleFileDiagnostics(params.file, refresh, raw, manager, cwd);
+      return await handleSingleFileDiagnostics(params.file, refresh, raw, noFormatters, manager, cwd);
     } catch (e) {
       return err(sanitizeError(e, "Failed to get diagnostics"), { file: params.file });
     }

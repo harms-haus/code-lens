@@ -37,6 +37,8 @@ export interface LinterDefinition {
   lintCommand: (files: string[]) => string[];
   /** Parser: raw JSON stdout → LintIssue[] */
   parseOutput: (stdout: string, cwd: string) => LintIssue[];
+  /** Command to auto-fix issues (optional). Returns [cmd, ...args] */
+  fixCommand?: (files: string[]) => string[];
   /** Timeout for lint command execution (ms) */
   timeout: number;
 }
@@ -52,21 +54,53 @@ export interface DetectedLinter {
   detectionSource: "config-file" | "package-key" | "project-marker";
 }
 
-/** Result of running prettier on a single file */
-export interface PrettierResult {
+/** Static definition of a supported formatter */
+export interface FormatterDefinition {
+  /** Unique identifier (e.g., "prettier") */
+  name: string;
+  /** Human-readable label (e.g., "Prettier") */
+  label: string;
+  /** File extensions this formatter handles (with dot, e.g., [".js", ".ts"]) */
+  extensions: string[];
+  /** Config files to look for (relative to cwd) */
+  configFiles: string[];
+  /** Additional detection: check package.json devDependencies keys */
+  packageKeys?: string[];
+  /** Project marker files that indicate this ecosystem */
+  projectMarkers?: string[];
+  /** Command to verify the formatter is installed */
+  versionCommand: string;
+  /** Command to check formatting (diagnose mode). Returns [cmd, ...args] */
+  diagnoseCommand: (files: string[]) => string[];
+  /** Command to fix formatting (fix mode). Returns [cmd, ...args] */
+  fixCommand: (files: string[]) => string[];
+  /** Parse diagnose output into per-file results */
+  parseOutput: (stdout: string, cwd: string) => FormatterResult[];
+  /** Timeout for command execution (ms) */
+  timeout: number;
+}
+
+/** Result of running a formatter on files */
+export interface FormatterResult {
+  /** The formatter that produced this result */
+  source: string;
+  /** Absolute file path */
   file: string;
+  /** Whether the file needs formatting (diagnose) or was formatted (fix) */
   changed: boolean;
+  /** Error message if formatting failed for this file */
   error?: string;
 }
 
-/** Parsed tsc diagnostic */
-export interface TscIssue {
-  file: string;
-  line: number;
-  column: number;
-  severity: "error" | "warning";
-  message: string;
-  code?: string;
+/** A formatter detected as available in the current project */
+export interface DetectedFormatter {
+  definition: FormatterDefinition;
+  /** Resolved config file path (if found) */
+  configFile?: string;
+  /** Version string from versionCommand */
+  version?: string;
+  /** How this formatter was detected */
+  detectionSource: "config-file" | "package-key" | "project-marker";
 }
 
 /** Status of a check */

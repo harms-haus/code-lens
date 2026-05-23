@@ -43,6 +43,7 @@ export const LINTER_DEFINITIONS: LinterDefinition[] = [
       ...files,
     ],
     parseOutput: parseEslintOutput,
+    fixCommand: (files) => ["npx", "eslint", "--fix", "--format", "json", ...files],
     timeout: 15000,
   },
   // ── Biome ───────────────────────────────────────────────────────────
@@ -56,6 +57,7 @@ export const LINTER_DEFINITIONS: LinterDefinition[] = [
     versionCommand: "npx @biomejs/biome --version",
     lintCommand: (files) => ["npx", "@biomejs/biome", "lint", "--reporter=json", "--", ...files],
     parseOutput: parseBiomeOutput,
+    fixCommand: (files) => ["npx", "@biomejs/biome", "lint", "--fix", "--max-diagnostics", "none", ...files],
     timeout: 15000,
   },
   // ── Ruff ────────────────────────────────────────────────────────────
@@ -70,6 +72,7 @@ export const LINTER_DEFINITIONS: LinterDefinition[] = [
     versionCommand: "ruff --version",
     lintCommand: (files) => ["ruff", "check", "--output-format=json", "--", ...files],
     parseOutput: parseRuffOutput,
+    fixCommand: (files) => ["ruff", "check", "--fix", "--output-format", "json", ...files],
     timeout: 15000,
   },
   // ── Flake8 ──────────────────────────────────────────────────────────
@@ -135,6 +138,7 @@ export const LINTER_DEFINITIONS: LinterDefinition[] = [
       "clippy::all",
     ],
     parseOutput: parseClippyOutput,
+    fixCommand: (_files) => ["cargo", "clippy", "--fix", "--allow-dirty", "--message-format=json"],
     timeout: 120000,
   },
   // ── staticcheck ─────────────────────────────────────────────────────
@@ -161,6 +165,7 @@ export const LINTER_DEFINITIONS: LinterDefinition[] = [
     versionCommand: "rubocop --version",
     lintCommand: (files) => ["rubocop", "--format", "json", "--", ...files],
     parseOutput: parseRubocopOutput,
+    fixCommand: (files) => ["bundle", "exec", "rubocop", "--auto-correct", "--format", "json", ...files],
     timeout: 30000,
   },
   // ── ShellCheck ──────────────────────────────────────────────────────
@@ -196,6 +201,7 @@ export const LINTER_DEFINITIONS: LinterDefinition[] = [
     versionCommand: "npx stylelint --version",
     lintCommand: (files) => ["npx", "stylelint", "--formatter", "json", "--", ...files],
     parseOutput: parseStylelintOutput,
+    fixCommand: (files) => ["npx", "stylelint", "--fix", "--formatter", "json", ...files],
     timeout: 15000,
   },
 ];

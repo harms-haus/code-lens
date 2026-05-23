@@ -1,46 +1,17 @@
 /**
  * lint command: Run detected linters on files
  *
- * Detects available linters (cached at module level for the daemon lifetime)
+ * Detects available linters (cached at registry level for the daemon lifetime)
  * and runs relevant linters against the specified files.
  */
 
 import { registerCommand } from "../daemon/server.js";
 import { ok, err, sanitizeError } from "../formatting/output.js";
 import { resolveFile } from "../utils/paths.js";
-import { detectLinters, getLintersForFile } from "../linting/linter-registry.js";
+import { detectLinters, getRelevantLinters } from "../linting/linter-registry.js";
 import { runLinters } from "../linting/linter-runner.js";
 import { formatIssues, summarizeIssues } from "../linting/output-formatter.js";
-import type { DetectedLinter, LintIssue } from "../linting/types.js";
-
-// ── Module-level Cache ─────────────────────────────────────────────────────
-
-/** Cached linter detection results (persists across daemon calls) */
-let cachedLinters: DetectedLinter[] | null = null;
-/** The cwd used for the last detection (invalidate if cwd changes) */
-let cachedCwd: string | null = null;
-
-/**
- * Get detected linters, using cache when possible.
- * Re-detects if the cwd changes or cache is empty.
- */
-async function getDetectedLinters(cwd: string): Promise<DetectedLinter[]> {
-  if (cachedLinters !== null && cachedCwd === cwd) {
-    return cachedLinters;
-  }
-  cachedLinters = await detectLinters(cwd);
-  cachedCwd = cwd;
-  return cachedLinters;
-}
-
-/**
- * Invalidate the linter cache (e.g., after config changes).
- * Exported for use by other commands if needed.
- */
-export function invalidateLinterCache(): void {
-  cachedLinters = null;
-  cachedCwd = null;
-}
+import type { LintIssue } from "../linting/types.js";
 
 // ── Command Handler ────────────────────────────────────────────────────────
 
@@ -64,21 +35,23 @@ registerCommand("lint", async (params, _manager, cwd) => {
   }
 
   try {
-    // 1. Detect available linters (cached)
-    const detected = await getDetectedLinters(cwd);
+    // 1. Detect available linters (cached at registry level)
+    const detected = await detectLinters(cwd);
     if (detected.length === 0) {
       return ok("No linters detected.", { issues: [], linterCount: 0 });
     }
 
     // 2. Collect relevant linters for the given files
-    const relevantLinters = getRelevantLinters(safeFiles, detected);
-    if (relevantLinters.length === 0) {
+    const relevantMap = getRelevantLinters(detected, safeFiles);
+    if (relevantMap.size === 0) {
       return ok("No linters match the provided files.", {
         issues: [],
         linterCount: detected.length,
         relevantCount: 0,
       });
     }
+
+    const relevantLinters = [...relevantMap.keys()];
 
     // 3. Run linters
     const issues: LintIssue[] = await runLinters(
@@ -109,20 +82,3 @@ registerCommand("lint", async (params, _manager, cwd) => {
     return err(sanitizeError(e, "Failed to run linters"), { files });
   }
 });
-
-// ── Internal Helpers ───────────────────────────────────────────────────────
-
-/** Get all linters that are relevant for at least one of the given files */
-function getRelevantLinters(files: string[], detected: DetectedLinter[]): DetectedLinter[] {
-  const relevant = new Set<string>();
-  const result: DetectedLinter[] = [];
-  for (const file of files) {
-    for (const linter of getLintersForFile(file, detected)) {
-      if (!relevant.has(linter.definition.name)) {
-        relevant.add(linter.definition.name);
-        result.push(linter);
-      }
-    }
-  }
-  return result;
-}
