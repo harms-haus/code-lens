@@ -31,6 +31,10 @@ vi.mock("../../src/lsp/language-config.js", () => ({
   ],
   isServerInstalled: (...args: unknown[]) => mockIsServerInstalled(...args),
 }));
+vi.mock("../../src/utils/paths.js", () => ({
+  uriToFilePath: (uri: string) => decodeURIComponent(uri.replace(/^file:\/\//, "")),
+  resolveFile: (file: string, cwd: string) => `${cwd}/${file}`,
+}));
 
 await import("../../src/commands/find-symbols.js");
 

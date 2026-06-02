@@ -26,6 +26,19 @@ describe("getSanitizedEnv", () => {
       "PYTHONPATH",
       "CARGO_HOME",
       "RUSTUP_HOME",
+      // Windows-specific
+      "USERPROFILE",
+      "TEMP",
+      "TMP",
+      "APPDATA",
+      "LOCALAPPDATA",
+      "SystemRoot",
+      "ComSpec",
+      "PATHEXT",
+      "WINDIR",
+      "PROGRAMFILES",
+      "PROGRAMFILES(X86)",
+      "PROGRAMDATA",
     ];
     for (const key of allAllowed) {
       delete process.env[key];
@@ -70,6 +83,19 @@ describe("getSanitizedEnv", () => {
       "PYTHONPATH",
       "CARGO_HOME",
       "RUSTUP_HOME",
+      // Windows-specific
+      "USERPROFILE",
+      "TEMP",
+      "TMP",
+      "APPDATA",
+      "LOCALAPPDATA",
+      "SystemRoot",
+      "ComSpec",
+      "PATHEXT",
+      "WINDIR",
+      "PROGRAMFILES",
+      "PROGRAMFILES(X86)",
+      "PROGRAMDATA",
     ];
     for (const key of allAllowed) {
       delete process.env[key];
@@ -83,7 +109,7 @@ describe("getSanitizedEnv", () => {
   });
 
   it("returns an empty-ish object when no allowed keys are in env", () => {
-    // Strip all allowed keys
+    // Strip all allowed keys (including Windows-specific)
     for (const key of [
       "PATH",
       "HOME",
@@ -95,6 +121,18 @@ describe("getSanitizedEnv", () => {
       "PYTHONPATH",
       "CARGO_HOME",
       "RUSTUP_HOME",
+      "USERPROFILE",
+      "TEMP",
+      "TMP",
+      "APPDATA",
+      "LOCALAPPDATA",
+      "SystemRoot",
+      "ComSpec",
+      "PATHEXT",
+      "WINDIR",
+      "PROGRAMFILES",
+      "PROGRAMFILES(X86)",
+      "PROGRAMDATA",
     ]) {
       delete process.env[key];
     }

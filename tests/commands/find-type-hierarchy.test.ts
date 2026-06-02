@@ -12,6 +12,9 @@ vi.mock("../../src/daemon/server.js", () => ({
 vi.mock("../../src/commands/preamble.js", () => ({
   executePreamble: (...args: unknown[]) => mockExecutePreamble(...args),
 }));
+vi.mock("../../src/utils/paths.js", () => ({
+  uriToFilePath: (uri: string) => decodeURIComponent(uri.replace(/^file:\/\//, "")),
+}));
 
 await import("../../src/commands/find-type-hierarchy.js");
 

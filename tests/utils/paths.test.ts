@@ -53,15 +53,28 @@ describe("paths", () => {
 
   describe("uriToFilePath", () => {
     it("strips file:// prefix", () => {
-      expect(uriToFilePath("file:///home/user/project/src/index.ts")).toBe(
-        "/home/user/project/src/index.ts",
-      );
+      if (process.platform === "win32") {
+        // On Windows, file:///C:/... is valid
+        expect(uriToFilePath("file:///C:/Users/test/file.ts")).toBe(
+          "C:\\Users\\test\\file.ts",
+        );
+      } else {
+        expect(uriToFilePath("file:///home/user/project/src/index.ts")).toBe(
+          "/home/user/project/src/index.ts",
+        );
+      }
     });
 
     it("decodes URI-encoded characters", () => {
-      expect(uriToFilePath("file:///path/with%20spaces/file.ts")).toBe(
-        "/path/with spaces/file.ts",
-      );
+      if (process.platform === "win32") {
+        expect(uriToFilePath("file:///C:/path/with%20spaces/file.ts")).toBe(
+          "C:\\path\\with spaces\\file.ts",
+        );
+      } else {
+        expect(uriToFilePath("file:///path/with%20spaces/file.ts")).toBe(
+          "/path/with spaces/file.ts",
+        );
+      }
     });
 
     it("throws for URI without file:// prefix", () => {
@@ -69,34 +82,52 @@ describe("paths", () => {
     });
 
     it("handles Windows file URIs with drive letters", () => {
+      if (process.platform !== "win32") return;
       const result = uriToFilePath("file:///C:/Users/test/file.ts");
       // Should NOT start with /C: (leading slash before drive letter is wrong)
       expect(result).not.toMatch(/^\/+C:/);
     });
 
-    it("roundtrips with filePathToUri for Windows-style paths", () => {
-      if (process.platform !== "win32") return;
-      const winPath = "C:\\Users\\test\\file.ts";
-      const uri = filePathToUri(winPath);
-      expect(uri).toMatch(/^file:\/\//);
-      const back = uriToFilePath(uri);
-      expect(back).toBe(winPath);
+    it("roundtrips with filePathToUri", () => {
+      if (process.platform === "win32") {
+        const winPath = "C:\\Users\\test\\file.ts";
+        const uri = filePathToUri(winPath);
+        expect(uri).toMatch(/^file:\/\//);
+        const back = uriToFilePath(uri);
+        expect(back).toBe(winPath);
+      } else {
+        const unixPath = "/home/user/file.ts";
+        const uri = filePathToUri(unixPath);
+        expect(uri).toMatch(/^file:\/\//);
+        const back = uriToFilePath(uri);
+        expect(back).toBe(unixPath);
+      }
     });
   });
 
   describe("filePathToUri", () => {
     it("adds file:// prefix to an absolute path", () => {
-      const uri = filePathToUri("/home/user/project/src/index.ts");
-      expect(uri).toMatch(/^file:\/\//);
-      // Decode and verify roundtrip
-      expect(uriToFilePath(uri)).toBe("/home/user/project/src/index.ts");
+      if (process.platform === "win32") {
+        const uri = filePathToUri("C:\\Users\\test\\file.ts");
+        expect(uri).toMatch(/^file:\/\//);
+        expect(uriToFilePath(uri)).toBe("C:\\Users\\test\\file.ts");
+      } else {
+        const uri = filePathToUri("/home/user/project/src/index.ts");
+        expect(uri).toMatch(/^file:\/\//);
+        expect(uriToFilePath(uri)).toBe("/home/user/project/src/index.ts");
+      }
     });
 
     it("produces valid URI for paths with spaces", () => {
-      const uri = filePathToUri("/path/with spaces/file.ts");
-      expect(uri).toContain("file://");
-      // The spaces should be URI-encoded
-      expect(uri).toContain("%20");
+      if (process.platform === "win32") {
+        const uri = filePathToUri("C:\\path\\with spaces\\file.ts");
+        expect(uri).toContain("file://");
+        expect(uri).toContain("%20");
+      } else {
+        const uri = filePathToUri("/path/with spaces/file.ts");
+        expect(uri).toContain("file://");
+        expect(uri).toContain("%20");
+      }
     });
   });
 
@@ -176,24 +207,45 @@ describe("paths", () => {
     });
 
     it("formats a single location", () => {
-      const locations = [makeLocation("file:///src/index.ts", 4, 10)];
-      const result = formatLocations(locations);
-      expect(result).toContain("/src/index.ts");
-      expect(result).toContain("5:11");
+      if (process.platform === "win32") {
+        const locations = [makeLocation("file:///C:/src/index.ts", 4, 10)];
+        const result = formatLocations(locations);
+        expect(result).toContain("src\\index.ts");
+        expect(result).toContain("5:11");
+      } else {
+        const locations = [makeLocation("file:///src/index.ts", 4, 10)];
+        const result = formatLocations(locations);
+        expect(result).toContain("/src/index.ts");
+        expect(result).toContain("5:11");
+      }
     });
 
     it("formats multiple locations", () => {
-      const locations = [
-        makeLocation("file:///src/a.ts", 0, 0),
-        makeLocation("file:///src/b.ts", 9, 5),
-      ];
-      const result = formatLocations(locations);
-      const lines = result.split("\n");
-      expect(lines).toHaveLength(2);
-      expect(lines[0]).toContain("/src/a.ts");
-      expect(lines[1]).toContain("/src/b.ts");
-      expect(lines[0]).toContain("1:1");
-      expect(lines[1]).toContain("10:6");
+      if (process.platform === "win32") {
+        const locations = [
+          makeLocation("file:///C:/src/a.ts", 0, 0),
+          makeLocation("file:///C:/src/b.ts", 9, 5),
+        ];
+        const result = formatLocations(locations);
+        const lines = result.split("\n");
+        expect(lines).toHaveLength(2);
+        expect(lines[0]).toContain("src\\a.ts");
+        expect(lines[1]).toContain("src\\b.ts");
+        expect(lines[0]).toContain("1:1");
+        expect(lines[1]).toContain("10:6");
+      } else {
+        const locations = [
+          makeLocation("file:///src/a.ts", 0, 0),
+          makeLocation("file:///src/b.ts", 9, 5),
+        ];
+        const result = formatLocations(locations);
+        const lines = result.split("\n");
+        expect(lines).toHaveLength(2);
+        expect(lines[0]).toContain("/src/a.ts");
+        expect(lines[1]).toContain("/src/b.ts");
+        expect(lines[0]).toContain("1:1");
+        expect(lines[1]).toContain("10:6");
+      }
     });
   });
 });

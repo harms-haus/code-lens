@@ -19,6 +19,10 @@ vi.mock("node:fs", () => ({
   readFileSync: (...args: unknown[]) => mockReadFileSync(...args),
   realpathSync: (...args: unknown[]) => mockRealpathSync(...args),
 }));
+vi.mock("../../src/utils/paths.js", () => ({
+  uriToFilePath: (uri: string) => decodeURIComponent(uri.replace(/^file:\/\//, "")),
+  isWithinWorkspace: () => true,
+}));
 
 await import("../../src/commands/rename-symbol.js");
 

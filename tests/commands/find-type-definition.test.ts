@@ -12,6 +12,23 @@ vi.mock("../../src/daemon/server.js", () => ({
 vi.mock("../../src/commands/preamble.js", () => ({
   executePreamble: (...args: unknown[]) => mockExecutePreamble(...args),
 }));
+vi.mock("../../src/utils/paths.js", () => ({
+  uriToFilePath: (uri: string) => decodeURIComponent(uri.replace(/^file:\/\//, "")),
+  flattenLocations: (result: unknown) => {
+    if (Array.isArray(result)) return result;
+    if (result && typeof result === "object" && "uri" in (result as object)) return [result];
+    return [];
+  },
+  formatLocations: (locations: { uri: string; range: { start: { line: number; character: number } } }[]) =>
+    locations.length > 0
+      ? locations
+          .map(
+            (l) =>
+              `  ${decodeURIComponent(l.uri.replace(/^file:\/\//, ""))}:${l.range.start.line + 1}:${l.range.start.character + 1}`,
+          )
+          .join("\n")
+      : "(none)",
+}));
 
 await import("../../src/commands/find-type-definition.js");
 

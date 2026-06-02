@@ -359,7 +359,8 @@ describe("applyEditsAndDiff", () => {
     const edits = [makeTextEdit(0, 0, 0, 0, "new content\nline2")];
     const diff = applyEditsAndDiff("/nonexistent/file.txt", edits);
 
-    expect(diff).toContain("--- /dev/null");
+    const nullDevice = process.platform === "win32" ? "--- NUL" : "--- /dev/null";
+    expect(diff).toContain(nullDevice);
     expect(diff).toContain("+new content");
     expect(diff).toContain("+line2");
   });
