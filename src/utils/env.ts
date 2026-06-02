@@ -6,9 +6,7 @@
  * Build a sanitized environment with only essential variables.
  * Prevents leaking sensitive or unnecessary env vars to child processes.
  */
-export function getSanitizedEnv(): Record<string, string | undefined> {
-  const env = process.env;
-  const allowedKeys = [
+const allowedKeys = [
     "PATH",
     "HOME",
     "LANG",
@@ -20,7 +18,27 @@ export function getSanitizedEnv(): Record<string, string | undefined> {
     "PYTHONPATH",
     "CARGO_HOME",
     "RUSTUP_HOME",
-  ];
+    // Windows-specific
+    "USERPROFILE",
+    "TEMP",
+    "TMP",
+    "APPDATA",
+    "LOCALAPPDATA",
+    "SystemRoot",
+    "ComSpec",
+    "PATHEXT",
+    "WINDIR",
+    "PROGRAMFILES",
+    "PROGRAMFILES(X86)",
+    "PROGRAMDATA",
+];
+
+/**
+ * Build a sanitized environment with only essential variables.
+ * Prevents leaking sensitive or unnecessary env vars to child processes.
+ */
+export function getSanitizedEnv(): Record<string, string | undefined> {
+  const env = process.env;
   const sanitized: Record<string, string | undefined> = {};
   for (const key of allowedKeys) {
     if (env[key] !== undefined) {

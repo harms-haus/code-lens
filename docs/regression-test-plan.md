@@ -20,7 +20,7 @@ Build end-to-end regression tests for the `code-lens` CLI tool that exercise the
 - Changes to existing unit tests under `tests/`
 - Library API tests (`lib.ts`, `lib-client.ts`, `lib-lsp.ts`)
 - Performance/benchmark tests
-- Cross-platform testing (Linux-only in CI)
+- Cross-platform regression testing (regression tests run on Linux-only in CI due to LSP server installation requirements; unit tests run on Linux, macOS, and Windows)
 
 ### Files Modified (existing)
 | File | Change |

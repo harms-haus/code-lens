@@ -23,7 +23,7 @@ export default defineConfig([
     platform: "node",
     clean: false,
     banner: {
-      js: "try{if(process.argv[1]&&!process.argv[1].includes('://'))process.argv[1]=new URL('file://'+process.argv[1]).href}catch(e){}\n",
+      js: "try{if(process.argv[1]&&!process.argv[1].includes('://')){const u=require('url');process.argv[1]=u.pathToFileURL(process.argv[1]).href}}catch(e){}\n",
     },
     external: ["commander", "@commander-js/extra-typings", "vscode-languageserver-types"],
   },

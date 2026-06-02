@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { CommandResult } from "../../src/formatting/output.js";
 
-const registeredHandlers = new Map<string, Function>();
+const { registeredHandlers, mockExecutePreamble } = vi.hoisted(() => {
+  return { registeredHandlers: new Map<string, Function>(), mockExecutePreamble: vi.fn() };
+});
 vi.mock("../../src/daemon/server.js", () => ({
   registerCommand: (name: string, handler: Function) => {
     registeredHandlers.set(name, handler);
   },
 }));
-
-const mockExecutePreamble = vi.fn();
 vi.mock("../../src/commands/preamble.js", () => ({
   executePreamble: (...args: unknown[]) => mockExecutePreamble(...args),
 }));

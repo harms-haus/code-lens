@@ -3,6 +3,10 @@ import * as net from "node:net";
 import * as readline from "node:readline";
 import { sendRequest, probeSocket } from "../../src/daemon/client.js";
 import type { DaemonRequest } from "../../src/daemon/protocol.js";
+import * as os from "node:os";
+import * as path from "node:path";
+const TEST_SOCK = path.join(os.tmpdir(), "test.sock");
+const NONEXISTENT_SOCK = path.join(os.tmpdir(), "nonexistent.sock");
 
 // The module-level mocks are set up in tests/setup.ts.
 // We grab the mocked functions and override them per-test to control behavior.
@@ -66,7 +70,7 @@ describe("sendRequest", () => {
     mockCreateConnection.mockReturnValue(mockSocket);
     mockCreateInterface.mockReturnValue(mockReadline);
 
-    const promise = sendRequest("/tmp/test.sock", request);
+    const promise = sendRequest(TEST_SOCK, request);
 
     // Capture the connect callback that createConnection received
     const connectCb = mockCreateConnection.mock.calls[0]![1] as () => void;
@@ -106,7 +110,7 @@ describe("sendRequest", () => {
     mockCreateConnection.mockReturnValue(mockSocket);
     mockCreateInterface.mockReturnValue(mockReadline);
 
-    const promise = sendRequest("/tmp/test.sock", request);
+    const promise = sendRequest(TEST_SOCK, request);
 
     const connectCb = mockCreateConnection.mock.calls[0]![1] as () => void;
     connectCb();
@@ -144,7 +148,7 @@ describe("sendRequest", () => {
     mockCreateConnection.mockReturnValue(mockSocket);
     mockCreateInterface.mockReturnValue(mockReadline);
 
-    const promise = sendRequest("/tmp/test.sock", request);
+    const promise = sendRequest(TEST_SOCK, request);
 
     const errorCb = mockSocket.listenerFor("error") as (err: Error) => void;
     errorCb(new Error("Connection refused"));
@@ -166,13 +170,13 @@ describe("sendRequest", () => {
     mockCreateConnection.mockReturnValue(mockSocket);
     mockCreateInterface.mockReturnValue(mockReadline);
 
-    const promise = sendRequest("/tmp/test.sock", request);
+    const promise = sendRequest(TEST_SOCK, request);
 
     // Simulate readline emitting an error (this happens when socket connect fails)
     const errorCb = rlListeners["error"]![0] as (err: Error) => void;
-    errorCb(new Error("connect ENOENT /tmp/nonexistent.sock"));
+    errorCb(new Error(`connect ENOENT ${NONEXISTENT_SOCK}`));
 
-    await expect(promise).rejects.toThrow("Failed to connect to daemon: connect ENOENT /tmp/nonexistent.sock");
+    await expect(promise).rejects.toThrow(`Failed to connect to daemon: connect ENOENT ${NONEXISTENT_SOCK}`);
     expect(mockSocket.destroy).toHaveBeenCalled();
   });
 
@@ -187,7 +191,7 @@ describe("sendRequest", () => {
     mockCreateConnection.mockReturnValue(mockSocket);
     mockCreateInterface.mockReturnValue(mockReadline);
 
-    const promise = sendRequest("/tmp/test.sock", request);
+    const promise = sendRequest(TEST_SOCK, request);
 
     const connectCb = mockCreateConnection.mock.calls[0]![1] as () => void;
     connectCb();
@@ -219,7 +223,7 @@ describe("sendRequest", () => {
     mockCreateConnection.mockReturnValue(mockSocket);
     mockCreateInterface.mockReturnValue(mockReadline);
 
-    const promise = sendRequest("/tmp/test.sock", request);
+    const promise = sendRequest(TEST_SOCK, request);
 
     const connectCb = mockCreateConnection.mock.calls[0]![1] as () => void;
     connectCb();
@@ -243,7 +247,7 @@ describe("probeSocket", () => {
 
     mockCreateConnection.mockReturnValue(mockSocket);
 
-    const promise = probeSocket("/tmp/test.sock");
+    const promise = probeSocket(TEST_SOCK);
 
     const connectCb = mockCreateConnection.mock.calls[0]![1] as () => void;
     connectCb();
@@ -256,7 +260,7 @@ describe("probeSocket", () => {
 
     mockCreateConnection.mockReturnValue(mockSocket);
 
-    const promise = probeSocket("/tmp/nonexistent.sock");
+    const promise = probeSocket(NONEXISTENT_SOCK);
 
     const errorCb = mockSocket.listenerFor("error") as () => void;
     errorCb();
@@ -271,7 +275,7 @@ describe("probeSocket", () => {
 
     mockCreateConnection.mockReturnValue(mockSocket);
 
-    const promise = probeSocket("/tmp/test.sock");
+    const promise = probeSocket(TEST_SOCK);
 
     // Advance past the 2s probe timeout
     await vi.advanceTimersByTimeAsync(2_000);

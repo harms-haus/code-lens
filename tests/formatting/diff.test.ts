@@ -363,4 +363,16 @@ describe("applyEditsAndDiff", () => {
     expect(diff).toContain("+new content");
     expect(diff).toContain("+line2");
   });
+
+  it("uses correct null device depending on platform", () => {
+    const edits = [makeTextEdit(0, 0, 0, 0, "platform content")];
+    const diff = applyEditsAndDiff("/nonexistent/platform_test.txt", edits);
+
+    if (process.platform === "win32") {
+      expect(diff).toContain("--- NUL");
+    } else {
+      expect(diff).toContain("--- /dev/null");
+    }
+    expect(diff).toContain("+platform content");
+  });
 });

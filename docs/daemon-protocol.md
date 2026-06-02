@@ -397,7 +397,7 @@ interface DaemonMetadata {
 }
 ```
 
-### Example
+### Example (Linux/macOS)
 
 ```json
 {
@@ -405,6 +405,17 @@ interface DaemonMetadata {
   "socketPath": "/tmp/code-lens-a1b2c3d4e5f6g7h8.sock",
   "version": "0.1.0",
   "cwd": "/home/user/projects/my-app"
+}
+```
+
+### Example (Windows)
+
+```json
+{
+  "pid": 12840,
+  "socketPath": "\\\\.\\pipe\\code-lens-a1b2c3d4e5f6g7h8",
+  "version": "0.1.0",
+  "cwd": "C:\\Users\\user\\projects\\my-app"
 }
 ```
 

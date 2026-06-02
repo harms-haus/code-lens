@@ -66,7 +66,7 @@ await startDaemon("/path/to/my/project");
 
 #### `stopDaemon(cwd: string): Promise<void>`
 
-Stop the daemon for the given working directory by sending `SIGTERM` to its PID (read from metadata), then clean up socket and metadata files.
+Stop the daemon for the given working directory by sending `SIGTERM` to its PID (read from metadata), then clean up socket and metadata files. On Windows, `SIGTERM` is delivered as a forced process termination via `TerminateProcess` since Windows lacks POSIX signals.
 
 ```ts
 await stopDaemon("/path/to/my/project");
@@ -429,11 +429,11 @@ Describes a supported language and how to start its server.
 | Field                  | Type                          | Description                                      |
 |------------------------|-------------------------------|--------------------------------------------------|
 | `language`             | `string`                      | Language name (e.g. `"typescript"`, `"python"`)  |
-| `command`              | `string`                      | Binary to start the server (e.g. `"pyright"`)    |
+| `command`              | `string`                      | Binary to start the server (e.g. `"pyright"`; spawned via `cross-spawn` for cross-platform resolution) |
 | `args`                 | `string[]`                    | Additional CLI arguments                          |
 | `extensions`           | `string[]`                    | File extensions with dot (e.g. `[".ts", ".tsx"]`) |
 | `initializationOptions`| `Record<string, unknown>` (optional) | Sent during `initialize` handshake        |
-| `detectCommand`        | `string`                      | Shell command to verify installation             |
+| `detectCommand`        | `string`                      | Command to verify installation (run via `cross-spawn` for cross-platform support) |
 | `installInstructions`  | `string`                      | Human-readable install instructions              |
 | `installCommand`       | `string`                      | Package manager command to install the server    |
 

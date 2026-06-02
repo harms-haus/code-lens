@@ -371,7 +371,8 @@ export class RegressionTestContext {
         // are stdio-mode only and don't support --version. Fall back to checking
         // if the binary exists in PATH.
         try {
-          await execa("which", [cmd[0]], { timeout: 5_000, reject: true });
+          const whichCmd = process.platform === "win32" ? "where" : "which";
+          await execa(whichCmd, [cmd[0]], { timeout: 5_000, reject: true });
           this.isServerInstalled = true;
         } catch {
           this.isServerInstalled = false;

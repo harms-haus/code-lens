@@ -2,12 +2,13 @@
  * Daemon lifecycle management — start, stop, probe, and version-check
  */
 
-import { spawn } from "node:child_process";
+import spawn from "cross-spawn";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { DaemonMetadata } from "../utils/socket-path.js";
 import { getSocketPath, getMetadataPath } from "../utils/socket-path.js";
+import { getSanitizedEnv } from "../utils/env.js";
 import { probeSocket } from "./client.js";
 
 /** Current daemon protocol version */
@@ -75,7 +76,7 @@ export async function startDaemon(cwd: string): Promise<void> {
     stdio: "ignore",
     windowsHide: true,
     env: {
-      ...process.env,
+      ...getSanitizedEnv(),
       CODE_LENS_SOCKET_PATH: socketPath,
       CODE_LENS_CWD: cwd,
     },

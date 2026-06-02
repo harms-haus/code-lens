@@ -117,3 +117,18 @@ describe("getSanitizedEnv", () => {
     expect(result).not.toHaveProperty("PYTHONPATH");
   });
 });
+
+describe("Windows environment variables", () => {
+  it("includes Windows-essential keys when present", () => {
+    vi.stubEnv("SystemRoot", "C:\\Windows");
+    vi.stubEnv("ComSpec", "C:\\Windows\\System32\\cmd.exe");
+    vi.stubEnv("USERPROFILE", "C:\\Users\\test");
+    vi.stubEnv("TEMP", "C:\\Users\\test\\AppData\\Local\\Temp");
+    const result = getSanitizedEnv();
+    expect(result.SystemRoot).toBe("C:\\Windows");
+    expect(result.ComSpec).toBe("C:\\Windows\\System32\\cmd.exe");
+    expect(result.USERPROFILE).toBe("C:\\Users\\test");
+    expect(result.TEMP).toBe("C:\\Users\\test\\AppData\\Local\\Temp");
+    vi.unstubAllEnvs();
+  });
+});

@@ -179,7 +179,7 @@ export function applyEditsAndDiff(changePath: string, sorted: TextEdit[]): strin
     const newText = sorted.map((e) => e.newText).join("");
     const lineCount = newText ? newText.split("\n").length : 0;
     return (
-      `--- /dev/null\n+++ ${changePath}\n@@ -0,0 +1,${lineCount} @@\n` +
+      `--- ${process.platform === "win32" ? "NUL" : "/dev/null"}\n+++ ${changePath}\n@@ -0,0 +1,${lineCount} @@\n` +
       newText
         .split("\n")
         .map((l) => "+" + l)

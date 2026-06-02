@@ -75,7 +75,7 @@ Manages the daemon's lifecycle from the CLI side:
 | `readMetadata(cwd)` | Reads `~/.code-lens/<hash>.json` for daemon metadata (PID, socket path, version). |
 | `startDaemon(cwd)` | Spawns `server.js` as a detached child process with `CODE_LENS_CWD` and `CODE_LENS_SOCKET_PATH` env vars. Polls the socket until ready (up to 10s). Writes metadata file. |
 | `ensureDaemon(cwd)` | Idempotent start. If a daemon is running with a matching version, no-ops. If the version mismatches, restarts. Otherwise, starts fresh. |
-| `stopDaemon(cwd)` | Sends `SIGTERM` to the daemon process, waits 100ms, and cleans up socket/metadata files. |
+| `stopDaemon(cwd)` | Sends `SIGTERM` to the daemon process, waits 100ms, and cleans up socket/metadata files. On Windows, `SIGTERM` is delivered as a forced process termination since Windows lacks POSIX signals. |
 
 ### Commands — `src/commands/`
 
@@ -253,7 +253,7 @@ Returns `DetectedBashFiles { written: string[], read: string[] }` with absolute 
 | `socket-path.ts` | `getSocketPath(cwd)` — SHA-256 hash of cwd → socket path in `$TMPDIR/code-lens-<hash>.sock` (or `\\.\pipe\code-lens-<hash>` on Windows). `getMetadataPath(cwd)` — `~/.code-lens/<hash>.json`. |
 | `paths.ts` | File path resolution, URI conversion (`filePathToUri`, `uriToFilePath`), location formatting. |
 | `env.ts` | `getSanitizedEnv()` — strips problematic env vars before spawning LSP servers. |
-| `spawn.ts` | `execCommand(command, args, options)` — Promise-based process spawning built on `child_process.spawn`. Returns `{ stdout, stderr, exitCode }`. Handles timeouts, `AbortSignal` cancellation, max-buffer overflow (stdout capped at `maxBuffer`, stderr kept to last 512KB when over 1MB), and process errors — never rejects, always resolves with an `ExecResult`. Used by linter and formatter runners. |
+| `spawn.ts` | `execCommand(command, args, options)` — Promise-based process spawning built on `cross-spawn` (which provides cross-platform compatibility, handling Windows `.cmd`/`.bat` extension resolution and `PATHEXT` lookups). Returns `{ stdout, stderr, exitCode }`. Handles timeouts, `AbortSignal` cancellation, max-buffer overflow (stdout capped at `maxBuffer`, stderr kept to last 512KB when over 1MB), and process errors — never rejects, always resolves with an `ExecResult`. Used by linter and formatter runners. |
 
 ---
 

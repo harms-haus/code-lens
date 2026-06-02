@@ -72,7 +72,7 @@ A unique identifier string for the language. This is used internally to key serv
 
 ### `command` (required)
 
-The executable name (or path) used to start the LSP server process. This is the first argument to `child_process.spawn()`.
+The executable name (or path) used to start the LSP server process. This is the command passed to `cross-spawn`, which handles cross-platform binary resolution (including `.cmd`/`.bat` extension lookups on Windows).
 
 - For npm-installed servers: the bin name (e.g. `"typescript-language-server"`).
 - For servers invoked through a runtime: the runtime itself (e.g. `"java"` for Eclipse JDT LS, `"dart"` for the Dart analysis server).
@@ -132,7 +132,7 @@ detectCommand: "gopls version"
 detectCommand: "pylsp --version"
 ```
 
-The implementation splits this string by whitespace and runs it via `execFile()` with a 10-second timeout.
+The implementation splits this string by whitespace and runs it via `cross-spawn` with a 10-second timeout. On Windows, `cross-spawn` automatically resolves `.cmd`/`.bat` extensions, so npm-installed binaries (e.g. `typescript-language-server.cmd`) are found without explicit extension handling.
 
 ### `installCommand` (required)
 

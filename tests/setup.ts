@@ -8,6 +8,10 @@ vi.mock("node:child_process", () => ({
   execFileSync: vi.fn(),
 }));
 
+vi.mock("cross-spawn", () => ({
+  default: vi.fn(),
+}));
+
 vi.mock("node:net", () => ({
   createServer: vi.fn(),
   createConnection: vi.fn(() => ({

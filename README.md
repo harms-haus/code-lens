@@ -181,6 +181,7 @@ Key exports: `LspManager`, `LspClient`, `DEFAULT_IDLE_TIMEOUT_MS`, `languageFrom
 ## Requirements
 
 - **Node.js** >= 20.0.0
+- **Platforms**: Linux, macOS, Windows
 - **LSP servers** must be installed separately — the CLI will display an install command if the required server is missing
 
 ## License

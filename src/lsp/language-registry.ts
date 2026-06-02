@@ -3,6 +3,8 @@
  */
 
 import type { LspServerConfig } from "./types.js";
+import * as os from "node:os";
+import * as path from "node:path";
 
 export const LANGUAGE_SERVERS: LspServerConfig[] = [
   // ── TypeScript / JavaScript ──────────────────────────────────────────────
@@ -63,9 +65,9 @@ export const LANGUAGE_SERVERS: LspServerConfig[] = [
       "-jar",
       "/opt/jdt-language-server/plugins/org.eclipse.equinox.launcher_*.jar",
       "-configuration",
-      "/opt/jdt-language-server/config_linux",
+      `/opt/jdt-language-server/config_${process.platform === "win32" ? "win" : process.platform === "darwin" ? "mac" : "linux"}`,
       "-data",
-      "/tmp/jdt-workspace",
+      path.join(os.tmpdir(), "jdt-workspace"),
     ],
     extensions: [".java"],
     detectCommand: "java -version",

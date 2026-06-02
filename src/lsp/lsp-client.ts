@@ -6,7 +6,8 @@
  * request/response routing). High-level LSP method wrappers live in lsp-client-methods.ts.
  */
 
-import * as child_process from "node:child_process";
+import spawn from "cross-spawn";
+import type { ChildProcess } from "node:child_process";
 import type { LspServerConfig, LspServerInstance } from "./types.js";
 import type { JsonRpcRequest, JsonRpcNotification } from "./lsp-protocol.js";
 import { getSanitizedEnv } from "../utils/env.js";
@@ -22,7 +23,7 @@ const MAX_MESSAGE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export class LspClient {
   protected server: LspServerInstance;
-  protected process: child_process.ChildProcess | null = null;
+  protected process: ChildProcess | null = null;
   private buffer = "";
   private contentLength = -1;
   private onNotification?: (method: string, params: unknown) => void;
@@ -42,7 +43,7 @@ export class LspClient {
   startProcess(config: LspServerConfig): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        this.process = child_process.spawn(config.command, config.args, {
+        this.process = spawn(config.command, config.args, {
           stdio: ["pipe", "pipe", "pipe"],
           env: getSanitizedEnv(),
         });

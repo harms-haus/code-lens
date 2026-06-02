@@ -8,9 +8,11 @@ import {
   stopDaemon,
 } from "../../src/daemon/lifecycle.js";
 import { getMetadataPath, getSocketPath } from "../../src/utils/socket-path.js";
+import { getSanitizedEnv } from "../../src/utils/env.js";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { spawn } from "node:child_process";
+import * as os from "node:os";
+import spawn from "cross-spawn";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
@@ -37,7 +39,7 @@ import { probeSocket } from "../../src/daemon/client.js";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-const TEST_CWD = "/tmp/test-project";
+const TEST_CWD = path.join(os.tmpdir(), "test-project");
 const mockSocketPath = getSocketPath(TEST_CWD);
 const mockMetadataPath = getMetadataPath(TEST_CWD);
 
@@ -147,7 +149,7 @@ describe("daemon/lifecycle", () => {
         stdio: "ignore",
         windowsHide: true,
         env: {
-          ...process.env,
+          ...getSanitizedEnv(),
           CODE_LENS_SOCKET_PATH: mockSocketPath,
           CODE_LENS_CWD: TEST_CWD,
         },

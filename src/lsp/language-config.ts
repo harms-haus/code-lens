@@ -7,6 +7,7 @@
 
 import type { LspServerConfig } from "./types.js";
 import { getConfigForExtension } from "./language-registry.js";
+import spawn from "cross-spawn";
 
 // Re-export the registry so existing imports from language-config.js keep working
 export { LANGUAGE_SERVERS } from "./language-registry.js";
@@ -26,27 +27,28 @@ export function languageFromPath(filePath: string): LspServerConfig | undefined 
   return undefined;
 }
 
+const installedCache = new Map<string, boolean>();
+
 /** Check if a language server is installed */
 export async function isServerInstalled(config: LspServerConfig): Promise<boolean> {
-  try {
-    const { execFile } = await import("node:child_process");
-    return await new Promise<boolean>((resolve) => {
-      const parts = config.detectCommand.split(/\s+/);
-      execFile(parts[0], parts.slice(1), { timeout: 10000 }, (error) => {
-        if (!error) {
-          resolve(true);
-          return;
-        }
-        // If the binary was not found (ENOENT), the server is not installed.
-        // Some LSP servers (css-languageserver, json-languageserver, intelephense)
-        // are stdio-mode only and don't support --version. They exit non-zero with
-        // an error like "Connection input stream is not set" but ARE installed.
-        // We distinguish by checking the error code: ENOENT = not in PATH = not installed.
-        const execError = error as NodeJS.ErrnoException;
-        resolve(execError.code !== "ENOENT");
-      });
+  const cached = installedCache.get(config.language);
+  if (cached !== undefined) return cached;
+
+  const cmd = config.detectCommand;
+  if (!cmd) return false;
+  const parts = cmd.split(/\s+/);
+  return new Promise((resolve) => {
+    const child = spawn(parts[0], parts.slice(1), { timeout: 10000 });
+    child.on("error", (err: NodeJS.ErrnoException) => {
+      const result = err.code !== "ENOENT";
+      installedCache.set(config.language, result);
+      resolve(result);
     });
-  } catch {
-    return false;
-  }
+    child.on("close", () => {
+      // Binary exited (any code) = it exists on PATH. ENOENT is handled in error handler.
+      const result = true;
+      installedCache.set(config.language, result);
+      resolve(result);
+    });
+  });
 }

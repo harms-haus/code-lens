@@ -21,6 +21,17 @@ const REQUIRED_ENV_KEYS = [
   "TMPDIR",
   "npm_config_prefix",
   "NVM_DIR",
+  // Windows-essential environment variables
+  "USERPROFILE",
+  "TEMP",
+  "TMP",
+  "APPDATA",
+  "LOCALAPPDATA",
+  "SystemRoot",
+  "ComSpec",
+  "PATHEXT",
+  "WINDIR",
+  "PROGRAMFILES",
 ];
 
 /**

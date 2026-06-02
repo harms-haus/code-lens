@@ -64,8 +64,23 @@ describe("paths", () => {
       );
     });
 
-    it("handles URI without file:// (returns as-is minus prefix)", () => {
-      expect(uriToFilePath("/just/a/path")).toBe("/just/a/path");
+    it("throws for URI without file:// prefix", () => {
+      expect(() => uriToFilePath("/just/a/path")).toThrow();
+    });
+
+    it("handles Windows file URIs with drive letters", () => {
+      const result = uriToFilePath("file:///C:/Users/test/file.ts");
+      // Should NOT start with /C: (leading slash before drive letter is wrong)
+      expect(result).not.toMatch(/^\/+C:/);
+    });
+
+    it("roundtrips with filePathToUri for Windows-style paths", () => {
+      if (process.platform !== "win32") return;
+      const winPath = "C:\\Users\\test\\file.ts";
+      const uri = filePathToUri(winPath);
+      expect(uri).toMatch(/^file:\/\//);
+      const back = uriToFilePath(uri);
+      expect(back).toBe(winPath);
     });
   });
 

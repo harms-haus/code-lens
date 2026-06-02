@@ -22,12 +22,16 @@ export function normalizeOutput(output: string, options: NormalizeOptions): stri
     output
       // 1. Replace absolute fixture dir with <ROOT>
       .replace(new RegExp(escapedDir, "g"), "<ROOT>")
+      // 1.5. Normalize backslashes to forward slashes (Windows)
+      .replace(/\\/g, "/")
       // 2. Replace file:// URIs containing the fixture dir (after step 1 these are file://<ROOT>)
       //    No additional step needed — step 1 already handles the path inside URIs.
       // 3. Replace home directory paths (various platforms)
       .replace(/\/home\/[^/\s)"']+/g, "~")
       .replace(/\/Users\/[^/\s)"']+/g, "~")
       .replace(/\/root\b/g, "~")
+      // 3.5. Normalize Windows home directory patterns (now using forward slashes)
+      .replace(/[A-Za-z]:\/Users\/[^\/\s)"']+/g, "~")
       // 4. Replace PIDs — handles both `(pid: 12345)` and bare `pid: 12345`
       .replace(/\(pid: \d+\)/g, "(pid: <PID>)")
       .replace(/\bpid: \d+/g, "pid: <PID>")
@@ -37,6 +41,8 @@ export function normalizeOutput(output: string, options: NormalizeOptions): stri
       // 6. Normalize other temp directory patterns
       .replace(/\/tmp\/code-lens-reg-[^/\s)"']+/g, "<TMPDIR>")
       .replace(/\/var\/folders\/[^/\s)"']+/g, "<TMPDIR>")
+      // 6.5. Normalize Windows temp directory patterns (e.g., C:\\Users\\...\\AppData\\Local\\Temp)
+      .replace(/[A-Za-z]:\/Users\/[^\/\s)"']+\/AppData\/Local\/Temp[^\s)"']*/g, "<TMPDIR>")
       // 7. Normalize timing values (e.g., "123ms", "45.6s")
       .replace(/\b\d+ms\b/g, "<TIME>")
       .replace(/\b\d+\.\d+s\b/g, "<TIME>")
@@ -50,11 +56,13 @@ export function normalizeOutput(output: string, options: NormalizeOptions): stri
       // 10. Normalize all node_modules paths (npm-global, CI toolcache, etc.)
       .replace(/~\/\.npm-global\/lib\/node_modules/g, "<NODE_MODULES>")
       .replace(/\/opt\/hostedtoolcache\/node\/[^/]+\/x64\/lib\/node_modules/g, "<NODE_MODULES>")
+      // 10.5. Normalize Windows global node_modules pattern (Roaming\npm\node_modules)
+      .replace(/[A-Za-z]:\/Users\/[^\/\s)"']+\/AppData\/Roaming\/npm\/node_modules/g, "<NODE_MODULES>")
       // 11. Normalize Node.js internal line numbers (differ between versions)
       .replace(/(node:events):\d+:\d+/g, "$1:<LINE>:<COL>")
       .replace(/(node:internal\/child_process):\d+:\d+/g, "$1:<LINE>:<COL>")
       .replace(/(node:internal\/process\/task_queues):\d+:\d+/g, "$1:<LINE>:<COL>")
-      // 9. Trim trailing whitespace on each line, then leading/trailing blank lines
+      // 12. Trim trailing whitespace on each line, then leading/trailing blank lines
       .split("\n")
       .map((line) => line.trimEnd())
       .join("\n")

@@ -4,8 +4,22 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { pathToFileURL } from "node:url";
+import { pathToFileURL, fileURLToPath } from "node:url";
 import type { Location } from "vscode-languageserver-types";
+
+// ── Cached Realpath ─────────────────────────────────────────────────────────
+
+const realpathCache = new Map<string, string>();
+
+/** Resolve a path to its real (canonical) path, caching results.
+ *  Throws if the path does not exist (callers already have try/catch). */
+function cachedRealpath(p: string): string {
+  const cached = realpathCache.get(p);
+  if (cached !== undefined) return cached;
+  const real = fs.realpathSync(p);
+  realpathCache.set(p, real);
+  return real;
+}
 
 // ── Path Helpers ───────────────────────────────────────────────────────────
 
@@ -16,22 +30,25 @@ export function resolveFile(file: string, cwd: string): string {
   const normalized = path.normalize(resolved);
   // Validate the resolved path is within the workspace
   try {
-    const realCwd = fs.realpathSync(cwd);
+    const realCwd = cachedRealpath(cwd);
     // For paths that don't exist yet, use normalized path; for existing paths, use realpath
     let realPath: string;
     try {
-      realPath = fs.realpathSync(normalized);
+      realPath = cachedRealpath(normalized);
     } catch {
       // File doesn't exist — resolve the parent directory instead
       const parent = path.dirname(normalized);
       try {
-        const realParent = fs.realpathSync(parent);
+        const realParent = cachedRealpath(parent);
         realPath = path.join(realParent, path.basename(normalized));
       } catch {
         throw new Error(`Path traversal: "${file}" resolves outside the workspace.`);
       }
     }
-    if (!realPath.startsWith(realCwd + path.sep) && realPath !== realCwd) {
+    const isWithin = process.platform === "win32"
+      ? realPath.toLowerCase().startsWith(realCwd.toLowerCase() + path.sep) || realPath.toLowerCase() === realCwd.toLowerCase()
+      : realPath.startsWith(realCwd + path.sep) || realPath === realCwd;
+    if (!isWithin) {
       throw new Error(`Path traversal: "${file}" resolves outside the workspace.`);
     }
   } catch (err) {
@@ -43,7 +60,10 @@ export function resolveFile(file: string, cwd: string): string {
 
 /** Convert a file:// URI to a local file path */
 export function uriToFilePath(uri: string): string {
-  return decodeURIComponent(uri.replace(/^file:\/\//, ""));
+  const filePath = fileURLToPath(uri);
+  // On non-Windows platforms, fileURLToPath may leave a leading slash before
+  // a Windows-style drive letter (e.g. "/C:/..."). Strip it for correctness.
+  return filePath.replace(/^\/+([A-Za-z]:)/, "$1");
 }
 
 /** Convert a local file path to a file:// URI */
@@ -57,21 +77,24 @@ export function filePathToUri(filePath: string): string {
 export function isWithinWorkspace(filePath: string, workspaceRoot: string): boolean {
   const normalizedFile = path.normalize(filePath);
   try {
-    const realRoot = fs.realpathSync(workspaceRoot);
+    const realRoot = cachedRealpath(workspaceRoot);
     let realFile: string;
     try {
-      realFile = fs.realpathSync(normalizedFile);
+      realFile = cachedRealpath(normalizedFile);
     } catch {
       // File doesn't exist — resolve the parent directory instead
       const parent = path.dirname(normalizedFile);
       try {
-        const realParent = fs.realpathSync(parent);
+        const realParent = cachedRealpath(parent);
         realFile = path.join(realParent, path.basename(normalizedFile));
       } catch {
         return false;
       }
     }
-    return realFile.startsWith(realRoot + path.sep) || realFile === realRoot;
+    const isWithin = process.platform === "win32"
+      ? realFile.toLowerCase().startsWith(realRoot.toLowerCase() + path.sep) || realFile.toLowerCase() === realRoot.toLowerCase()
+      : realFile.startsWith(realRoot + path.sep) || realFile === realRoot;
+    return isWithin;
   } catch {
     return false; // Don't trust unresolved paths
   }

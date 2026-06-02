@@ -66,6 +66,13 @@ describe("sanitizeError()", () => {
     const result = sanitizeError(new Error("bad"), "MyContext");
     expect(result).toMatch(/^MyContext:/);
   });
+
+  it("strips Windows user paths from error messages", () => {
+    const error = new Error("ENOENT: no such file 'C:\\Users\\john\\project\\file.ts'");
+    const result = sanitizeError(error, "read");
+    expect(result).not.toContain("john");
+    expect(result).toContain("~");
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

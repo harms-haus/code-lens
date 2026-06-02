@@ -6,7 +6,9 @@ import {
 } from "../../src/lsp/language-config.js";
 import { getConfigForExtension } from "../../src/lsp/language-registry.js";
 import type { LspServerConfig } from "../../src/lsp/types.js";
-import { execFile } from "node:child_process";
+import spawn from "cross-spawn";
+
+vi.mock("cross-spawn", () => ({ default: vi.fn() }));
 
 describe("language-config", () => {
   describe("languageFromPath", () => {
@@ -154,8 +156,26 @@ describe("language-config", () => {
   });
 
   describe("isServerInstalled", () => {
-    const mockConfig: LspServerConfig = {
-      language: "test",
+    const mockConfigSuccess: LspServerConfig = {
+      language: "test-success",
+      command: "test-server",
+      args: [],
+      extensions: [".test"],
+      detectCommand: "test-server --version",
+      installCommand: "",
+      installInstructions: "",
+    };
+    const mockConfigEnoent: LspServerConfig = {
+      language: "test-enoent",
+      command: "test-server",
+      args: [],
+      extensions: [".test"],
+      detectCommand: "test-server --version",
+      installCommand: "",
+      installInstructions: "",
+    };
+    const mockConfigNonEnoent: LspServerConfig = {
+      language: "test-non-enoent",
       command: "test-server",
       args: [],
       extensions: [".test"],
@@ -164,40 +184,49 @@ describe("language-config", () => {
       installInstructions: "",
     };
 
-    it("returns true when execFile succeeds (no error)", async () => {
-      vi.mocked(execFile).mockImplementation(
-        (_cmd: string, _args: string[], _opts: any, cb: any) => {
-          cb(null, { stdout: "1.0.0", stderr: "" });
-        },
-      );
+    it("returns true when spawn succeeds (close with code 0)", async () => {
+      vi.mocked(spawn).mockReturnValueOnce({
+        on: vi.fn((event: string, handler: (...args: any[]) => void) => {
+          if (event === "close") {
+            process.nextTick(() => handler(0));
+          }
+          return undefined as any;
+        }),
+      } as any);
 
-      const result = await isServerInstalled(mockConfig);
+      const result = await isServerInstalled(mockConfigSuccess);
       expect(result).toBe(true);
     });
 
-    it("returns false when execFile returns an ENOENT error (binary not found)", async () => {
+    it("returns false when spawn emits an ENOENT error (binary not found)", async () => {
       const notFoundError = new Error("not found") as NodeJS.ErrnoException;
       notFoundError.code = "ENOENT";
-      vi.mocked(execFile).mockImplementation(
-        (_cmd: string, _args: string[], _opts: any, cb: any) => {
-          cb(notFoundError, null);
-        },
-      );
+      vi.mocked(spawn).mockReturnValueOnce({
+        on: vi.fn((event: string, handler: (...args: any[]) => void) => {
+          if (event === "error") {
+            process.nextTick(() => handler(notFoundError));
+          }
+          return undefined as any;
+        }),
+      } as any);
 
-      const result = await isServerInstalled(mockConfig);
+      const result = await isServerInstalled(mockConfigEnoent);
       expect(result).toBe(false);
     });
 
-    it("returns true when execFile returns a non-ENOENT error (binary exists but --version fails)", async () => {
+    it("returns true when spawn emits a non-ENOENT error (binary exists but --version fails)", async () => {
       const versionError = new Error("Connection input stream is not set") as NodeJS.ErrnoException;
       versionError.code = "ERR_CHILD_PROCESS_STDIO_MAXBUFFER";
-      vi.mocked(execFile).mockImplementation(
-        (_cmd: string, _args: string[], _opts: any, cb: any) => {
-          cb(versionError, null);
-        },
-      );
+      vi.mocked(spawn).mockReturnValueOnce({
+        on: vi.fn((event: string, handler: (...args: any[]) => void) => {
+          if (event === "error") {
+            process.nextTick(() => handler(versionError));
+          }
+          return undefined as any;
+        }),
+      } as any);
 
-      const result = await isServerInstalled(mockConfig);
+      const result = await isServerInstalled(mockConfigNonEnoent);
       expect(result).toBe(true);
     });
   });

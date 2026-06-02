@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import spawn from "cross-spawn";
 import { getSanitizedEnv } from "./env.js";
 
 export interface ExecResult {
@@ -27,7 +27,7 @@ export function execCommand(
     let stdoutLen = 0;
     let stderrLen = 0;
 
-    proc.stdout.on("data", (data: Buffer) => {
+    proc.stdout!.on("data", (data: Buffer) => {
       stdoutChunks.push(data);
       stdoutLen += data.length;
       if (stdoutLen > maxBuffer) {
@@ -43,7 +43,7 @@ export function execCommand(
       }
     });
 
-    proc.stderr.on("data", (data: Buffer) => {
+    proc.stderr!.on("data", (data: Buffer) => {
       stderrChunks.push(data);
       stderrLen += data.length;
       // Cap stderr at 1MB, keeping the last 512KB
