@@ -27,7 +27,12 @@ export function execCommand(
     let stdoutLen = 0;
     let stderrLen = 0;
 
-    proc.stdout!.on("data", (data: Buffer) => {
+    if (!proc.stdout || !proc.stderr) {
+      settled = true;
+      resolve({ stdout: "", stderr: "spawn failed: no stdio streams", exitCode: -1 });
+      return;
+    }
+    proc.stdout.on("data", (data: Buffer) => {
       stdoutChunks.push(data);
       stdoutLen += data.length;
       if (stdoutLen > maxBuffer) {
@@ -43,7 +48,7 @@ export function execCommand(
       }
     });
 
-    proc.stderr!.on("data", (data: Buffer) => {
+    proc.stderr.on("data", (data: Buffer) => {
       stderrChunks.push(data);
       stderrLen += data.length;
       // Cap stderr at 1MB, keeping the last 512KB

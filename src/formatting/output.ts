@@ -44,6 +44,6 @@ export function sanitizeError(err: unknown, context: string): string {
     .replace(/\/Users\/[^/\s]+/g, "~")
     .replace(/\/root\//g, "/")
     .replace(/[A-Za-z]:\\Users\\[^\\]+/gi, "~")
-    .replace(/[A-Za-z]:\/Users\/[^\/\s)"'\]]+/gi, "~");
+    .replace(/[A-Za-z]:\/Users\/[^/\s)"'\]]+/gi, "~");
   return `${context}: ${sanitized}`;
 }
