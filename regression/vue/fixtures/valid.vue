@@ -21,10 +21,12 @@ greet("World");
 
 <template>
   <div class="container">
-    <h1>{{ greet('World') }}</h1>
+    <h1>{{ greet("World") }}</h1>
   </div>
 </template>
 
 <style scoped>
-.container { padding: 1rem; }
+.container {
+  padding: 1rem;
+}
 </style>
