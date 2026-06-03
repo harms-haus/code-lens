@@ -305,7 +305,9 @@ describe("formatFormatterResults", () => {
       { source: "prettier", file: "/project/src/foo.ts", changed: true },
     ];
     const output = formatFormatterResults(results, "/project");
-    expect(output).toContain("src/foo.ts — needs formatting");
+    // Use forward-slash normalization for cross-platform compatibility (Windows uses backslashes)
+    const normalized = output.replace(/\\/g, "/");
+    expect(normalized).toContain("src/foo.ts — needs formatting");
   });
 });
 
