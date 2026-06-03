@@ -67,9 +67,9 @@ export async function runFormatterDiagnose(
       // Some files need formatting — parse stdout
       const diagnosed = formatter.definition.parseOutput(result.stdout, cwd);
       // Build a set of files that need formatting for quick lookup
-      const needsFormatting = new Set(diagnosed.filter((r) => r.changed).map((r) => path.resolve(r.file)));
+      const needsFormatting = new Set(diagnosed.filter((r) => r.changed).map((r) => path.resolve(cwd, r.file)));
       return supportedFiles.map((file) => {
-        const resolved = path.resolve(file);
+        const resolved = path.resolve(cwd, file);
         if (needsFormatting.has(resolved) || needsFormatting.has(file)) {
           return { source: formatter.definition.name, file, changed: true };
         }

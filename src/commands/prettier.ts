@@ -62,14 +62,14 @@ registerCommand("prettier", async (params, _manager, cwd) => {
 
     if (needFormatting.length > 0) {
       const fileNames = needFormatting.map((r) => path.relative(cwd, r.file) || r.file);
-      return ok(
+      return err(
         `prettier: ${needFormatting.length} file(s) need formatting\n  ${fileNames.join("\n  ")}`,
         { results: allResults, available: true, needsFormatting: needFormatting.length },
       );
     }
 
     if (errored.length > 0) {
-      return ok(
+      return err(
         `prettier: ${errored.length} file(s) had errors`,
         { results: allResults, available: true, errorCount: errored.length },
       );

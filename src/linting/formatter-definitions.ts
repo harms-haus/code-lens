@@ -57,7 +57,7 @@ export const FORMATTER_DEFINITIONS: FormatterDefinition[] = [
     packageKeys: ["prettier"],
     projectMarkers: ["package.json"],
     versionCommand: "npx prettier --version",
-    diagnoseCommand: (files) => ["npx", "prettier", "--check", ...files],
+    diagnoseCommand: (files) => ["npx", "prettier", "--list-different", ...files],
     fixCommand: (files) => ["npx", "prettier", "--write", ...files],
     parseOutput: parsePrettierOutput,
     timeout: 30_000,

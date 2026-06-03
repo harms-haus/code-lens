@@ -4,12 +4,13 @@
 
 import { registerCommand } from "../daemon/server.js";
 import type { LspManager } from "../lsp/lsp-manager.js";
-import { uriToFilePath } from "../utils/paths.js";
+import { uriToFilePath, resolveFile } from "../utils/paths.js";
 import { formatDiagnosticLine, countSeverities } from "../formatting/diagnostics.js";
 import { ok, err, sanitizeError } from "../formatting/output.js";
 import { executePreamble } from "./preamble.js";
 import { detectFormatters, getFormattersForFile } from "../linting/formatter-registry.js";
 import { runFormattersDiagnose, formatFormatterResults, summarizeFormatterResults } from "../linting/formatter-runner.js";
+import type { FormatterResult } from "../linting/types.js";
 
 // ── Workspace Mode ─────────────────────────────────────────────────────────
 
@@ -110,11 +111,12 @@ async function handleSingleFileDiagnostics(
     (lines.length > 0 ? lines.join("\n") : "No issues found.");
 
   // Run formatter diagnose unless explicitly disabled
+  let formatterResults: FormatterResult[] = [];
   if (!noFormatters) {
     const formatters = await detectFormatters(cwd);
     const matching = getFormattersForFile(formatters, filePath);
     if (matching.length > 0) {
-      const formatterResults = await runFormattersDiagnose(matching, [filePath], cwd);
+      formatterResults = await runFormattersDiagnose(matching, [filePath], cwd);
       const formatterOutput = formatFormatterResults(formatterResults, cwd);
       if (formatterOutput) {
         summary += `\n\nFormatter: ${summarizeFormatterResults(formatterResults)}\n${formatterOutput}`;
@@ -122,14 +124,19 @@ async function handleSingleFileDiagnostics(
     }
   }
 
-  return ok(summary, {
+  const details = {
     file,
     language: config.language,
     errorCount,
     warningCount,
     infoCount,
     total: diagnostics.length,
-  });
+  };
+
+  if (errorCount > 0 || formatterResults.some(r => r.changed)) {
+    return err(summary, details);
+  }
+  return ok(summary, details);
 }
 
 // ── Multi-File Mode ────────────────────────────────────────────────────────
@@ -177,10 +184,19 @@ async function handleMultiFileDiagnostics(
   let output = sections.join("\n\n---\n\n");
 
   // Run formatter diagnose on all files unless explicitly disabled
+  let formatterResults: FormatterResult[] = [];
   if (!noFormatters) {
     const formatters = await detectFormatters(cwd);
     if (formatters.length > 0) {
-      const formatterResults = await runFormattersDiagnose(formatters, filePaths, cwd);
+      const validatedPaths: string[] = [];
+      for (const file of filePaths) {
+        try {
+          validatedPaths.push(resolveFile(file, cwd));
+        } catch {
+          // skip paths that fail validation (already reported above)
+        }
+      }
+      formatterResults = await runFormattersDiagnose(formatters, validatedPaths, cwd);
       const formatterOutput = formatFormatterResults(formatterResults, cwd);
       if (formatterOutput) {
         output += `\n\nFormatter: ${summarizeFormatterResults(formatterResults)}\n${formatterOutput}`;
@@ -188,12 +204,17 @@ async function handleMultiFileDiagnostics(
     }
   }
 
-  return ok(output, {
+  const details = {
     files: filePaths,
     totalErrors,
     totalWarnings,
     totalInfo,
-  });
+  };
+
+  if (totalErrors > 0 || formatterResults.some(r => r.changed)) {
+    return err(output, details);
+  }
+  return ok(output, details);
 }
 
 // ── Handler ────────────────────────────────────────────────────────────────

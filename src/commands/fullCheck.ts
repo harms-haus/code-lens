@@ -88,7 +88,7 @@ registerCommand("fullCheck", async (params, manager, cwd) => {
       ? sections.join("\n")
       : "All checks passed (no issues found).";
 
-    return ok(text, details);
+    return hasIssues ? err(text, details) : ok(text, details);
   } catch (e) {
     return err(sanitizeError(e, "Failed to run full check"), { files });
   }
